@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="940" viewBox="0 0 1200 940" role="img" aria-labelledby="title desc">
+  <title id="title">Master Hub — architektura wiedzy i działania</title>
+  <desc id="desc">Data lake i transkrypcja zasilają bronze. Hub osobisty rozwija silver i gold. Wersjonowany pakiet trafia do huba firmy, gdzie łączy się z jej kontekstem. Agent operacyjny korzysta z lokalnych procedur oraz bieżących pomiarów. Diagram przedstawia docelowy przepływ; gotowy jest szkielet hubów.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="#607087"/></marker>
+    <style>
+      text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #172c43; }
+      .title { font-size: 30px; font-weight: 700; }
+      .subtitle { font-size: 16px; fill: #50637a; }
+      .label { font-size: 19px; font-weight: 650; }
+      .body { font-size: 15px; }
+      .small { font-size: 14px; fill: #50637a; }
+      .box { fill: white; stroke: #c4d0dd; stroke-width: 1.5; rx: 12; }
+      .edge { fill: none; stroke: #607087; stroke-width: 2; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1200" height="940" fill="#f6f8fb"/>
+  <text x="40" y="49" class="title">Master Hub</text>
+  <text x="40" y="77" class="subtitle">Docelowy przepływ • wspólny wzorzec, niezależne huby i dostępy</text>
+
+  <rect x="40" y="105" width="300" height="82" class="box"/>
+  <text x="60" y="137" class="label">Data lake</text>
+  <text x="60" y="163" class="body">Nagrania, PDF, materiały źródłowe</text>
+  <rect x="420" y="105" width="360" height="82" class="box"/>
+  <text x="440" y="137" class="label">Transkrypcja i ekstrakcja</text>
+  <text x="440" y="163" class="body">Tekst + pochodzenie + wersja</text>
+  <path d="M340 146 H420" class="edge"/>
+
+  <rect x="40" y="230" width="1120" height="230" rx="16" fill="#eaf2fb" stroke="#bed1e8"/>
+  <text x="60" y="263" class="label">Hub osobisty · biblioteka ogólna</text>
+  <text x="762" y="263" class="small">Markdown / OKF · edycja przez agenta</text>
+  <path d="M600 187 V280 H210 V295" class="edge"/>
+
+  <rect x="80" y="295" width="260" height="84" rx="12" fill="#fff3e8" stroke="#c89465"/>
+  <text x="100" y="327" class="label">Bronze</text>
+  <text x="100" y="353" class="body">Niezmienne wejścia tekstowe</text>
+  <rect x="460" y="295" width="260" height="84" class="box"/>
+  <text x="480" y="327" class="label">Silver</text>
+  <text x="480" y="353" class="body">Pojęcia, syntezy, rozbieżności</text>
+  <rect x="840" y="295" width="260" height="84" rx="12" fill="#fff8d9" stroke="#c4ab48"/>
+  <text x="860" y="327" class="label">Gold</text>
+  <text x="860" y="353" class="body">Metody i produkty do użycia</text>
+  <path d="M340 337 H460" class="edge"/>
+  <path d="M720 337 H840" class="edge"/>
+  <rect x="460" y="406" width="260" height="36" rx="9" fill="#dce9f8"/>
+  <text x="480" y="430" class="body">Twoje korekty i decyzje</text>
+  <path d="M590 406 V379" class="edge"/>
+
+  <rect x="840" y="496" width="260" height="80" class="box"/>
+  <text x="860" y="529" class="label">Wydanie pakietu</text>
+  <text x="860" y="554" class="body">Wersja + zależności + różnice</text>
+  <path d="M970 379 V496" class="edge"/>
+  <text x="40" y="513" class="label">Trzy oddzielne zakresy autonomii</text>
+  <text x="40" y="541" class="body">Redakcja wiedzy · publikacja · działania operacyjne</text>
+  <text x="40" y="567" class="small">Na początku: propozycja → przegląd → przyjęcie zmiany</text>
+
+  <rect x="40" y="616" width="1120" height="228" rx="16" fill="#eaf5ef" stroke="#bdd9c9"/>
+  <text x="60" y="649" class="label">Hub firmy · własne dane, decyzje i przyjęte wersje wiedzy</text>
+  <rect x="80" y="679" width="250" height="83" class="box"/>
+  <text x="100" y="712" class="label">Kontekst firmy</text>
+  <text x="100" y="738" class="body">Oferta, cele, ustalenia</text>
+  <rect x="420" y="679" width="290" height="83" class="box"/>
+  <text x="440" y="711" class="label">Lokalna wiedza</text>
+  <text x="440" y="737" class="body">Kopia importu + własne procedury</text>
+  <rect x="830" y="679" width="290" height="83" class="box"/>
+  <text x="850" y="711" class="label">Agent operacyjny</text>
+  <text x="850" y="737" class="body">Propozycja / działanie / wynik</text>
+  <path d="M970 576 V597 H565 V679" class="edge"/>
+  <path d="M330 721 H420" class="edge"/>
+  <path d="M710 721 H830" class="edge"/>
+  <rect x="830" y="790" width="290" height="36" rx="9" fill="#d5eadd"/>
+  <text x="850" y="814" class="body">Bieżące pomiary i limity</text>
+  <path d="M975 790 V762" class="edge"/>
+  <text x="80" y="806" class="small">Wybrane wyniki mogą zasilać kolejne opracowania firmy.</text>
+
+  <text x="40" y="885" class="label">Stan teraz: plan, kontrakt, generator i pusty hub osobisty</text>
+  <text x="40" y="913" class="subtitle">Następnie: jedno źródło → jeden produkt gold → próba aktualizacji → wymiana między hubami</text>
+</svg>
