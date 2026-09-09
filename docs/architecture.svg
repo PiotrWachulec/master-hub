@@ -1,78 +1,82 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="940" viewBox="0 0 1200 940" role="img" aria-labelledby="title desc">
-  <title id="title">Master Hub — architektura wiedzy i działania</title>
-  <desc id="desc">Data lake i transkrypcja zasilają bronze. Hub osobisty rozwija silver i gold. Wersjonowany pakiet trafia do huba firmy, gdzie łączy się z jej kontekstem. Agent operacyjny korzysta z lokalnych procedur oraz bieżących pomiarów. Diagram przedstawia docelowy przepływ; gotowy jest szkielet hubów.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" role="img" aria-labelledby="title desc">
+  <title id="title">Jedna baza wiedzy. Wiele zastosowań.</title>
+  <desc id="desc">Nowy materiał trafia do bronze. Agent analizuje go i włącza do rozwijanej wiki w silver. Ta sama wiedza zasila niezależne katalogi gold: wkład do ebooka, materiał do fiszek, materiały dla automatu publikującego posty oraz nową koncepcję ebooka. Gold zachowuje referencje do źródeł. Po brakujące szczegóły i dokładne cytaty można wracać do bronze.</desc>
   <defs>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="#607087"/></marker>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8Z" fill="#68798e"/></marker>
     <style>
-      text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #172c43; }
-      .title { font-size: 30px; font-weight: 700; }
-      .subtitle { font-size: 16px; fill: #50637a; }
-      .label { font-size: 19px; font-weight: 650; }
-      .body { font-size: 15px; }
-      .small { font-size: 14px; fill: #50637a; }
-      .box { fill: white; stroke: #c4d0dd; stroke-width: 1.5; rx: 12; }
-      .edge { fill: none; stroke: #607087; stroke-width: 2; marker-end: url(#arrow); }
+      text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #172b42; }
+      .title { font-size: 38px; font-weight: 700; letter-spacing: -1px; }
+      .sub { font-size: 20px; fill: #53647a; }
+      .step { font-size: 20px; font-weight: 600; }
+      .layer { font-size: 15px; font-weight: 700; letter-spacing: 2px; }
+      .heading { font-size: 26px; font-weight: 700; }
+      .body { font-size: 19px; }
+      .small { font-size: 16px; fill: #53647a; }
+      .path { font-family: ui-monospace, Menlo, monospace; font-size: 16px; fill: #6c592c; }
+      .edge { fill: none; stroke: #68798e; stroke-width: 2.5; marker-end: url(#arrow); }
     </style>
   </defs>
-  <rect width="1200" height="940" fill="#f6f8fb"/>
-  <text x="40" y="49" class="title">Master Hub</text>
-  <text x="40" y="77" class="subtitle">Docelowy przepływ • wspólny wzorzec, niezależne huby i dostępy</text>
+  <rect width="1400" height="900" fill="#f7f9fc"/>
+  <text x="50" y="65" class="title">Jedna baza wiedzy. Wiele zastosowań.</text>
+  <text x="50" y="102" class="sub">Bronze zachowuje źródła. Silver rozwija wiedzę. Gold nadaje jej formę do konkretnego celu.</text>
 
-  <rect x="40" y="105" width="300" height="82" class="box"/>
-  <text x="60" y="137" class="label">Data lake</text>
-  <text x="60" y="163" class="body">Nagrania, PDF, materiały źródłowe</text>
-  <rect x="420" y="105" width="360" height="82" class="box"/>
-  <text x="440" y="137" class="label">Transkrypcja i ekstrakcja</text>
-  <text x="440" y="163" class="body">Tekst + pochodzenie + wersja</text>
-  <path d="M340 146 H420" class="edge"/>
+  <rect x="50" y="140" width="755" height="62" rx="14" fill="#e8eef8"/>
+  <text x="73" y="179" class="step">1. „Wrzuć nowy materiał do mojej bazy wiedzy”</text>
+  <rect x="940" y="140" width="410" height="62" rx="14" fill="#fff0c8"/>
+  <text x="963" y="179" class="step">2. „Przygotuj mi z tego…”</text>
 
-  <rect x="40" y="230" width="1120" height="230" rx="16" fill="#eaf2fb" stroke="#bed1e8"/>
-  <text x="60" y="263" class="label">Hub osobisty · biblioteka ogólna</text>
-  <text x="762" y="263" class="small">Markdown / OKF · edycja przez agenta</text>
-  <path d="M600 187 V280 H210 V295" class="edge"/>
+  <text x="50" y="250" class="layer">BRONZE</text>
+  <rect x="50" y="270" width="300" height="344" rx="18" fill="#fff2e8" stroke="#d5ac8c" stroke-width="1.5"/>
+  <text x="76" y="315" class="heading">Materiały źródłowe</text>
+  <text x="76" y="359" class="body">Notatki i artykuły</text>
+  <text x="76" y="390" class="body">Treść kursów i książek</text>
+  <text x="76" y="421" class="body">Transkrypcje wideo</text>
+  <text x="76" y="452" class="body">i podcastów</text>
+  <path d="M76 480 H324" stroke="#dfc7b5"/>
+  <text x="76" y="514" class="small">Oryginał lub referencja</text>
+  <text x="76" y="539" class="small">+ wersja tekstowa</text>
+  <text x="76" y="576" class="small">Zachowane pochodzenie i wersja.</text>
 
-  <rect x="80" y="295" width="260" height="84" rx="12" fill="#fff3e8" stroke="#c89465"/>
-  <text x="100" y="327" class="label">Bronze</text>
-  <text x="100" y="353" class="body">Niezmienne wejścia tekstowe</text>
-  <rect x="460" y="295" width="260" height="84" class="box"/>
-  <text x="480" y="327" class="label">Silver</text>
-  <text x="480" y="353" class="body">Pojęcia, syntezy, rozbieżności</text>
-  <rect x="840" y="295" width="260" height="84" rx="12" fill="#fff8d9" stroke="#c4ab48"/>
-  <text x="860" y="327" class="label">Gold</text>
-  <text x="860" y="353" class="body">Metody i produkty do użycia</text>
-  <path d="M340 337 H460" class="edge"/>
-  <path d="M720 337 H840" class="edge"/>
-  <rect x="460" y="406" width="260" height="36" rx="9" fill="#dce9f8"/>
-  <text x="480" y="430" class="body">Twoje korekty i decyzje</text>
-  <path d="M590 406 V379" class="edge"/>
+  <text x="435" y="250" class="layer">SILVER · WIKI UTRZYMYWANA PRZEZ LLM</text>
+  <rect x="435" y="270" width="370" height="344" rx="18" fill="#eaf1fc" stroke="#9db9df" stroke-width="1.5"/>
+  <text x="461" y="315" class="heading">Rozwijana baza wiedzy</text>
+  <text x="461" y="359" class="body">Pojęcia, zasady i metody</text>
+  <text x="461" y="390" class="body">Syntezy i powiązania źródeł</text>
+  <text x="461" y="421" class="body">Przykłady i warunki stosowania</text>
+  <text x="461" y="452" class="body">Wyjątki i sprzeczności</text>
+  <path d="M461 480 H779" stroke="#b9cce5"/>
+  <text x="461" y="514" class="small">Nowy materiał uzupełnia to,</text>
+  <text x="461" y="539" class="small">co już wiemy o danym temacie.</text>
+  <text x="461" y="576" class="small">Wiedza do wielokrotnego użycia.</text>
+  <path d="M350 405 H435" class="edge"/>
+  <text x="355" y="381" class="small">analiza</text>
 
-  <rect x="840" y="496" width="260" height="80" class="box"/>
-  <text x="860" y="529" class="label">Wydanie pakietu</text>
-  <text x="860" y="554" class="body">Wersja + zależności + różnice</text>
-  <path d="M970 379 V496" class="edge"/>
-  <text x="40" y="513" class="label">Trzy oddzielne zakresy autonomii</text>
-  <text x="40" y="541" class="body">Redakcja wiedzy · publikacja · działania operacyjne</text>
-  <text x="40" y="567" class="small">Na początku: propozycja → przegląd → przyjęcie zmiany</text>
+  <text x="940" y="250" class="layer">GOLD · OSOBNY KATALOG DLA CELU</text>
+  <rect x="940" y="270" width="410" height="84" rx="14" fill="#fff8e4" stroke="#dac278"/>
+  <text x="965" y="304" class="step">Wkład do ebooka o XYZ</text>
+  <text x="965" y="332" class="path">20-gold/ebook-o-xyz/</text>
+  <rect x="940" y="374" width="410" height="84" rx="14" fill="#fff8e4" stroke="#dac278"/>
+  <text x="965" y="408" class="step">Materiał do wygenerowania fiszek</text>
+  <text x="965" y="436" class="path">20-gold/fiszki-xyz/</text>
+  <rect x="940" y="478" width="410" height="84" rx="14" fill="#fff8e4" stroke="#dac278"/>
+  <text x="965" y="512" class="step">Materiały dla automatu do postów</text>
+  <text x="965" y="540" class="path">20-gold/instagram-posts-materials/</text>
+  <rect x="940" y="582" width="410" height="84" rx="14" fill="#ffffff" stroke="#c0a04a" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="965" y="616" class="step">Nowa koncepcja ebooka</text>
+  <text x="965" y="644" class="path">20-gold/ebook-inna-koncepcja/</text>
 
-  <rect x="40" y="616" width="1120" height="228" rx="16" fill="#eaf5ef" stroke="#bdd9c9"/>
-  <text x="60" y="649" class="label">Hub firmy · własne dane, decyzje i przyjęte wersje wiedzy</text>
-  <rect x="80" y="679" width="250" height="83" class="box"/>
-  <text x="100" y="712" class="label">Kontekst firmy</text>
-  <text x="100" y="738" class="body">Oferta, cele, ustalenia</text>
-  <rect x="420" y="679" width="290" height="83" class="box"/>
-  <text x="440" y="711" class="label">Lokalna wiedza</text>
-  <text x="440" y="737" class="body">Kopia importu + własne procedury</text>
-  <rect x="830" y="679" width="290" height="83" class="box"/>
-  <text x="850" y="711" class="label">Agent operacyjny</text>
-  <text x="850" y="737" class="body">Propozycja / działanie / wynik</text>
-  <path d="M970 576 V597 H565 V679" class="edge"/>
-  <path d="M330 721 H420" class="edge"/>
-  <path d="M710 721 H830" class="edge"/>
-  <rect x="830" y="790" width="290" height="36" rx="9" fill="#d5eadd"/>
-  <text x="850" y="814" class="body">Bieżące pomiary i limity</text>
-  <path d="M975 790 V762" class="edge"/>
-  <text x="80" y="806" class="small">Wybrane wyniki mogą zasilać kolejne opracowania firmy.</text>
+  <path d="M805 405 H870 V312 H940" class="edge"/>
+  <path d="M870 405 V416 H940" class="edge"/>
+  <path d="M870 416 V520 H940" class="edge"/>
+  <path d="M870 520 V624 H940" class="edge"/>
+  <text x="940" y="698" class="small">Każde opracowanie zachowuje referencje do źródeł.</text>
 
-  <text x="40" y="885" class="label">Stan teraz: plan, kontrakt, generator i pusty hub osobisty</text>
-  <text x="40" y="913" class="subtitle">Następnie: jedno źródło → jeden produkt gold → próba aktualizacji → wymiana między hubami</text>
+  <rect x="50" y="646" width="755" height="54" rx="12" fill="#e8eef8"/>
+  <text x="73" y="680" class="body">Twoje korekty i nowe źródła rozwijają silver w czasie.</text>
+  <path d="M620 646 V614" class="edge"/>
+
+  <rect x="50" y="740" width="1300" height="110" rx="18" fill="#18364f"/>
+  <text x="76" y="783" style="font-size:25px;font-weight:650;fill:#ffffff">Zmiana koncepcji → nowe gold z istniejącego silver.</text>
+  <text x="76" y="819" style="font-size:19px;fill:#d8e7f3">Po brakujący szczegół lub dokładny cytat wracamy do konkretnego źródła w bronze.</text>
+  <text x="50" y="879" class="small">Schemat pracy z agentem • Markdown / OKF • katalogi warstw znajdują się wewnątrz knowledge/</text>
 </svg>

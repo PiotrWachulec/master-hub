@@ -14,6 +14,12 @@ Do pracy z osobistą wiedzą używaj ../personal-hub i jego kontraktu.
 Nie twórz tutaj zagnieżdżonych hubów. Do zwykłego użycia nie wymagaj
 czytania całej architektury.
 
+Aktualny model: bronze zachowuje źródła, silver rozwija połączoną wiki wiedzy,
+a gold zawiera katalogi pod konkretne zamówione rezultaty. Ta sama wiedza
+silver może zasilać ebook, fiszki i materiały dla automatu. Nie dodawaj PARA
+ani obowiązkowego podziału na projekty/obszary/zasoby. Po brakujące szczegóły
+i cytaty wracaj do bronze.
+
 Przy tworzeniu huba korzystaj z skills/create-knowledge-hub/SKILL.md.
 Źródłem szablonów są assets/hub w tym skillu. Nowe wersje generatora nie
 aktualizują istniejących hubów automatycznie. Zmianę kontraktu istniejącego

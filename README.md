@@ -80,8 +80,10 @@ Gotowe: generator, kontrakt pracy agenta i osobne repozytorium huba osobistego. 
 wykonuje agent według kontraktu. Automatyczny ingest, walidator OKF,
 synchronizacja i integracje operacyjne nie są zaimplementowane.
 
-[Architektura docelowa](docs/architecture.md) i [diagram](docs/architecture.svg)
-są materiałem na później, nie warunkiem rozpoczęcia pracy.
+[Opis przepływu wiedzy](docs/architecture.md) i [diagram](docs/architecture.svg)
+pokazują prosty model: bronze → rozwijana wiki w silver → różne materiały gold.
+Zachowany jest również [wcześniejszy diagram całego systemu](docs/system-architecture.svg),
+obejmujący huby, dystrybucję wiedzy i agentów operacyjnych.
 
 Testy generatora: `python3 -B -m unittest discover -s tests -v`.
 

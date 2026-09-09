@@ -1,115 +1,89 @@
-# Architektura Master Hub
+# Jedna baza wiedzy. Wiele zastosowań.
 
-Stan projektu: fundament i generator. Diagram pokazuje również elementy
-docelowe; ich implementację rozdziela [plan](plan.md).
+Dwa podstawowe działania: **„rozwiń moją wiedzę”** i **„wykorzystaj ją do konkretnego celu”**.
 
-To mapa możliwości na przyszłość. Na początek korzystamy wyłącznie z huba
-osobistego i przetwarzania materiału przez agenta. `master-hub` zawiera
-wyłącznie wspólny wzorzec i narzędzia. Hub osobisty ma własny Git w sąsiednim
-`personal-hub`. Każdy kolejny hub również powstaje poza master-hub,
-w osobnym katalogu i osobnym repozytorium.
+![Bronze → silver → różne opracowania gold](architecture.svg)
 
-![Architektura](architecture.svg)
+[Otwórz diagram SVG](architecture.svg).
 
-[Otwórz diagram jako samodzielny SVG](architecture.svg).
+Zachowujemy dwa uzupełniające się widoki:
 
-## Przepływ docelowy
+- [Przepływ wiedzy](architecture.svg) — codzienna praca: źródła → wiki → różne rezultaty.
+- [Architektura całego systemu](system-architecture.svg) — wcześniejszy diagram:
+  data lake, hub osobisty, pakiety wiedzy, hub firmy i agent operacyjny.
+  Ten szerszy widok opisuje możliwości docelowe, nie wymagania na start.
+
+## 1. Dodaj materiał do bazy
+
+Źródło — albo referencja do oryginału i jego transkrypcja — trafia do bronze.
+Agent analizuje materiał i włącza go do silver: tworzy lub uzupełnia pojęcia,
+łączy źródła, zachowuje przykłady, warunki stosowania i sprzeczności.
+
+Silver jest rozwijaną wiki wiedzy wielokrotnego użycia. Nie jest zbiorem
+niezależnych streszczeń. To tutaj koncentruje się codzienna praca nad wiedzą.
+
+## 2. Poproś o konkretny wynik
+
+Gdy potrzebujesz wkładu do ebooka, materiału do fiszek albo instrukcji dla
+automatu, agent tworzy odpowiedni katalog gold i opracowanie w zadanej formie.
+
+Przykładowe katalogi w `knowledge/20-gold/`:
+
+- `ebook-o-xyz/` — wkład do ebooka z referencjami do materiałów źródłowych.
+- `fiszki-xyz/` — materiał pytanie–odpowiedź do wygenerowania fiszek.
+- `instagram-posts-materials/` — materiały, zasady i przykłady dla automatu do postów.
+- `ebook-inna-koncepcja/` — nowe opracowanie tej samej wiedzy pod zmieniony pomysł.
+
+Są to przykłady rezultatów; nie tworzymy pustych katalogów na zapas.
+Gotowe posty są wynikiem działania automatu korzystającego z gold i bieżącego
+zadania. Nie każdy wynik działania musi wracać do bazy wiedzy.
+
+## Wartość warstwy pośredniej
+
+Zmiana koncepcji oznacza nowe opracowanie gold z istniejącego silver.
+Wykonana wcześniej analiza pozostaje dostępna dla kolejnych zastosowań.
+
+Silver zachowuje szczegóły, powiązania i referencje, a nie tylko skrót.
+Gdy nowy cel wymaga pominiętej informacji lub dokładnego cytatu, agent wraca
+do odpowiedniego źródła w bronze. Nie zakładamy, że synteza wystarczy zawsze.
+Własne hipotezy i luki w materiale pozostają jawne.
+
+## Diagram do edycji
 
 ```mermaid
-flowchart TD
-    D[Data lake: nagrania, PDF, materiały] --> T[Transkrypcja i ekstrakcja]
-    T --> B[Hub osobisty: bronze — tekstowe wejścia]
-    B --> S[Silver — pojęcia, syntezy, sprzeczności]
-    C[Twoje korekty i decyzje] --> S
-    S --> G[Gold — metody i produkty do użycia]
-    G --> P[Wydanie pakietu: wersja i zależności]
-    P --> I[Hub firmy: lokalna kopia importu]
-    F[Kontekst i decyzje firmy] --> L[Lokalne opracowania i procedury]
-    I --> L
-    L --> A[Agent operacyjny]
-    M[Bieżące pomiary i limity] --> A
-    A --> R[Propozycja / zatwierdzone działanie / wynik]
-    R -. świadomie wybrane obserwacje .-> F
+flowchart LR
+    A["1. Dodaj nowy materiał"] --> B["BRONZE<br/>Źródło lub referencja + transkrypcja"]
+    B -->|"analiza i łączenie z istniejącą wiedzą"| S["SILVER · LLM Wiki<br/>Pojęcia, syntezy, przykłady, wyjątki<br/>i powiązania ze źródłami"]
+    C["Twoje korekty i decyzje"] --> S
+    S --> E["GOLD / ebook-o-xyz<br/>Wkład do ebooka"]
+    S --> F["GOLD / fiszki-xyz<br/>Materiał do fiszek"]
+    S --> I["GOLD / instagram-posts-materials<br/>Materiały dla automatu do postów"]
+    S --> N["GOLD / ebook-inna-koncepcja<br/>Nowa forma tej samej wiedzy"]
 ```
 
-## Granice systemu
+Każdy produkt gold powstaje na prośbę o konkretny wynik i zachowuje ścieżkę
+do źródeł. Gotowość użytkowa, sprawdzenie treści i uprawnienie automatu do
+działania są osobnymi sprawami.
 
-**Warsztat osobisty:** biblioteka i narzędzia przetwarzania wielokrotnego
-użycia. **Hub firmy:** jej kontekst, przyjęte wersje wiedzy, procedury oraz
-historia decyzji. **Produkt SaaS:** aplikacja i usługi dla klientów.
-Zależności produktu od warsztatu lub agentów operacyjnych opisujemy jawnie.
-Możliwość rozdzielenia pozostaje otwarta; nie zakładamy sposobu sprzedaży.
+## Organizacja repozytoriów
 
-Wspólny silnik oznacza wspólny kod i konwencje. Instancje wykonują pracę
-z osobnymi dostępami i konfiguracją. Katalogi, tagi i `owner` w metadanych
-nie są mechanizmem kontroli dostępu. Dane firmy nie wracają automatycznie
-do biblioteki osobistej.
+`master-hub` zawiera wzorzec, generator i dokumentację. Twoja biblioteka
+ma osobne repozytorium `../personal-hub`. Kolejne huby również powstają
+osobno. Schemat opisuje pracę wewnątrz każdego z nich.
 
-## Zawartość huba
+Dokumenty wiedzy są w `knowledge/`, w warstwach `00-bronze`,
+`10-silver` i `20-gold`. Kontrakt i konfiguracja leżą poza bundle'em OKF;
+decyzje użytkownika są zapisywane osobno w `knowledge/90-decisions/`.
+Reguły i metadane definiuje SCHEMA.md danego huba.
 
-```text
-hub/
-  AGENTS.md              punkt wejścia agenta
-  SCHEMA.md              kontrakt przetwarzania
-  hub.json               profil domeny i polityka pracy
-  README.md              instrukcja dla człowieka
-  knowledge/             granica bundle'a OKF 0.2
-    index.md
-    log.md
-    00-bronze/           niezmienne wersje tekstowych wejść
-    10-silver/           wiedza opracowana i połączona
-    20-gold/             produkty przygotowane do użycia
-    90-decisions/        korekty, decyzje, zakres zatwierdzeń
-    imports/             przyszłe lokalne kopie pakietów
-  .runtime/              przyszły stan wykonania, poza wersjonowaniem
-```
+Obecnie treści opracowuje agent według kontraktu. Diagram nie oznacza
+uruchomionego automatycznego procesu w tle. [Plan na teraz](plan.md)
+zaczyna się od jednego materiału i jednego użytecznego wyniku.
 
-Instrukcje agenta i konfiguracja leżą poza bundle'em, żeby nie mieszać
-kontraktu wykonania z przetwarzanymi źródłami. Dla plików w `knowledge/`
-korzeń odsyłaczy OKF to ten katalog. Przy pracy w Obsidianie preferujemy
-zwykłe względne linki Markdown, które działają również w edytorach bez OKF.
-Linki między treściami huba powinny pozostawać wewnątrz `knowledge/`.
+## Podstawa wzorca
 
-## Co oznaczają warstwy
-
-Bronze jest wejściem do tego procesu, choć transkrypcja powstała wcześniej.
-Zachowuje wersję tekstu, pochodzenie i — jeśli dostępne — czas w nagraniu
-lub stronę oryginału. Korekta transkrypcji tworzy nowe wejście.
-
-Silver zawiera pojęcia, modele, warunki stosowania i porównania źródeł.
-Gold zawiera produkty dla określonego odbiorcy: checklistę, procedurę,
-metodę, scenariusz, specyfikację skilla. Skille i wykonywalne automatyzacje
-są osobnymi produktami, wymagającymi sprawdzenia ich zachowania.
-
-Gotowość użytkowa, weryfikacja treści i uprawnienie do wykonania działania
-są niezależne. Status gold nie daje agentowi prawa do zmiany budżetu.
-
-PARA to nawigacja po pracy, nie następny etap przetwarzania. Dodajemy strony
-projektów, obszarów i zasobów, kiedy są potrzebne. Temat marketingu może być
-zasobem, odpowiedzialność za marketing firmy obszarem, a kampania projektem.
-Odsyłacze pozwalają używać tej samej wiedzy w kilku kontekstach.
-
-## Silnik i wydania
-
-Agent interpretuje, porównuje i proponuje treść. Kod identyfikuje wejścia,
-waliduje strukturę, generuje indeksy i zapisuje historię. Integracje
-operacyjne pobierają bieżące pomiary oraz wykonują dozwolone działania.
-Surowych zdarzeń analitycznych nie zamieniamy wszystkich w notatki Markdown.
-
-Wydanie przypina treść i zależności. Hub odbiorcy ma lokalną kopię; lokalne
-adaptacje zapisuje osobno. Zmiana źródła uruchamia ocenę wpływu, a nie
-bezwarunkowe przepisanie wszystkich dokumentów. Nowy materiał może ujawnić
-zależności, których wcześniej nie zapisano: obok grafu potrzebne jest
-wyszukanie powiązanych tematów. Ten mechanizm dodamy, kiedy zaczniemy
-regularnie aktualizować wiedzę lub wymieniać ją między hubami.
-
-## Podstawa projektu
-
-- `../founders-workbooks`: odczytano kontrakt, skrypty i przykłady; linter
-  sprawdził 495 dokumentów bez błędów i ostrzeżeń. Nie migrowano danych.
+- Działająca implementacja w lokalnym `../founders-workbooks`.
 - [LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f):
-  przyrostowo utrzymywana wiki i praca przez rozmowę z agentem.
-- [OKF 0.2](https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/main/SPEC.md):
-  format plików i atrybucji; sprawdzony podczas projektowania 2026-09-08.
-  Profil lokalny to osobny kontrakt. Przed implementacją walidatora trzeba
-  przypiąć dokładną rewizję specyfikacji, bo `main` może się zmieniać.
+  przyrostowe utrzymywanie wiedzy przez agenta.
+- [OKF](https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/main/SPEC.md):
+  format zapisu. Obecne szablony używają wersji 0.2.
