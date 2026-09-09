@@ -1,25 +1,28 @@
 # Plan na teraz
 
-## 1. Użyj istniejącego huba
+## 1. Dodaj pierwszy materiał do istniejącego huba
 
 Otwórz osobne repozytorium `personal-hub`, obok `master-hub`.
-Podaj jeden materiał tekstowy i rezultat, którego potrzebujesz. Agent
-przetworzy go tam: zachowa źródło w bronze, opracuje silver
-i przygotuje produkt gold. Nie trzeba uruchamiać generatora.
+Podaj jeden materiał tekstowy. Agent zachowa źródło w bronze i rozwinie
+wiki silver. Nie musisz określać celu biznesowego ani tworzyć gold.
 
-Przykład: notatki o badaniu klientów → checklista przygotowania rozmowy.
-[Prompt do pierwszego użycia](first-run.md).
+[Przykładowe polecenia](first-run.md). Generator nie jest potrzebny.
 
-## 2. Oceń wynik i popraw go przez rozmowę
+## 2. Rozwijaj i koryguj wiedzę przez rozmowę
 
-Przeczytaj wynik w Obsidianie albo edytorze. Powiedz agentowi, co poprawić.
+Przeczytaj opracowanie w Obsidianie albo edytorze. Powiedz agentowi, co poprawić.
 Agent zapisze korekty i powody zmian, żeby nie zginęły przed kolejną sesją.
-Kończymy, kiedy materiał faktycznie pomaga Ci wykonać zadanie.
+Dodawaj kolejne materiały, gdy ich potrzebujesz — powinny uzupełniać
+i łączyć istniejącą wiedzę, a nie tworzyć zbiór niezależnych streszczeń.
 
-## 3. Powtórz z kolejnym materiałem
+## 3. Gdy pojawi się potrzeba, zamów gold
 
-Sprawdź, czy nowa wiedza uzupełnia istniejącą. Dopiero wtedy wybierzmy
-najbardziej uciążliwy krok i go zautomatyzujmy.
+Poproś o wkład do ebooka, materiał do fiszek albo instrukcje dla automatu.
+Agent wykorzysta istniejące silver i utworzy katalog gold pod zamówiony wynik,
+z referencjami do źródeł. Nie musisz dostarczać kolejnego materiału ani czekać
+na rozbudowanie całej bazy. Nowa koncepcja może dostać osobny katalog gold.
+
+Dopiero rzeczywista praca pokaże, który uciążliwy krok warto zautomatyzować.
 
 ## Później — tylko gdy pojawi się potrzeba
 

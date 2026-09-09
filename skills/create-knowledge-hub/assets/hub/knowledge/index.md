@@ -10,4 +10,5 @@ okf_version: "0.2"
 - [Decyzje](90-decisions/index.md) — korekty, ustalenia i zakres przeglądów.
 - [Importy](imports/index.md) — miejsce na przyszłe lokalne kopie pakietów.
 
-Hub zaczyna pusty. Pierwsze źródło i konkretny cel wyznaczą potrzebne pojęcia.
+Dodanie źródła rozwija bronze i wiki silver, bez konieczności wskazywania celu.
+Gdy potrzebujesz konkretnego rezultatu, zamów materiał gold z istniejącej wiedzy.

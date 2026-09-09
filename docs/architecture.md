@@ -78,7 +78,7 @@ Reguły i metadane definiuje SCHEMA.md danego huba.
 
 Obecnie treści opracowuje agent według kontraktu. Diagram nie oznacza
 uruchomionego automatycznego procesu w tle. [Plan na teraz](plan.md)
-zaczyna się od jednego materiału i jednego użytecznego wyniku.
+zaczyna się od jednego materiału; wynik gold zamawiasz, kiedy go potrzebujesz.
 
 ## Podstawa wzorca
 

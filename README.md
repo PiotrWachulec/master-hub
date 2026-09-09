@@ -15,14 +15,21 @@ Repozytoria są niezależne. Nie ma submodułów, dowiązań ani wspólnego kata
 ## Jak zacząć
 
 Otwórz `../personal-hub` jako projekt do pracy z agentem i jako vault
-w Obsidianie. Podaj ścieżkę do notatki lub transkrypcji i cel:
+w Obsidianie. Masz dwa niezależne polecenia:
 
-> Przetwórz materiał z [ścieżka] w hubie osobistym. Chcę z niego uzyskać
-> [np. checklistę przygotowania rozmowy z klientem].
+> Dodaj materiał z [ścieżka] do bazy wiedzy.
 
-Agent czyta kontrakt w `personal-hub`, zapisuje źródło, opracowuje wiedzę
-i przygotowuje wynik. Ty czytasz i mówisz, co poprawić. Nie musisz uruchamiać
-generatora ani poznawać całej architektury.
+Agent zachowuje źródło w bronze i rozwija połączoną wiki w silver.
+Nie musisz jeszcze wiedzieć, do czego użyjesz tej wiedzy. Gold nie powstaje.
+
+> Przygotuj z mojej bazy wiedzy materiał do ebooka o [XYZ], w formie [opis].
+
+Agent korzysta z istniejącego silver i tworzy katalog gold pod ten rezultat,
+z referencjami do źródeł. Nie musisz dodawać kolejnego materiału.
+Zmiana koncepcji może dać nowy katalog gold, bez nadpisania poprzedniego.
+
+Ty czytasz i mówisz, co poprawić. Nie musisz uruchamiać generatora ani poznawać
+całej architektury. Oba działania można też zamówić w jednej rozmowie.
 
 `../personal-hub` jest już utworzonym, pustym hubem do pracy z agentem.
 Do codziennego przetwarzania materiałów nie potrzebujesz otwierać master-hub.

@@ -1,6 +1,6 @@
 # Profil nowego huba
 
-`hub.json` konfiguruje lokalny wzorzec (wersja 0.1.0). Nie jest elementem
+`hub.json` konfiguruje lokalny wzorzec (wersja 0.1.1). Nie jest elementem
 standardu OKF. Deklaracje polityki są instrukcjami dla agenta; generator
 nie instaluje procesu, który je technicznie egzekwuje.
 
@@ -21,3 +21,13 @@ rzeczy potrzebne odbiorcy, np. eksperyment, metrykę lub segment klientów.
 
 Katalog skilla można skopiować w całości. Szablony są zasobami generatora.
 Zmiana szablonu dotyczy nowych hubów; istniejący hub zachowuje własny kontrakt.
+
+## Migracja istniejącego huba z 0.1.0 do 0.1.1
+
+To aktualizacja instrukcji: dodawanie wiedzy i zamawianie gold stają się
+niezależnymi działaniami. Nie zmienia formatu OKF 0.2 ani ścieżek dokumentów.
+Po zgodzie użytkownika zaktualizuj AGENTS.md, SCHEMA.md, przykłady w README.md
+i opisy w indeksach wiedzy, silver oraz gold, zachowując własne reguły i odsyłacze
+huba. Następnie ustaw `profile_version` w hub.json na `0.1.1`.
+Nie uruchamiaj ponownie generatora na istniejącym hubie; nie nadpisuj treści
+ani ustawień Obsidiana. Sprawdź diff i zachowaj poprzedni stan w historii Git.

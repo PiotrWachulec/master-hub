@@ -1,4 +1,4 @@
-# Kontrakt przetwarzania wiedzy — profil 0.1.0
+# Kontrakt przetwarzania wiedzy — profil 0.1.1
 
 Ten kontrakt opisuje pracę w jednym hubie. Bundle OKF 0.2 obejmuje wyłącznie
 `knowledge/`. Konfiguracja i instrukcje w katalogu nadrzędnym nie należą
@@ -71,16 +71,40 @@ najnowsze na górze, bez frontmatteru. Log dokumentuje zmiany; nie zastępuje
 
 ## Praca agenta
 
+To dwa niezależne działania. Łącz je tylko wtedy, gdy użytkownik zamawia oba.
+W każdym dobieraj kontekst przez indeksy, powiązane koncepty i wcześniejsze
+decyzje użytkownika; nie ładuj całej biblioteki bez potrzeby.
+
+### Dodaj materiał do bazy — bronze i silver
+
 1. Przyjmij źródło w nowym pliku bronze. Sprawdź dostępne wejścia, żeby
    uniknąć duplikatu. Automatyczny rejestr hashy jest planowany, nie zainstalowany.
-2. Przeczytaj indeksy, powiązane koncepty i decyzje użytkownika. Dobieraj
-   kontekst do zadania; nie ładuj całej biblioteki bez potrzeby.
-3. Opracuj propozycję zmian silver. W razie kilku opisów tego samego pojęcia
-   połącz źródła i perspektywy, zachowując rozbieżności.
-4. Zbuduj lub uaktualnij potrzebne gold, sprawdź odsyłacze i przypisy,
-   uzupełnij indeksy i log. Sprawdzenie struktury nie dowodzi prawdziwości.
-5. Przedstaw zmiany i kwestie otwarte. Zapisz otrzymane korekty i decyzje
-   w `90-decisions`, żeby kolejne przebiegi je uwzględniały.
+2. Rozwiń połączoną wiki silver: pojęcia, metody, przykłady i syntezy z referencjami
+   do źródeł. Łącz nowe informacje z istniejącymi, zachowując warunki stosowania,
+   wyjątki i rozbieżności. To wiedza wielokrotnego użycia, nie tylko osobne
+   streszczenie każdego wejścia ani skrót pod jeden przyszły wynik.
+3. Nie wymagaj celu biznesowego i nie twórz gold. Jeśli nowa wiedza wpływa
+   na istniejące gold, wskaż to i zaproponuj aktualizację; nie wdrażaj jej
+   automatycznie bez zlecenia.
+
+### Przygotuj materiał do konkretnego celu — gold
+
+1. Ustal rezultat, temat i potrzebną formę z polecenia. Korzystaj z istniejącego
+   silver; nie wymagaj dodania nowego materiału źródłowego.
+2. Utwórz katalog w `20-gold`, np. `ebook-o-xyz`, `fiszki-xyz` lub
+   `instagram-posts-materials`, i przygotuj zamówione opracowanie.
+   Zachowaj referencje do silver oraz ścieżkę pochodzenia do źródeł w bronze.
+3. Po brakujące szczegóły i dokładne cytaty sięgnij do odpowiednich źródeł
+   bronze. Nie analizuj od nowa wszystkich surowych danych. Jeśli baza nie
+   wystarcza, wskaż braki; nie zastępuj ich zmyślonymi faktami lub przypisami.
+4. Przy zmianie koncepcji twórz nowy katalog gold, zachowując poprzedni wynik.
+   Aktualizuj istniejący, gdy użytkownik prosi o jego korektę lub aktualizację.
+   Nie twórz katalogów na zapas; nie narzucaj modelu PARA.
+
+Po każdym działaniu sprawdź odsyłacze i przypisy, uzupełnij odpowiednie indeksy
+i log. Przedstaw zmiany i kwestie otwarte. Sprawdzenie struktury nie dowodzi
+prawdziwości treści. Otrzymane korekty i decyzje zapisuj w `90-decisions`,
+żeby kolejne przebiegi je uwzględniały.
 
 W przypadku pracy równoległej wyniki robocze mają oddzielne miejsca zapisu;
 jedno uzgodnione scalanie publikuje wynik. Nie uruchamiaj dodatkowych agentów

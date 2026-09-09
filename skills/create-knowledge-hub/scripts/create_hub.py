@@ -8,7 +8,7 @@ from pathlib import Path
 import re
 import sys
 
-PROFILE_VERSION = "0.1.0"
+PROFILE_VERSION = "0.1.1"
 ASSETS = Path(__file__).resolve().parent.parent / "assets" / "hub"
 
 
@@ -55,12 +55,19 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
         f"Właściciel: {args.owner}. Temat początkowy: {args.domain}.\n\n"
         "Otwórz ten katalog jako osobny vault w Obsidianie. "
         "Zacznij od [indeksu wiedzy](knowledge/index.md).\n\n"
-        "## Pierwsze zadanie dla agenta\n\n"
-        "> Przeczytaj AGENTS.md, SCHEMA.md i hub.json. Opracuj wskazany przeze mnie "
-        "materiał tekstowy: zachowaj go w bronze, zbuduj powiązane silver i jeden "
-        "produkt gold do podanego celu. Pokaż źródła, niepewności i propozycję "
-        "do przeglądu. Aktualizuj indeksy oraz log.\n\n"
-        "Podaj agentowi ścieżkę źródła oraz cel. Hub jest pustym szkieletem; "
+        "## Dwa niezależne zadania dla agenta\n\n"
+        "> Dodaj materiał z [ścieżka] do bazy wiedzy.\n\n"
+        "Agent zachowuje źródło w bronze i rozwija połączoną wiki silver. "
+        "Nie musisz podawać celu biznesowego; gold jeszcze nie powstaje.\n\n"
+        "> Przygotuj z mojej bazy wiedzy materiał do [ebooka / fiszek / automatu] "
+        "o [temat], w formie [opis].\n\n"
+        "Agent korzysta z istniejącego silver i tworzy katalog gold pod zamówiony "
+        "wynik, z referencjami do źródeł. Nie potrzebuje nowego wejścia. "
+        "Po brakujące szczegóły i cytaty wraca do bronze. Nowa koncepcja może "
+        "mieć nowy katalog gold bez nadpisywania poprzedniego.\n\n"
+        "Możesz zamówić oba działania razem. Agent czyta kontrakt, aktualizuje "
+        "indeksy oraz log i pokazuje propozycje do przeglądu. "
+        "Hub jest pustym szkieletem; "
         "automatyczne przetwarzanie, publikacja i integracje nie są zainstalowane.\n\n"
         "Kontrakt: [SCHEMA.md](SCHEMA.md). Konfiguracja: [hub.json](hub.json). "
         "Reguły polityki opisują pracę agenta, nie techniczne uprawnienia. "

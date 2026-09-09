@@ -31,7 +31,9 @@ Workbooks. Wszystkie potrzebne zasoby znajdują się w tym katalogu.
 4. Sprawdź konfigurację, indeksy i kontrakt wygenerowanego huba. Istniejący
    katalog jest odrzucany — nie usuwaj go, żeby ominąć tę ochronę. Wybierz
    nowy cel lub przygotuj migrację, jeśli użytkownik o nią poprosił.
-5. Podaj lokalizację vaulta i polecenie pierwszego przetwarzania. Nie nazywaj
+5. Podaj lokalizację vaulta i dwa niezależne polecenia: dodanie materiału
+   do bronze/silver oraz zamówienie wyniku gold z istniejącej wiedzy.
+   Dodanie materiału nie wymaga celu biznesowego. Nie nazywaj
    samego szkieletu działającym automatycznym pipeline'em.
 
 Generator nie pobiera materiałów, nie inicjalizuje synchronizacji, nie
