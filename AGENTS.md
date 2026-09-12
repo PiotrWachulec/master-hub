@@ -25,6 +25,8 @@ ani tworzenia gold. Osobne zamówienie wyniku korzysta z istniejącego silver;
 nie wymaga nowego źródła. Łącz oba działania, jeśli użytkownik o to prosi.
 
 Przy tworzeniu huba korzystaj z skills/create-knowledge-hub/SKILL.md.
+Przy pracy z wiedzą w istniejącym hubie jako repozytorium Git korzystaj
+z skills/curate-knowledge-hub/SKILL.md; metodykę określa kontrakt huba.
 Źródłem szablonów są assets/hub w tym skillu. Nowe wersje generatora nie
 aktualizują istniejących hubów automatycznie. Zmianę kontraktu istniejącego
 huba opisuj jako osobną migrację.
