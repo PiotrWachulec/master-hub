@@ -60,9 +60,14 @@ najnowsze na górze, bez frontmatteru. Log dokumentuje zmiany; nie zastępuje
 
 ## Kontrola struktury
 
-`python3 -B scripts/validate_hub.py` sprawdza hub zawierający skrypt,
+`.venv/bin/python -B scripts/validate_hub.py` sprawdza hub zawierający skrypt,
 nie bieżący katalog wywołania. Python 3.10+, tylko biblioteka standardowa,
 bez sieci i bez zapisu. To walidator lokalnego profilu 0.2.0, nie całego OKF.
+Skrypty uruchamiamy wyłącznie w lokalnym środowisku wirtualnym. Jeśli `.venv`
+nie istnieje, agent tworzy je wcześniej przez `python3 -m venv .venv`
+w katalogu huba. Na Windows interpreter jest w `.venv/Scripts/python.exe`.
+Bez instalacji systemowych; ewentualne paczki wyłącznie przez interpreter
+venv z `-m pip`. Walidator nie tworzy środowiska ani niczego nie instaluje.
 
 Sprawdza:
 

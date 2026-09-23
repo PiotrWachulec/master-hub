@@ -18,21 +18,31 @@ istnienia konkretnego huba ani dostępu do innych repozytoriów.
 2. Przeczytaj [kontrakt](assets/hub/SCHEMA.md) oraz
    [zasady profilu](references/profile.md). Dostosuj typy do zastosowania
    po wygenerowaniu huba; nie przenoś automatycznie taksonomii prawnej.
-3. Uruchom skrypt ścieżką względem tego pakietu:
+3. Użyj `.venv` w repozytorium silnika lub uzgodnionym katalogu roboczym,
+   gdy pakiet skilla jest przeniesiony. Jeśli go nie ma, utwórz środowisko
+   poleceniem `python3 -m venv .venv` w tym katalogu (Python 3.10+).
+   Systemowego Pythona używaj tylko do utworzenia venv. Uruchom generator
+   interpreterem środowiska, podając ścieżkę do tego pakietu:
 
    ```sh
-   python3 scripts/create_hub.py --dest /wybrana/sciezka/nowy-hub \
+   .venv/bin/python /sciezka-do-skilla/scripts/create_hub.py --dest /wybrana/sciezka/nowy-hub \
      --id nowy-hub --title "Nowy hub" --kind personal \
      --owner "Właściciel" --domain "Temat"
    ```
 
-   To przykład uruchomienia z katalogu skilla. Z innego katalogu podaj pełną
-   ścieżkę skryptu. `--dest` jest zawsze względem katalogu wywołania. Skrypt
-   potrzebuje Pythona 3.10+, bez bibliotek dodatkowych. `--dry-run` nic nie zapisuje.
+   Na Windows użyj `.venv/Scripts/python.exe`. Nie wymaga to aktywacji powłoki.
+   Nie nadpisuj niesprawnego istniejącego venv; zgłoś problem. Bez globalnego
+   pip, pip --user, sudo pip i --system-site-packages; ewentualne paczki
+   instaluj tylko przez interpreter venv z `-m pip`. Generator nie wymaga paczek.
+   `--dest` jest względem katalogu wywołania. `--dry-run` nie zapisuje huba;
+   wcześniejsze utworzenie środowiska to osobny krok przygotowania narzędzia.
 4. Sprawdź konfigurację, indeksy i kontrakt wygenerowanego huba. Istniejący
    katalog jest odrzucany — nie usuwaj go, żeby ominąć tę ochronę. Wybierz
    nowy cel lub przygotuj migrację, jeśli użytkownik o nią poprosił.
-   Uruchom `python3 -B <katalog-huba>/scripts/validate_hub.py` i pokaż JSON
+   W nowym hubie utwórz własne `.venv`, jeśli go nie ma, przez
+   `python3 -m venv .venv` uruchomione z katalogu huba. Nie kopiuj środowiska
+   silnika. Uruchom `<katalog-huba>/.venv/bin/python -B <katalog-huba>/scripts/validate_hub.py`
+   (na Windows odpowiednik w `.venv/Scripts`) i pokaż JSON
    oraz kod wyjścia. Nowy szkielet powinien mieć zero naruszeń. To kontrola
    struktury lokalnego profilu, nie dowód jakości przyszłych treści.
 5. Podaj lokalizację vaulta i dwa niezależne polecenia: dodanie materiału

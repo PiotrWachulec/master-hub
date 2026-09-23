@@ -82,8 +82,14 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
         "Korekty przekazuj agentowi; ich trwały zapis trafia do "
         "[decyzji](knowledge/90-decisions/index.md).\n\n"
         "## Kontrola struktury\n\n"
-        "Uruchom `python3 -B scripts/validate_hub.py` z dowolnego katalogu, "
-        "podając ścieżkę do skryptu w tym hubie. JSON na stdout zawiera "
+        "Skrypty Python uruchamiaj zawsze w lokalnym `.venv`. Jeśli go nie ma, "
+        "w katalogu huba wykonaj `python3 -m venv .venv` (Python 3.10+). "
+        "Nie nadpisuj niesprawnego środowiska. Nie instaluj paczek globalnie, "
+        "przez pip --user/sudo pip ani z --system-site-packages. "
+        "Walidator nie potrzebuje dodatkowych paczek. Następnie uruchom "
+        "`.venv/bin/python -B scripts/validate_hub.py` z katalogu huba "
+        "(Windows: `.venv/Scripts/python.exe`). Z innego katalogu podaj pełne "
+        "ścieżki do interpretera i skryptu. JSON na stdout zawiera "
         "`violations`, `errors`, `warnings`; diagnostyka jest na stderr. "
         "Sukces wymaga kodu 0 i `violations == 0`. Zielony wynik potwierdza "
         "wyłącznie strukturę lokalnego profilu, nie treść ani cały standard OKF. "
@@ -92,7 +98,7 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
         "Ten katalog nie wymaga dostępu do generatora ani nadrzędnego repozytorium.\n"
     )
     files[Path(".gitignore")] = (
-        ".DS_Store\n.runtime/\n.obsidian/workspace.json\n"
+        ".DS_Store\n.venv/\n__pycache__/\n*.pyc\n.runtime/\n.obsidian/workspace.json\n"
         ".obsidian/workspaces.json\n.env\n.env.*\n!.env.example\n"
     )
     files[Path(".obsidian/app.json")] = json.dumps(

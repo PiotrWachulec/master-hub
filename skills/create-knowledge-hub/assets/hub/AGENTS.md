@@ -34,8 +34,18 @@ rzeczywistej decyzji odnoszącej się do konkretnej treści.
 
 ## Obowiązkowa kontrola po redakcji
 
+Skrypty Python zawsze uruchamiaj w lokalnym `.venv` huba. Jeśli go nie ma,
+utwórz je przez `python3 -m venv .venv` (Python 3.10+) w katalogu huba.
+To jedyne użycie systemowego Pythona. Dalej używaj `.venv/bin/python`
+(Windows: `.venv/Scripts/python.exe`), bez konieczności aktywacji powłoki.
+Nie nadpisuj niesprawnego venv; zgłoś problem. Nie instaluj paczek globalnie,
+przez pip --user lub sudo pip ani z --system-site-packages. Ewentualne paczki
+instaluj tylko przez interpreter venv z `-m pip`; sam walidator ich nie wymaga.
+Środowisko jest ignorowane przez Git. Tworzy je agent, nie walidator:
+sprawdzanie pozostaje operacją tylko do odczytu.
+
 Po dodaniu materiału, przygotowaniu gold lub korekcie uruchom lokalnie
-`python3 -B scripts/validate_hub.py` (ścieżka względem korzenia huba).
+`.venv/bin/python -B scripts/validate_hub.py` (ścieżki względem korzenia huba).
 Odczytaj JSON i kod zakończenia. Sukces wymaga kodu 0, poprawnego JSON
 i violations == quality.threshold == 0. Ostrzeżenia pokaż osobno.
 

@@ -37,7 +37,11 @@ worktree albo zatrzymaj się. Nie uruchamiaj generatora na istniejącym katalogu
    }
    ```
 
-4. Uruchom `python3 -B scripts/validate_hub.py` w migrowanym hubie. Zachowaj
+4. Przygotuj lokalne `.venv` huba, jeśli go nie ma (`python3 -m venv .venv`,
+   Python 3.10+). Zachowaj istniejące środowisko, nie instaluj paczek globalnie.
+   Uzupełnij lokalny .gitignore o `.venv/`, nie nadpisując innych reguł.
+   Uruchom `.venv/bin/python -B scripts/validate_hub.py` w migrowanym hubie
+   (Windows: `.venv/Scripts/python.exe`). Zachowaj
    raport przed naprawami. Nowy walidator może ujawnić starsze niezgodności.
 5. Przejrzyj i popraw wyłącznie uzgodniony zakres struktury. Typowe zmiany:
    - inline YAML → blokowe mapy/listy albo JSON flow; cytowanie tagów;

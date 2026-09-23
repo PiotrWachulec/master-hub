@@ -7,6 +7,20 @@ To repozytorium nie przechowuje treści, rejestru ani konfiguracji konkretnych
 hubów. Użytkownik wskazuje cel każdej operacji. Wygenerowany hub działa bez
 dostępu do tego repozytorium.
 
+## Środowisko Python
+
+Skrypty i testy zawsze uruchamiamy w lokalnym `.venv`, również jeśli używają
+tylko biblioteki standardowej. Jeśli `.venv` nie istnieje, w katalogu silnika
+utwórz je przez `python3 -m venv .venv` (Python 3.10+). Systemowy Python
+służy tylko do utworzenia środowiska; potem używaj `.venv/bin/python`.
+Na Windows odpowiednikiem jest `.venv/Scripts/python.exe`.
+
+Każdy hub tworzy własne środowisko po wygenerowaniu. Nie kopiujemy `.venv`
+między projektami ani do Git. Nie nadpisujemy istniejącego, niesprawnego
+środowiska. Nie instalujemy paczek globalnie, przez `pip --user` ani `sudo`.
+Ewentualne zależności instalujemy przez `.venv/bin/python -m pip` bez
+`--system-site-packages`. Generator, walidator i ich testy nie wymagają paczek.
+
 ## Utwórz hub
 
 Poproś agenta o użycie [create-knowledge-hub](skills/create-knowledge-hub/SKILL.md)
@@ -14,7 +28,7 @@ i wskaż nowy katalog, nazwę, właściciela oraz temat. Albo uruchom
 z katalogu master-hub (Python 3.10+, biblioteka standardowa):
 
 ```sh
-python3 skills/create-knowledge-hub/scripts/create_hub.py \
+.venv/bin/python skills/create-knowledge-hub/scripts/create_hub.py \
   --dest /wybrana/sciezka/nowy-hub \
   --id nowy-hub --title "Nowy hub" --kind personal \
   --owner "Właściciel" --domain "Temat"
@@ -68,8 +82,11 @@ pełny walidator OKF i integracje operacyjne nie są zaimplementowane.
 
 ## Kontrola struktury w wygenerowanym hubie
 
+W katalogu huba utwórz `.venv`, jeśli go nie ma (`python3 -m venv .venv`).
+Potem uruchom:
+
 ```sh
-python3 -B /wybrana/sciezka/nowy-hub/scripts/validate_hub.py
+.venv/bin/python -B scripts/validate_hub.py
 ```
 
 Skrypt jest częścią huba. Nie potrzebuje generatora, sieci ani bibliotek
@@ -88,7 +105,7 @@ udokumentowanego podzbioru formatu, nie dowód prawdziwości ani walidacja OKF.
 [Architektura](docs/architecture.md) · [Diagram przepływu](docs/architecture.svg) ·
 [Opcjonalny model wielu hubów](docs/system-architecture.svg)
 
-Testy: `python3 -B -m unittest discover -s tests -v`.
+Testy w katalogu silnika: `.venv/bin/python -B -m unittest discover -s tests -v`.
 
 Inspiracje: [LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
 i [OKF](https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/main/SPEC.md).

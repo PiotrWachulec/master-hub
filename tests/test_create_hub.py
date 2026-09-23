@@ -35,6 +35,8 @@ class CreateHubTests(unittest.TestCase):
         self.assertEqual(config["owner"], 'Spółka "Żółw"')
         self.assertEqual(config["policy"]["external_actions"], "disabled")
         self.assertEqual(config["kind"], "company")
+        self.assertIn(".venv/", (destination / ".gitignore").read_text().splitlines())
+        self.assertFalse((destination / ".venv").exists())
         self.assertTrue((destination / config["bundle_root"]).is_dir())
         self.assertEqual(json.loads((destination / ".obsidian/app.json").read_text())
                          ["newLinkFormat"], "relative")

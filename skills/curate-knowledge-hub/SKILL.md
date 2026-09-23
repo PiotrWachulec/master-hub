@@ -52,6 +52,13 @@ dotycząca dystrybucji między hubami nie jest sama w sobie zgodą na push.
 
 ## Wykonanie i przekazanie
 
+- Skrypty Python uruchamiaj w lokalnym `.venv` huba. Jeśli go nie ma, utwórz
+  przez `python3 -m venv .venv` w katalogu huba (Python 3.10+); to jedyny
+  krok używający systemowego Pythona. Następnie używaj `.venv/bin/python`
+  (Windows: `.venv/Scripts/python.exe`), także dla testów i instalacji
+  ewentualnych paczek przez `-m pip`. Nie instaluj globalnie ani przez
+  pip --user/sudo pip; nie używaj --system-site-packages. Nie nadpisuj
+  niesprawnego venv, tylko zgłoś problem. Nie commituj `.venv/`.
 - Dla czystego, uzgodnionego repo zaktualizuj gałąź bazową przez
   git pull --ff-only. Rozbieżność historii wymaga rozstrzygnięcia;
   nie twórz automatycznego merge. Dla kontraktu utwórz branch przed edycją.
