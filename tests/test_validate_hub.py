@@ -88,6 +88,42 @@ class ValidateHubTests(unittest.TestCase):
             '# Log\n\n## 2026-09-23\n\nDodano koncept.\n\n## 2026-09-22\n\nStarszy wpis.\n')
         self.validate()
 
+    def test_remote_copy_policy_is_required_and_strict(self):
+        config_path = self.hub / 'hub.json'
+        original = config_path.read_text(encoding='utf-8')
+        changes = [lambda c: c.pop('policy'),
+                   lambda c: c['policy'].pop('remote_copy')]
+        for value in (None, [], True, 'required_after_validated_task'):
+            changes.append(lambda c, value=value: c.update(policy=value))
+        for value in (None, '', 'disabled', 'optional', True, [], {},
+                      ['required_after_validated_task']):
+            changes.append(lambda c, value=value: c['policy'].update(remote_copy=value))
+        for number, change in enumerate(changes):
+            with self.subTest(case=number):
+                config_path.write_text(original, encoding='utf-8')
+                self.config(change)
+                report = self.validate(False, 'policy.remote_copy')
+                self.assertEqual(report['violations'], 1)
+                self.assertEqual(report['errors'][0]['file'], 'hub.json')
+        config_path.write_text(original, encoding='utf-8')
+        self.validate()
+
+    def test_profile_version_requires_explicit_upgrade(self):
+        for version in ('0.2.0', '0.1.1', '0.3.0', None, 0.21):
+            with self.subTest(version=version):
+                self.config(lambda c: c.update(profile_version=version))
+                self.validate(False, 'implements profile 0.2.1')
+        self.config(lambda c: c.pop('profile_version'))
+        self.validate(False, 'implements profile 0.2.1')
+
+    def test_invalid_remote_copy_policy_does_not_skip_documents(self):
+        self.config(lambda c: c['policy'].pop('remote_copy'))
+        self.fixture('# Missing metadata\n')
+        report = self.validate(False, 'policy.remote_copy')
+        self.assertTrue(any(e['file'] == 'knowledge/10-silver/concept.md'
+                            and e['message'] == 'Missing frontmatter'
+                            for e in report['errors']))
+
     def test_nested_index_and_log_require_metadata(self):
         for layer in ('00-bronze', '10-silver', '20-gold', '90-decisions', 'custom'):
             for name in ('index.md', 'log.md'):

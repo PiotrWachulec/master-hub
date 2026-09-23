@@ -1,9 +1,13 @@
 # Ręczna migracja lokalnego profilu 0.1.1 → 0.2.0
 
 Procedura na przyszłość, nie bieżące zadanie ani raport z wykonanej migracji.
-Silnik nie zakłada, że istnieją już jakiekolwiek huby. Teraz generujemy nowe
-huby od razu z profilem 0.2.0; poniższe kroki stosuje się wyłącznie wtedy,
+Silnik nie zakłada, że istnieją już jakiekolwiek huby. Poniższe kroki stosuje się wyłącznie wtedy,
 gdy użytkownik w przyszłości wskaże starszy hub i zleci jego aktualizację.
+
+To historyczna procedura dla 0.2.0: użyj szablonów i walidatora z commita
+`1acb58b29bb5058178660a3a374bfc6f47824517`, nie z bieżącego main.
+Generator tworzy obecnie profil 0.2.1; jego przyjęcie wymaga dodatkowo
+[jawnej aktualizacji konfiguracji kopii Git](hub-git-backup.md).
 
 OKF pozostaje w wersji 0.2. Zmiana dotyczy lokalnego kontraktu:
 samodzielnego walidatora struktury, udokumentowanego podzbioru frontmattera

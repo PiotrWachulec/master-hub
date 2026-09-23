@@ -36,7 +36,9 @@ istnienia konkretnego huba ani dostępu do innych repozytoriów.
    instaluj tylko przez interpreter venv z `-m pip`. Generator nie wymaga paczek.
    `--dest` jest względem katalogu wywołania. `--dry-run` nie zapisuje huba;
    wcześniejsze utworzenie środowiska to osobny krok przygotowania narzędzia.
-4. Sprawdź konfigurację, indeksy i kontrakt wygenerowanego huba. Istniejący
+4. Sprawdź konfigurację, indeksy i kontrakt wygenerowanego huba, w tym
+   profile_version: "0.2.1" i policy.remote_copy: "required_after_validated_task".
+   To obowiązek kopii Git, nie potwierdzenie jej skonfigurowania. Istniejący
    katalog jest odrzucany — nie usuwaj go, żeby ominąć tę ochronę. Wybierz
    nowy cel lub przygotuj migrację, jeśli użytkownik o nią poprosił.
    W nowym hubie utwórz własne `.venv`, jeśli go nie ma, przez
@@ -45,10 +47,20 @@ istnienia konkretnego huba ani dostępu do innych repozytoriów.
    (na Windows odpowiednik w `.venv/Scripts`) i pokaż JSON
    oraz kod wyjścia. Nowy szkielet powinien mieć zero naruszeń. To kontrola
    struktury lokalnego profilu, nie dowód jakości przyszłych treści.
-5. Podaj lokalizację vaulta i dwa niezależne polecenia: dodanie materiału
+5. Ustal z użytkownikiem repozytorium zdalne i zakres dostępu do danych,
+   jeśli nie wynika to z wcześniejszych uzgodnień. Generator nie inicjalizuje
+   Git: jego konfiguracja wymaga wskazanego celu i zgody; nie twórz publicznego
+   repo na podstawie samej nazwy huba. Hub w katalogu projektu używa jego Git.
+   Przy uzgodnionym celu wykonaj pierwszy commit i push zwalidowanego szkieletu
+   według AGENTS.md huba oraz potwierdź commit w remote. Bez skonfigurowanej
+   kopii powiedz wyraźnie, że szkielet istnieje tylko lokalnie i wymaga
+   dokończenia konfiguracji — nie przedstawiaj go jako zabezpieczonego.
+6. Podaj lokalizację vaulta i dwa niezależne polecenia: dodanie materiału
    do bronze/silver oraz zamówienie wyniku gold z istniejącej wiedzy.
    Dodanie materiału nie wymaga celu biznesowego. Nie nazywaj
    samego szkieletu działającym automatycznym pipeline'em.
+   Wyjaśnij, że agent robi commit i push po sprawdzonych zadaniach; nie ma
+   procesu backupu w tle ani kopii nagrań przechowywanych poza Git.
 
 Generator nie pobiera materiałów, nie inicjalizuje synchronizacji, nie
 konfiguruje kont i nie zmienia budżetów. Źródła i dane właścicieli pozostają

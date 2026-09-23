@@ -8,7 +8,7 @@ from pathlib import Path
 import re
 import sys
 
-PROFILE_VERSION = "0.2.0"
+PROFILE_VERSION = "0.2.1"
 ASSETS = Path(__file__).resolve().parent.parent / "assets" / "hub"
 
 
@@ -55,6 +55,7 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
             "knowledge_editing": "agent_drafts_with_user_review",
             "publication": "explicit_acceptance",
             "external_actions": "disabled",
+            "remote_copy": "required_after_validated_task",
         },
     }
     files[Path("hub.json")] = json.dumps(config, ensure_ascii=False, indent=2) + "\n"
@@ -94,6 +95,18 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
         "Sukces wymaga kodu 0 i `violations == 0`. Zielony wynik potwierdza "
         "wyłącznie strukturę lokalnego profilu, nie treść ani cały standard OKF. "
         "Pętla naprawy i jej limit są opisane w AGENTS.md oraz SCHEMA.md.\n\n"
+        "## Bieżąca kopia zdalna\n\n"
+        "Po zakończonym, zwalidowanym zadaniu oraz spójnych etapach dłuższej "
+        "pracy agent wykonuje commit i push do uzgodnionego repozytorium, "
+        "bez dodatkowego polecenia. Potwierdza commit w remote albo zgłasza "
+        "brak aktualnej kopii zdalnej. Wyraźne polecenie pracy lokalnej ma "
+        "pierwszeństwo. Szczegóły i granice uprawnień opisuje "
+        "[AGENTS.md](AGENTS.md).\n\n"
+        "Generator nie inicjalizuje Git ani remote: przy pierwszym uruchomieniu "
+        "uzgodnij z agentem cel i dostęp, aby wykonać pierwszy commit i push. "
+        "Do tego czasu szkielet jest tylko lokalny. To nie backup w tle; "
+        "kopia nie obejmuje zewnętrznych nagrań, plików ignorowanych ani "
+        "niewypchniętych zmian. Wymagają osobnego zabezpieczenia.\n\n"
         f"Wygenerowano według profilu {PROFILE_VERSION}. "
         "Ten katalog nie wymaga dostępu do generatora ani nadrzędnego repozytorium.\n"
     )

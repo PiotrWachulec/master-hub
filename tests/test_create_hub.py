@@ -34,6 +34,9 @@ class CreateHubTests(unittest.TestCase):
         config = json.loads((destination / "hub.json").read_text())
         self.assertEqual(config["owner"], 'Spółka "Żółw"')
         self.assertEqual(config["policy"]["external_actions"], "disabled")
+        self.assertEqual(config["policy"]["publication"], "explicit_acceptance")
+        self.assertEqual(config["policy"]["remote_copy"], "required_after_validated_task")
+        self.assertEqual(config["profile_version"], "0.2.1")
         self.assertEqual(config["kind"], "company")
         self.assertIn(".venv/", (destination / ".gitignore").read_text().splitlines())
         self.assertFalse((destination / ".venv").exists())
@@ -58,6 +61,15 @@ class CreateHubTests(unittest.TestCase):
         result = self.run_generator(destination, "--dry-run")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertFalse(destination.parent.exists())
+
+    def test_generated_contract_is_self_contained_without_initializing_git(self):
+        destination = self.root / 'hub'
+        result = self.run_generator(destination)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for name in ('AGENTS.md', 'SCHEMA.md'):
+            self.assertEqual((destination / name).read_bytes(),
+                             (SKILL / 'assets/hub' / name).read_bytes())
+        self.assertFalse((destination / '.git').exists())
 
     def test_existing_hub_is_preserved(self):
         destination = self.root / "hub"
