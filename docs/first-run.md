@@ -1,8 +1,8 @@
 # Dwa polecenia do codziennej pracy
 
-Hub osobisty jest w osobnym repozytorium `personal-hub`, obok `master-hub`.
-Otwórz go jako projekt i vault Obsidiana. Nie trzeba projektować taksonomii
-ani uruchamiać generatora.
+Pracuj w hubie wskazanym przez użytkownika, nie w repozytorium silnika.
+Otwórz katalog huba jako projekt, opcjonalnie jako vault Obsidiana.
+Istniejący hub nie wymaga ponownego uruchamiania generatora.
 
 ## 1. Dodaj materiał — bez określania zastosowania
 

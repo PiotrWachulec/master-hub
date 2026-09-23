@@ -67,9 +67,10 @@ działania są osobnymi sprawami.
 
 ## Organizacja repozytoriów
 
-`master-hub` zawiera wzorzec, generator i dokumentację. Twoja biblioteka
-ma osobne repozytorium `../personal-hub`. Kolejne huby również powstają
-osobno. Schemat opisuje pracę wewnątrz każdego z nich.
+`master-hub` zawiera wyłącznie narzędzie, szablony i dokumentację.
+Nie przechowuje rejestru hubów. Hub docelowy wskazuje użytkownik; może on
+mieć własne repozytorium albo być częścią projektu. Schemat opisuje wzorzec
+pracy wewnątrz huba, nie istniejące instalacje.
 
 Dokumenty wiedzy są w `knowledge/`, w warstwach `00-bronze`,
 `10-silver` i `20-gold`. Kontrakt i konfiguracja leżą poza bundle'em OKF;
@@ -82,7 +83,6 @@ zaczyna się od jednego materiału; wynik gold zamawiasz, kiedy go potrzebujesz.
 
 ## Podstawa wzorca
 
-- Działająca implementacja w lokalnym `../founders-workbooks`.
 - [LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f):
   przyrostowe utrzymywanie wiedzy przez agenta.
 - [OKF](https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/main/SPEC.md):

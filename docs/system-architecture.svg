@@ -73,6 +73,6 @@
   <path d="M975 790 V762" class="edge"/>
   <text x="80" y="806" class="small">Wybrane wyniki mogą zasilać kolejne opracowania firmy.</text>
 
-  <text x="40" y="885" class="label">Stan teraz: plan, kontrakt, generator i pusty hub osobisty</text>
+  <text x="40" y="885" class="label">Model opcjonalny: narzędzie nie rejestruje ani nie synchronizuje hubów</text>
   <text x="40" y="913" class="subtitle">Następnie: jedno źródło → jeden produkt gold → próba aktualizacji → wymiana między hubami</text>
 </svg>

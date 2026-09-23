@@ -1,99 +1,70 @@
 # Master Hub
 
-To repozytorium zawiera generator, szablony i dokumentację. Właściwa praca
-z wiedzą odbywa się w osobnym repozytorium
-[personal-hub](https://github.com/PiotrWachulec/personal-hub).
+Przenośne narzędzie do tworzenia i obsługi hubów wiedzy Markdown:
+generator, skille, szablony i kontrakt pracy agenta.
 
-```text
-Repos/
-  master-hub/     generator, szablony, dokumentacja; własny Git
-  personal-hub/   Twoja biblioteka wiedzy; własny Git i vault Obsidiana
-```
+To repozytorium nie przechowuje treści, rejestru ani konfiguracji konkretnych
+hubów. Użytkownik wskazuje cel każdej operacji. Wygenerowany hub działa bez
+dostępu do tego repozytorium.
 
-Repozytoria są niezależne. Nie ma submodułów, dowiązań ani wspólnego katalogu `.git`.
+## Utwórz hub
 
-## Jak zacząć
-
-Otwórz `../personal-hub` jako projekt do pracy z agentem i jako vault
-w Obsidianie. Masz dwa niezależne polecenia:
-
-> Dodaj materiał z [ścieżka] do bazy wiedzy.
-
-Agent zachowuje źródło w bronze i rozwija połączoną wiki w silver.
-Nie musisz jeszcze wiedzieć, do czego użyjesz tej wiedzy. Gold nie powstaje.
-
-> Przygotuj z mojej bazy wiedzy materiał do ebooka o [XYZ], w formie [opis].
-
-Agent korzysta z istniejącego silver i tworzy katalog gold pod ten rezultat,
-z referencjami do źródeł. Nie musisz dodawać kolejnego materiału.
-Zmiana koncepcji może dać nowy katalog gold, bez nadpisania poprzedniego.
-
-Ty czytasz i mówisz, co poprawić. Nie musisz uruchamiać generatora ani poznawać
-całej architektury. Oba działania można też zamówić w jednej rozmowie.
-
-`../personal-hub` jest już utworzonym, pustym hubem do pracy z agentem.
-Do codziennego przetwarzania materiałów nie potrzebujesz otwierać master-hub.
-
-[Krótki plan](docs/plan.md) · [Dokładniejszy prompt](docs/first-run.md)
-
-## Kolejne huby — kiedy będą potrzebne
-
-Każdy nowy hub ma powstawać poza tym projektem, w osobnym katalogu
-i osobnym repozytorium, np. `../marketing-lab`. Hub osobisty jest już
-wydzielony do `../personal-hub` i nie wymaga dostępu do generatora.
-
-Wystarczy poprosić agenta: „Utwórz osobny hub marketing-lab obok master-hub”.
-Generator tworzy pliki. Inicjalizacja Git i ewentualnego zdalnego repozytorium
-to osobne kroki. Nie tworzymy teraz kolejnego huba.
-
-<details>
-<summary>Polecenie generatora i skill</summary>
-
-Z katalogu master-hub, Python 3.10+, bez dodatkowych bibliotek:
+Poproś agenta o użycie [create-knowledge-hub](skills/create-knowledge-hub/SKILL.md)
+i wskaż nowy katalog, nazwę, właściciela oraz temat. Albo uruchom
+z katalogu master-hub (Python 3.10+, biblioteka standardowa):
 
 ```sh
 python3 skills/create-knowledge-hub/scripts/create_hub.py \
-  --dest ../marketing-lab \
-  --id marketing-lab \
-  --title "Laboratorium marketingu" \
-  --kind personal \
-  --owner "Piotr" \
-  --domain marketing
+  --dest /wybrana/sciezka/nowy-hub \
+  --id nowy-hub --title "Nowy hub" --kind personal \
+  --owner "Właściciel" --domain "Temat"
 ```
 
-`--dry-run` pokazuje plan bez zapisu. Katalog docelowy musi być nowy.
-Dla firmy użyj `--kind company` i jej właściciela. Rodzaj huba jest opisem,
-nie kontrolą uprawnień; osobno konfigurujemy dostępy.
+Katalog docelowy musi być nowy. `--dry-run` pokazuje plan bez zapisu.
+Generator nie inicjalizuje Git ani repozytorium zdalnego. Wybór `personal`
+lub `company` opisuje przeznaczenie, nie konfiguruje uprawnień.
 
-[Skill](skills/create-knowledge-hub/SKILL.md) razem ze skryptem i szablonami
-jest przenośnym katalogiem. Nie został zainstalowany globalnie. Agent może
-go użyć po przeczytaniu tego pliku bez ponownego projektowania huba.
+## Pracuj w hubie
 
-</details>
+Otwórz wygenerowany katalog jako projekt dla agenta, opcjonalnie jako vault
+Obsidiana. Dwa niezależne polecenia:
 
-## Aktualizacja OKF
+> Dodaj materiał z [ścieżka] do bazy wiedzy.
 
-Obecny profil korzysta z OKF 0.2. Wersja jest zapisana w `hub.json` i głównym
-`knowledge/index.md`. Aktualizacja szablonów obejmie nowe huby. Dla istniejących
-potrzebna będzie osobna migracja zależna od zmian specyfikacji.
+Źródło trafia do bronze, a wiedza do połączonej wiki silver. Nie wymaga to
+celu biznesowego ani tworzenia gold.
 
-Nie ma jeszcze automatycznego migratora. Sama zmiana numeru wersji nie migruje
-dokumentów. Przed migracją zachowujemy poprzedni stan, sprawdzamy zmiany na
-kopii i dopiero przyjmujemy wynik. Nie musimy wdrażać każdej nowej wersji od razu.
+> Przygotuj z mojej bazy materiał do [cel] o [temat], w formie [opis].
 
-## Co działa, a co zostawiamy na później
+Agent korzysta z istniejącego silver i tworzy odpowiedni gold z referencjami.
+Nowa koncepcja może dostać nowy katalog bez nadpisywania poprzedniego.
 
-Gotowe: generator, kontrakt pracy agenta i osobne repozytorium huba osobistego. Przetwarzanie
-wykonuje agent według kontraktu. Automatyczny ingest, walidator OKF,
-synchronizacja i integracje operacyjne nie są zaimplementowane.
+[Przykłady poleceń](docs/first-run.md) · [Plan użycia](docs/plan.md)
 
-[Opis przepływu wiedzy](docs/architecture.md) i [diagram](docs/architecture.svg)
-pokazują prosty model: bronze → rozwijana wiki w silver → różne materiały gold.
-Zachowany jest również [wcześniejszy diagram całego systemu](docs/system-architecture.svg),
-obejmujący huby, dystrybucję wiedzy i agentów operacyjnych.
+## Dwa przenośne skille
 
-Testy generatora: `python3 -B -m unittest discover -s tests -v`.
+- [create-knowledge-hub](skills/create-knowledge-hub/SKILL.md) — tworzy nowy hub.
+- [curate-knowledge-hub](skills/curate-knowledge-hub/SKILL.md) — obsługuje zadanie
+  w istniejącym repozytorium Git według jego własnego kontraktu.
 
-Inspiracje: [LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f),
-[OKF 0.2](https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/main/SPEC.md)
-i lokalny projekt `../founders-workbooks`.
+Skille nie są zainstalowane globalnie. Można przekazać agentowi ścieżkę do
+SKILL.md albo przenieść cały wybrany pakiet. Sam merge w silniku nie zmienia
+instrukcji istniejących hubów ani konfiguracji innych agentów.
+
+## Wersje i możliwości
+
+Format: OKF 0.2. Lokalny profil pracy ma osobną wersję w `hub.json`.
+Zmiana szablonów obejmuje nowe huby; istniejące wymagają jawnej migracji.
+Nie ma automatycznego migratora ani obowiązku natychmiastowego przyjęcia
+każdej nowej wersji OKF.
+
+Działają generator i instrukcje redakcji. Automatyczny ingest, synchronizacja,
+pełny walidator OKF i integracje operacyjne nie są zaimplementowane.
+
+[Architektura](docs/architecture.md) · [Diagram przepływu](docs/architecture.svg) ·
+[Opcjonalny model wielu hubów](docs/system-architecture.svg)
+
+Testy: `python3 -B -m unittest discover -s tests -v`.
+
+Inspiracje: [LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
+i [OKF](https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/main/SPEC.md).

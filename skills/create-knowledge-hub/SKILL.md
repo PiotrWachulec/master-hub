@@ -5,8 +5,9 @@ description: Twórz samodzielne huby wiedzy Markdown dla Obsidiana według wzorc
 
 # Utwórz hub wiedzy
 
-Ten pakiet zawiera generator i kontrakt pracy wyprowadzony z Founders
-Workbooks. Wszystkie potrzebne zasoby znajdują się w tym katalogu.
+Ten pakiet zawiera przenośny generator i kontrakt pracy z wiedzą.
+Wszystkie potrzebne zasoby znajdują się w tym katalogu. Nie zakłada
+istnienia konkretnego huba ani dostępu do innych repozytoriów.
 
 ## Przebieg
 
