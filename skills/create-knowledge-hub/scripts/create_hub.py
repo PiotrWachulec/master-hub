@@ -8,7 +8,7 @@ from pathlib import Path
 import re
 import sys
 
-PROFILE_VERSION = "0.1.1"
+PROFILE_VERSION = "0.2.0"
 ASSETS = Path(__file__).resolve().parent.parent / "assets" / "hub"
 
 
@@ -28,10 +28,12 @@ def hub_id(value: str) -> str:
 def build_files(args: argparse.Namespace) -> dict[Path, str]:
     files = {
         path.relative_to(ASSETS): path.read_text(encoding="utf-8")
-        for path in sorted(ASSETS.rglob("*")) if path.is_file()
+        for path in sorted(ASSETS.rglob("*"))
+        if path.is_file() and '__pycache__' not in path.parts and path.suffix != '.pyc'
     }
-    if Path("SCHEMA.md") not in files or Path("AGENTS.md") not in files:
-        raise ValueError("Brakuje szablonów assets/hub; przenieś cały katalog skilla.")
+    required = ("SCHEMA.md", "AGENTS.md", "scripts/validate_hub.py")
+    if any(Path(name) not in files for name in required):
+        raise ValueError("Brakuje kontraktu lub walidatora w assets/hub; przenieś cały katalog skilla.")
     config = {
         "profile_version": PROFILE_VERSION,
         "okf_version": "0.2",
@@ -41,6 +43,12 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
         "owner": args.owner,
         "domain": args.domain,
         "bundle_root": "knowledge",
+        "quality": {
+            "validator": "scripts/validate_hub.py",
+            "metric": "violations",
+            "threshold": 0,
+            "max_fix_iterations": 5,
+        },
         "concept_types": ["Źródło", "Koncept", "Metoda", "Zasada", "Przykład",
                           "Synteza", "Narzędzie", "Decyzja"],
         "policy": {
@@ -73,11 +81,24 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
         "Reguły polityki opisują pracę agenta, nie techniczne uprawnienia. "
         "Korekty przekazuj agentowi; ich trwały zapis trafia do "
         "[decyzji](knowledge/90-decisions/index.md).\n\n"
+        "## Kontrola struktury\n\n"
+        "Skrypty Python uruchamiaj zawsze w lokalnym `.venv`. Jeśli go nie ma, "
+        "w katalogu huba wykonaj `python3 -m venv .venv` (Python 3.10+). "
+        "Nie nadpisuj niesprawnego środowiska. Nie instaluj paczek globalnie, "
+        "przez pip --user/sudo pip ani z --system-site-packages. "
+        "Walidator nie potrzebuje dodatkowych paczek. Następnie uruchom "
+        "`.venv/bin/python -B scripts/validate_hub.py` z katalogu huba "
+        "(Windows: `.venv/Scripts/python.exe`). Z innego katalogu podaj pełne "
+        "ścieżki do interpretera i skryptu. JSON na stdout zawiera "
+        "`violations`, `errors`, `warnings`; diagnostyka jest na stderr. "
+        "Sukces wymaga kodu 0 i `violations == 0`. Zielony wynik potwierdza "
+        "wyłącznie strukturę lokalnego profilu, nie treść ani cały standard OKF. "
+        "Pętla naprawy i jej limit są opisane w AGENTS.md oraz SCHEMA.md.\n\n"
         f"Wygenerowano według profilu {PROFILE_VERSION}. "
         "Ten katalog nie wymaga dostępu do generatora ani nadrzędnego repozytorium.\n"
     )
     files[Path(".gitignore")] = (
-        ".DS_Store\n.runtime/\n.obsidian/workspace.json\n"
+        ".DS_Store\n.venv/\n__pycache__/\n*.pyc\n.runtime/\n.obsidian/workspace.json\n"
         ".obsidian/workspaces.json\n.env\n.env.*\n!.env.example\n"
     )
     files[Path(".obsidian/app.json")] = json.dumps(

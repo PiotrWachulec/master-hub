@@ -9,9 +9,10 @@ Dwa podstawowe działania: **„rozwiń moją wiedzę”** i **„wykorzystaj j�
 Zachowujemy dwa uzupełniające się widoki:
 
 - [Przepływ wiedzy](architecture.svg) — codzienna praca: źródła → wiki → różne rezultaty.
-- [Architektura całego systemu](system-architecture.svg) — wcześniejszy diagram:
-  data lake, hub osobisty, pakiety wiedzy, hub firmy i agent operacyjny.
-  Ten szerszy widok opisuje możliwości docelowe, nie wymagania na start.
+- [Architektura całego systemu](system-architecture.svg) — niezależne huby
+  i agent korzystający ze wskazanej wiedzy oraz kontekstu firmy.
+  Bez importowania hubów, pakietów i synchronizacji. To opcjonalny sposób
+  pracy agenta, nie dodatkowy mechanizm silnika.
 
 ## 1. Dodaj materiał do bazy
 
@@ -67,14 +68,21 @@ działania są osobnymi sprawami.
 
 ## Organizacja repozytoriów
 
-`master-hub` zawiera wzorzec, generator i dokumentację. Twoja biblioteka
-ma osobne repozytorium `../personal-hub`. Kolejne huby również powstają
-osobno. Schemat opisuje pracę wewnątrz każdego z nich.
+`master-hub` zawiera wyłącznie narzędzie, szablony i dokumentację.
+Nie przechowuje rejestru hubów. Hub docelowy wskazuje użytkownik; może on
+mieć własne repozytorium albo być częścią projektu. Schemat opisuje wzorzec
+pracy wewnątrz huba, nie istniejące instalacje.
 
 Dokumenty wiedzy są w `knowledge/`, w warstwach `00-bronze`,
 `10-silver` i `20-gold`. Kontrakt i konfiguracja leżą poza bundle'em OKF;
 decyzje użytkownika są zapisywane osobno w `knowledge/90-decisions/`.
 Reguły i metadane definiuje SCHEMA.md danego huba.
+
+Agent może na zlecenie czytać teorię w jednym hubie i kontekst w drugim.
+Wynik zapisuje w hubie odbiorcy. Wykorzystanie dodatkowego huba odnotowuje
+zwykłym tekstem, bez formalnych referencji między repozytoriami. Taki opis
+nie jest walidowany i nie zastępuje lokalnych sources wymaganych w silver/gold.
+Nie kopiujemy bibliotek między hubami ani nie propagujemy zmian automatycznie.
 
 Obecnie treści opracowuje agent według kontraktu. Diagram nie oznacza
 uruchomionego automatycznego procesu w tle. [Plan na teraz](plan.md)
@@ -82,7 +90,6 @@ zaczyna się od jednego materiału; wynik gold zamawiasz, kiedy go potrzebujesz.
 
 ## Podstawa wzorca
 
-- Działająca implementacja w lokalnym `../founders-workbooks`.
 - [LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f):
   przyrostowe utrzymywanie wiedzy przez agenta.
 - [OKF](https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/main/SPEC.md):

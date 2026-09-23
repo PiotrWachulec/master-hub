@@ -1,6 +1,6 @@
 # Profil nowego huba
 
-`hub.json` konfiguruje lokalny wzorzec (wersja 0.1.1). Nie jest elementem
+`hub.json` konfiguruje lokalny wzorzec (wersja 0.2.0). Nie jest elementem
 standardu OKF. Deklaracje polityki są instrukcjami dla agenta; generator
 nie instaluje procesu, który je technicznie egzekwuje.
 
@@ -14,6 +14,7 @@ nie instaluje procesu, który je technicznie egzekwuje.
 | `bundle_root` | `knowledge`, granica dokumentów OKF |
 | `concept_types` | początkowy słownik; dostosuj go po pierwszym materiale |
 | `policy` | etap automatyzacji redakcji, publikacji i działań zewnętrznych |
+| `quality` | lokalny walidator, metryka violations, próg 0 i limit 5 cykli naprawy |
 
 Domyślne typy: Źródło, Koncept, Metoda, Zasada, Przykład, Synteza, Narzędzie,
 Decyzja. Nie są zamkniętą taksonomią wiedzy. Nowe typy dodawaj, kiedy odróżniają
@@ -21,6 +22,11 @@ rzeczy potrzebne odbiorcy, np. eksperyment, metrykę lub segment klientów.
 
 Katalog skilla można skopiować w całości. Szablony są zasobami generatora.
 Zmiana szablonu dotyczy nowych hubów; istniejący hub zachowuje własny kontrakt.
+
+Profil 0.2.0 dodaje niezależny skrypt scripts/validate_hub.py do huba.
+Format OKF pozostaje 0.2. Migracja z 0.1.1 jest ręczna i wymaga przeglądu
+istniejących metadanych oraz ścieżek; procedura w docs/migration-0.2.0.md
+w repozytorium generatora. Sam hub nie potrzebuje tego repozytorium do walidacji.
 
 ## Migracja istniejącego huba z 0.1.0 do 0.1.1
 

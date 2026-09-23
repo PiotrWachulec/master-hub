@@ -35,7 +35,10 @@ class CreateHubTests(unittest.TestCase):
         self.assertEqual(config["owner"], 'Spółka "Żółw"')
         self.assertEqual(config["policy"]["external_actions"], "disabled")
         self.assertEqual(config["kind"], "company")
+        self.assertIn(".venv/", (destination / ".gitignore").read_text().splitlines())
+        self.assertFalse((destination / ".venv").exists())
         self.assertTrue((destination / config["bundle_root"]).is_dir())
+        self.assertFalse((destination / config["bundle_root"] / "imports").exists())
         self.assertEqual(json.loads((destination / ".obsidian/app.json").read_text())
                          ["newLinkFormat"], "relative")
         # The generated hub must not retain a dependency on either installation path.
@@ -87,6 +90,15 @@ class CreateHubTests(unittest.TestCase):
             with self.subTest(extra=extra):
                 self.assertNotEqual(self.run_generator(destination, *extra).returncode, 0)
                 self.assertFalse(destination.exists())
+
+    def test_incomplete_skill_without_validator_is_refused(self):
+        copied = self.root / "incomplete-skill"
+        shutil.copytree(SKILL, copied)
+        (copied / "assets/hub/scripts/validate_hub.py").unlink()
+        destination = self.root / "hub"
+        result = self.run_generator(destination, script=copied / "scripts/create_hub.py")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse(destination.exists())
 
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
 # Dwa polecenia do codziennej pracy
 
-Hub osobisty jest w osobnym repozytorium `personal-hub`, obok `master-hub`.
-Otwórz go jako projekt i vault Obsidiana. Nie trzeba projektować taksonomii
-ani uruchamiać generatora.
+Pracuj w hubie wskazanym przez użytkownika, nie w repozytorium silnika.
+Otwórz katalog huba jako projekt, opcjonalnie jako vault Obsidiana.
+Istniejący hub nie wymaga ponownego uruchamiania generatora.
 
 ## 1. Dodaj materiał — bez określania zastosowania
 
@@ -41,8 +41,10 @@ Nie jest to obowiązkowy przebieg każdego importu.
 
 Agent czyta `AGENTS.md`, `SCHEMA.md`, `hub.json` i indeks wiedzy,
 aktualizuje odpowiednie indeksy oraz log, a nowe opracowania przedstawia jako
-wersje robocze do przeglądu. Publikacja do innych hubów i działania zewnętrzne
-wymagają osobnego zlecenia.
+wersje robocze do przeglądu. W profilu 0.2.0 uruchamia lokalny walidator
+i ograniczoną pętlę naprawy zgodnie z kontraktem. Brak kontroli lub naruszenia
+po wyczerpaniu limitu zatrzymują pracę; nie są raportowane jako sukces.
+Publikacja opracowań i działania zewnętrzne wymagają osobnego zlecenia.
 
 Na tym etapie pracę wykonuje agent według kontraktu. Generator tworzy
 strukturę, nie wywołuje modelu i nie przetwarza źródeł.
