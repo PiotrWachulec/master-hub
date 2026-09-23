@@ -59,6 +59,15 @@ class CreateHubTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertFalse(destination.parent.exists())
 
+    def test_generated_contract_is_self_contained_without_initializing_git(self):
+        destination = self.root / 'hub'
+        result = self.run_generator(destination)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for name in ('AGENTS.md', 'SCHEMA.md'):
+            self.assertEqual((destination / name).read_bytes(),
+                             (SKILL / 'assets/hub' / name).read_bytes())
+        self.assertFalse((destination / '.git').exists())
+
     def test_existing_hub_is_preserved(self):
         destination = self.root / "hub"
         self.assertEqual(self.run_generator(destination).returncode, 0)

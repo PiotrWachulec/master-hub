@@ -268,6 +268,15 @@ operacyjne. `hub.json` opisuje początkową politykę: agent przygotowuje lokaln
 wersje robocze, publikacja wymaga przyjęcia, działania zewnętrzne są wyłączone.
 To instrukcja pracy, a nie techniczna kontrola uprawnień.
 
+Zapis wersji roboczych do uzgodnionego repozytorium Git jest częścią redakcji,
+nie publikacją opracowań ani operacyjnym działaniem systemu. Agent wykonuje
+commit i push po każdym zakończonym, sprawdzonym zadaniu oraz po spójnych
+etapach dłuższej pracy, zgodnie z sekcją „Bieżąca kopia zdalna” w AGENTS.md.
+Nie czeka na osobne zlecenie push; respektuje jednak polecenie pracy lokalnej.
+Brak potwierdzonego push wymaga jawnego raportu o braku aktualnej kopii.
+Walidator nie sprawdza Git ani backupu. Kopia obejmuje tylko wypchnięte pliki
+wersjonowane, nie zewnętrzne oryginały. Generator nie konfiguruje remote.
+
 Nie włączaj do huba danych innego właściciela bez zadania, które je obejmuje.
 Nie kopiuj sekretów do wiedzy. Odczyt innego huba nie oznacza zgody na jego
 zmianę ani przeniesienie jego zawartości do huba docelowego.

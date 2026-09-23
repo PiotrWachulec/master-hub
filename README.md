@@ -55,6 +55,18 @@ Nowa koncepcja może dostać nowy katalog bez nadpisywania poprzedniego.
 
 [Przykłady poleceń](docs/first-run.md) · [Plan użycia](docs/plan.md)
 
+## Kopia zdalna właściwych hubów
+
+Nowe huby zobowiązują agenta do commit i push po zakończonych, zwalidowanych
+zadaniach oraz spójnych etapach dłuższej pracy. Nie trzeba osobno mówić
+„wypychaj”. Cel i dostęp do repozytorium uzgadnia się przy pierwszej
+konfiguracji; generator sam nie tworzy Git ani remote. Agent potwierdza
+commit w repozytorium zdalnym lub zgłasza brak aktualnej kopii.
+
+To instrukcja pracy agenta, nie backup w tle. Obejmuje wypchnięte pliki Git,
+nie zewnętrzne nagrania czy pliki ignorowane. Istniejące huby nie zmieniają
+się automatycznie: [jawne przyjęcie reguły](docs/hub-git-backup.md).
+
 ## Dwa przenośne skille
 
 - [create-knowledge-hub](skills/create-knowledge-hub/SKILL.md) — tworzy nowy hub.

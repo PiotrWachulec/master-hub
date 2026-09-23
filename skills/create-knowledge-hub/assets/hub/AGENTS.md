@@ -32,6 +32,53 @@ Nowe opracowania są propozycjami (`status: draft`). Aktualizuj indeksy
 i log wraz z treścią. Nie deklaruj przeglądu przez człowieka bez jego
 rzeczywistej decyzji odnoszącej się do konkretnej treści.
 
+## Bieżąca kopia zdalna — commit i push
+
+Zlecenie redakcji w tym hubie obejmuje commit i push zmian zadania do
+uzgodnionego repozytorium zdalnego. Nie czekaj na dodatkowe „wypychaj”.
+Wyraźne polecenie pracy wyłącznie lokalnej ma pierwszeństwo. Sam odczyt,
+analiza lub rozmowa bez zlecenia zmian nie uruchamia commit/push.
+
+- Przed edycją sprawdź repozytorium, status, branch, upstream i adres push.
+  Cel musi być uzgodniony z użytkownikiem i odpowiedni dla poufności danych;
+  sama obecność remote nie jest zgodą na wysłanie tam wiedzy. Brak Git,
+  uzgodnionego celu lub dostępu zgłoś od razu. Nie twórz repozytorium ani
+  nie zmieniaj remote lub widoczności bez zgody. Hub w katalogu projektu
+  korzysta z jego Git, bez zagnieżdżonego repozytorium.
+  Przy pierwszym uzgodnieniu zapisz cel i zakres dostępu w `90-decisions`
+  (bez danych uwierzytelniających), żeby nie pytać o tę samą zgodę co sesję.
+- Po zakończonym zadaniu i zielonej walidacji wykonaj commit oraz push.
+  Przy dłuższej pracy rób to także po spójnych, sprawdzonych etapach
+  (np. po opracowaniu jednego materiału), nie dopiero na końcu całej sesji.
+  Zwykłe treści mogą trafiać do uzgodnionej gałęzi głównej jako draft.
+  Zmiany kontraktu kieruj na osobny branch i PR; push nie oznacza merge.
+- Przejrzyj diff i stage'uj wyłącznie pliki lub fragmenty własnego zadania,
+  w tym nowe źródła, indeksy i log. Nie dołączaj cudzych zmian ani commitów,
+  sekretów, `.venv` i plików ignorowanych. Nie używaj zbiorczego `git add .`
+  bez sprawdzenia zakresu. Istniejącego stagingu nie commituj w ciemno.
+- Przed pushem pobierz stan uzgodnionego remote. Aktualizuj bazę wyłącznie
+  bez utraty zmian (ff-only; rebase tylko własnych commitów w czystym drzewie),
+  po zmianie podstawy ponów walidację. Konflikt lub nieznane commity wymagają
+  uzgodnienia. Nigdy force push, automatyczny stash/reset ani obchodzenie
+  ochrony gałęzi. Jeśli wymaga PR, wypchnij własną gałąź i otwórz PR,
+  bez samodzielnego merge.
+- Potwierdź powodzenie push i obecność commita w docelowej gałęzi remote
+  (np. fetch i sprawdzenie, że commit jest jej przodkiem). Lokalny commit
+  ani sam komunikat „working tree clean” nie dowodzą zdalnej kopii.
+  Bez nowych zmian nie twórz pustego commita; wcześniejszy niewypchnięty
+  commit tego zadania wymaga dokończenia push, jeśli nadal jest autoryzowany.
+- W raporcie podaj commit, remote/branch, wynik walidacji i status kopii.
+  Przy awarii sieci, odrzuceniu push lub czerwonej walidacji zachowaj pracę
+  lokalnie, zgłoś „brak aktualnej kopii zdalnej” i co pozostało lokalnie.
+  Nie raportuj pełnego zakończenia; nie ponawiaj bez końca ani nie obniżaj
+  kontroli jakości. Dalsze zadania zapisu wymagają uzgodnienia pracy lokalnej
+  albo usunięcia blokady. Błąd walidacji nadal zatrzymuje pętlę jak poniżej.
+
+To kopia wersjonowanych plików wykonywana przez agenta, nie backup w tle.
+Nie obejmuje nagrań pod zewnętrznymi linkami, plików ignorowanych ani zmian,
+których jeszcze nie zapisano i nie wypchnięto. Nie zastępuje osobnego backupu
+oryginałów. Zapis wersji draft w Git nie jest zatwierdzeniem treści.
+
 ## Obowiązkowa kontrola po redakcji
 
 Skrypty Python zawsze uruchamiaj w lokalnym `.venv` huba. Jeśli go nie ma,
