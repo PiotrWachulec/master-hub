@@ -52,11 +52,13 @@ istnienia konkretnego huba ani dostępu do innych repozytoriów.
 
 Generator nie pobiera materiałów, nie inicjalizuje synchronizacji, nie
 konfiguruje kont i nie zmienia budżetów. Źródła i dane właścicieli pozostają
-w swoim zakresie. Tworzenie huba nie oznacza zgody na import danych z innych hubów.
+w swoim zakresie. Tworzenie huba nie oznacza zgody na odczyt innych hubów.
 
 ## Dalsza praca
 
 Hub ma własne AGENTS.md i SCHEMA.md i działa bez dostępu do tego pakietu.
 Użytkownik redaguje wiedzę przez rozmowę z agentem. Korekty zapisuj jako
-decyzje, żeby kolejne przetwarzanie je uwzględniało. Współdzielony silnik,
-importy pakietów i automatyzacje operacyjne rozwijaj jako oddzielne funkcje.
+decyzje, żeby kolejne przetwarzanie je uwzględniało. Nie twórz mechanizmu
+importu, dystrybucji pakietów ani synchronizacji między hubami. Dodatkowy
+kontekst z huba wskazanego przez użytkownika można odnotować zwykłym tekstem
+w opracowaniu; zasady lokalnych źródeł opisuje SCHEMA.md.

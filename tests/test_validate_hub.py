@@ -88,6 +88,82 @@ class ValidateHubTests(unittest.TestCase):
             '# Log\n\n## 2026-09-23\n\nDodano koncept.\n\n## 2026-09-22\n\nStarszy wpis.\n')
         self.validate()
 
+    def test_nested_index_and_log_require_metadata(self):
+        for layer in ('00-bronze', '10-silver', '20-gold', '90-decisions', 'custom'):
+            for name in ('index.md', 'log.md'):
+                with self.subTest(layer=layer, name=name):
+                    path = self.hub / 'knowledge' / layer / 'product' / name
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_text('# Dokument bez metadanych\n', encoding='utf-8')
+                    report = self.validate(False, 'Missing frontmatter')
+                    self.assertTrue(all(e['file'] == path.relative_to(self.hub).as_posix()
+                                        for e in report['errors']))
+                    path.unlink()
+
+    def test_non_scaffold_index_and_layer_log_are_not_exempt(self):
+        for relative in ('custom/index.md', '00-bronze/log.md', '10-silver/log.md',
+                         '20-gold/log.md', '90-decisions/log.md'):
+            with self.subTest(relative=relative):
+                path = self.hub / 'knowledge' / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text('# Log\n\n## 2026-09-23\n\nTreść.\n', encoding='utf-8')
+                self.validate(False, 'Missing frontmatter')
+                path.unlink()
+
+    def test_nested_index_and_log_require_sources_in_silver_and_gold(self):
+        text = DOCUMENT.split('sources:')[0] + '---\n# Produkt\n'
+        for layer in ('10-silver', '20-gold'):
+            for name in ('index.md', 'log.md'):
+                with self.subTest(layer=layer, name=name):
+                    path = self.hub / 'knowledge' / layer / 'product' / name
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    self.fixture(text, path)
+                    report = self.validate(False, 'requires nonempty sources')
+                    self.assertEqual(report['violations'], 1)
+                    path.unlink()
+
+    def test_valid_nested_index_and_log_keep_source_and_link_checks(self):
+        text = DOCUMENT.replace('../00-bronze/', '../../00-bronze/')
+        for layer in ('10-silver', '20-gold'):
+            for name in ('index.md', 'log.md'):
+                with self.subTest(layer=layer, name=name):
+                    path = self.hub / 'knowledge' / layer / 'product' / name
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    self.fixture(text, path)
+                    self.validate()
+                    self.fixture(text.replace('resource: ../../00-bronze/source.txt',
+                                              'resource: ../../00-bronze/missing.txt'), path)
+                    self.validate(False, 'does not exist')
+                    self.fixture(text + '\n[Brak](missing.md)\n', path)
+                    self.validate(False, 'does not exist')
+                    self.fixture(text.replace('[^input]: Fragment materiału.', ''), path)
+                    self.validate(False, 'Missing footnote definition')
+                    path.unlink()
+
+    def test_navigation_indexes_still_check_links_and_declared_sources(self):
+        for relative in ('index.md', '00-bronze/index.md', '10-silver/index.md',
+                         '20-gold/index.md', '90-decisions/index.md'):
+            with self.subTest(relative=relative):
+                path = self.hub / 'knowledge' / relative
+                original = path.read_text(encoding='utf-8')
+                path.write_text(original + '\n[Brak](missing.md)\n', encoding='utf-8')
+                self.validate(False, 'does not exist')
+                path.write_text('---\nokf_version: "0.2"\nsources:\n'
+                                '  - id: missing\n    resource: missing.txt\n---\n'
+                                'Opis.[^missing]\n\n[^missing]: Źródło.\n', encoding='utf-8')
+                self.validate(False, 'does not exist')
+                path.write_text(original, encoding='utf-8')
+        self.validate()
+
+    def test_generated_hub_needs_no_imports_directory(self):
+        self.assertFalse((self.hub / 'knowledge/imports').exists())
+        self.validate()
+
+    def test_plain_text_cross_hub_context_is_not_a_structural_reference(self):
+        self.fixture(DOCUMENT + '\nKontekst dodatkowy: hub sprzedażowy, '
+                     'dokument SPIN, odczyt 2026-09-23.\n')
+        self.validate()
+
     def test_validator_does_not_write_even_on_failure(self):
         self.fixture(DOCUMENT.replace('status: draft', 'status: bad'))
         before = {p.relative_to(self.hub): p.read_bytes() for p in self.hub.rglob('*') if p.is_file()}

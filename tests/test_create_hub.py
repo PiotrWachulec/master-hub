@@ -38,6 +38,7 @@ class CreateHubTests(unittest.TestCase):
         self.assertIn(".venv/", (destination / ".gitignore").read_text().splitlines())
         self.assertFalse((destination / ".venv").exists())
         self.assertTrue((destination / config["bundle_root"]).is_dir())
+        self.assertFalse((destination / config["bundle_root"] / "imports").exists())
         self.assertEqual(json.loads((destination / ".obsidian/app.json").read_text())
                          ["newLinkFormat"], "relative")
         # The generated hub must not retain a dependency on either installation path.

@@ -44,8 +44,7 @@ aktualizuje odpowiednie indeksy oraz log, a nowe opracowania przedstawia jako
 wersje robocze do przeglądu. W profilu 0.2.0 uruchamia lokalny walidator
 i ograniczoną pętlę naprawy zgodnie z kontraktem. Brak kontroli lub naruszenia
 po wyczerpaniu limitu zatrzymują pracę; nie są raportowane jako sukces.
-Publikacja do innych hubów i działania zewnętrzne
-wymagają osobnego zlecenia.
+Publikacja opracowań i działania zewnętrzne wymagają osobnego zlecenia.
 
 Na tym etapie pracę wykonuje agent według kontraktu. Generator tworzy
 strukturę, nie wywołuje modelu i nie przetwarza źródeł.

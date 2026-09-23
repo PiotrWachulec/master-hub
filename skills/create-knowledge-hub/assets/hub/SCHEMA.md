@@ -12,7 +12,6 @@ do bundle'a. Dodatkowe reguły poniżej są lokalnym profilem pracy, nie wymagan
 | `10-silver` | pojęcia, zasady, syntezy, sprzeczności | rozwijaj istniejącą wiedzę z zachowaniem atrybucji |
 | `20-gold` | produkty dla konkretnego zastosowania | opisuj odbiorcę, sposób użycia i ograniczenia |
 | `90-decisions` | korekty i decyzje użytkownika | zapisuj zakres, powód i dokumenty objęte decyzją |
-| `imports` | przyszłe lokalne kopie wydań innych hubów | zachowuj oryginał importu; adaptacje twórz osobno |
 
 Nowy materiał musi mieć identyfikację pochodzenia. Dla nagrania zachowaj
 lokalizację oryginału, wersję transkrypcji i znaczniki czasu, jeśli są dostępne.
@@ -21,7 +20,18 @@ streszczenia przed zachowaniem dostępnego pełnego tekstu w bronze.
 
 ## Dokumenty i odsyłacze
 
-Każdy `.md` w bundle'u poza `index.md` i `log.md` ma frontmatter YAML.
+Każdy `.md` w bundle'u ma frontmatter YAML z metadanymi dokumentu, poza
+zamkniętą listą plików nawigacyjnych i głównym logiem (ścieżki względem huba):
+
+- `knowledge/index.md`;
+- `knowledge/00-bronze/index.md`;
+- `knowledge/10-silver/index.md`;
+- `knowledge/20-gold/index.md`;
+- `knowledge/90-decisions/index.md`;
+- `knowledge/log.md`.
+
+Inne pliki nazwane `index.md` lub `log.md`, np.
+`knowledge/20-gold/ebook/index.md`, są zwykłymi dokumentami, nie wyjątkami.
 Lokalnie wymagamy `type`, `title`, `description`, jawnego `status` i informacji
 `generated` zgodnej z rzeczywistym autorstwem. Silver i gold wymagają `sources`.
 Typy startowe są w `hub.json`; można je świadomie rozszerzać.
@@ -53,8 +63,10 @@ względne odsyłacze Markdown i stabilne nazwy plików ASCII. Przy przeniesieniu
 pliku aktualizuj odsyłacze i wskazania źródeł. Identyfikacja konceptu w OKF
 wynika ze ścieżki względem korzenia bundle'a.
 
-`index.md` zawiera odsyłacze i krótkie opisy. Jedynie główny indeks bundle'a
-ma frontmatter `okf_version: "0.2"`. `log.md` ma wpisy pod datami YYYY-MM-DD,
+Indeksy nawigacyjne z powyższej listy zawierają odsyłacze i krótkie opisy,
+nie zastępują dokumentów wiedzy. Główny indeks bundle'a wymaga frontmattera
+`okf_version: "0.2"`; indeksy warstw nie wymagają metadanych dokumentu.
+`knowledge/log.md` ma wpisy pod datami YYYY-MM-DD,
 najnowsze na górze, bez frontmatteru. Log dokumentuje zmiany; nie zastępuje
 źródeł ani decyzji użytkownika.
 
@@ -72,7 +84,7 @@ venv z `-m pip`. Walidator nie tworzy środowiska ani niczego nie instaluje.
 Sprawdza:
 
 - wymagane pliki szkieletu, konfigurację hub.json i wszystkie `.md` w knowledge;
-- frontmatter dokumentów (poza index.md i log.md): type, title, description,
+- frontmatter dokumentów (poza zamkniętą listą wyjątków powyżej): type, title, description,
   status, generated; typ należy do concept_types, status do draft/stable/deprecated;
 - generated.by jest niepustym tekstem, generated.at to data i czas ISO 8601
   z `T` i strefą (np. `2026-09-23T12:00:00Z` lub `2026-09-23T14:00:00+02:00`);
@@ -81,7 +93,7 @@ Sprawdza:
 - użyte przypisy mają definicję oraz sources[].id; nieużyte id dają ostrzeżenie;
 - względne odsyłacze Markdown prowadzą do istniejących plików;
 - główny knowledge/index.md deklaruje okf_version: "0.2";
-- log.md nie ma frontmattera; wpisy są pod nagłówkami `## YYYY-MM-DD`,
+- knowledge/log.md nie ma frontmattera; wpisy są pod nagłówkami `## YYYY-MM-DD`,
   z poprawnymi, niepowtarzającymi się datami od najnowszej do najstarszej.
   Pusty log może zawierać tylko nagłówek H1 i puste linie.
 
@@ -150,11 +162,21 @@ sources:
 
 Resource musi wskazywać lokalny plik w obrębie huba, względnie do dokumentu.
 URL pochodzenia zapisuj osobno, np. origin_url w notatce bronze. Sam URL
-w sources.resource nie wystarcza do tej lokalnej kontroli. Źródło poza hubem
-wymaga jawnego przyjęcia lokalnej kopii/wyciągu; nie kopiuj bez uprawnienia.
-Wyciąg nie może udawać pełnego oryginału. Surowy tekst można zachować jako
+w sources.resource nie wystarcza do tej lokalnej kontroli. Surowy tekst można zachować jako
 `.txt` i opisać notatką bronze z metadanymi; nie zmieniaj historycznego źródła
 tylko po to, aby spełnić nowe reguły.
+
+Huby pozostają niezależne: nie ma katalogu imports, pakietów wiedzy ani
+synchronizacji między hubami. Gdy użytkownik wskaże dodatkowy hub jako
+materiał do zadania, można go czytać bez kopiowania jego wiedzy. Wynik
+zapisuj wyłącznie we wskazanym hubie docelowym. Pomocniczy ślad zapisz
+zwykłym tekstem w treści, np. „Kontekst dodatkowy: hub sprzedażowy,
+dokument SPIN, odczyt 2026-09-23”; wersję dopisz, jeśli jest znana.
+Nie wymaga to pola YAML ani odsyłacza Markdown między repozytoriami.
+Ten opis nie jest sprawdzany przez walidator i nie zastępuje wymaganych
+lokalnych sources ani przypisów. Nie dopisuj pozornych lokalnych źródeł:
+jeśli opracowanie opiera się wyłącznie na innym hubie, zgłoś ograniczenie
+obecnego kontraktu zamiast deklarować poprawną lokalną atrybucję.
 
 Linki inline (także obrazy), odsyłacze referencyjne `[opis][id]`, `[id][]`
 i `[id]` z definicją `[id]: ścieżka` są sprawdzane. Definicja odsyłacza mieści
@@ -241,12 +263,12 @@ aktualności tylko dlatego, że dokument został ponownie wygenerowany.
 
 ## Autonomia i własność
 
-Trzy osobne zakresy: redakcja wiki, publikacja do innych hubów oraz działania
+Trzy osobne zakresy: redakcja wiki, publikacja opracowań oraz działania
 operacyjne. `hub.json` opisuje początkową politykę: agent przygotowuje lokalne
 wersje robocze, publikacja wymaga przyjęcia, działania zewnętrzne są wyłączone.
 To instrukcja pracy, a nie techniczna kontrola uprawnień.
 
 Nie włączaj do huba danych innego właściciela bez zadania, które je obejmuje.
-Nie kopiuj sekretów do wiedzy. Przy imporcie przyszłych pakietów zachowuj
-wersję i pochodzenie, a lokalne adaptacje zapisuj poza kopią importowaną.
+Nie kopiuj sekretów do wiedzy. Odczyt innego huba nie oznacza zgody na jego
+zmianę ani przeniesienie jego zawartości do huba docelowego.
 Zmiana wiedzy nie daje uprawnienia do zmiany budżetu ani konfiguracji firmy.

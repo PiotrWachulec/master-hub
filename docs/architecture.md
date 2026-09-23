@@ -9,9 +9,10 @@ Dwa podstawowe działania: **„rozwiń moją wiedzę”** i **„wykorzystaj j�
 Zachowujemy dwa uzupełniające się widoki:
 
 - [Przepływ wiedzy](architecture.svg) — codzienna praca: źródła → wiki → różne rezultaty.
-- [Architektura całego systemu](system-architecture.svg) — wcześniejszy diagram:
-  data lake, hub osobisty, pakiety wiedzy, hub firmy i agent operacyjny.
-  Ten szerszy widok opisuje możliwości docelowe, nie wymagania na start.
+- [Architektura całego systemu](system-architecture.svg) — niezależne huby
+  i agent korzystający ze wskazanej wiedzy oraz kontekstu firmy.
+  Bez importowania hubów, pakietów i synchronizacji. To opcjonalny sposób
+  pracy agenta, nie dodatkowy mechanizm silnika.
 
 ## 1. Dodaj materiał do bazy
 
@@ -76,6 +77,12 @@ Dokumenty wiedzy są w `knowledge/`, w warstwach `00-bronze`,
 `10-silver` i `20-gold`. Kontrakt i konfiguracja leżą poza bundle'em OKF;
 decyzje użytkownika są zapisywane osobno w `knowledge/90-decisions/`.
 Reguły i metadane definiuje SCHEMA.md danego huba.
+
+Agent może na zlecenie czytać teorię w jednym hubie i kontekst w drugim.
+Wynik zapisuje w hubie odbiorcy. Wykorzystanie dodatkowego huba odnotowuje
+zwykłym tekstem, bez formalnych referencji między repozytoriami. Taki opis
+nie jest walidowany i nie zastępuje lokalnych sources wymaganych w silver/gold.
+Nie kopiujemy bibliotek między hubami ani nie propagujemy zmian automatycznie.
 
 Obecnie treści opracowuje agent według kontraktu. Diagram nie oznacza
 uruchomionego automatycznego procesu w tle. [Plan na teraz](plan.md)

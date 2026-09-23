@@ -15,6 +15,12 @@ import sys
 from urllib.parse import unquote, urlsplit
 
 
+NAVIGATION_INDEXES = (
+    'index.md', '00-bronze/index.md', '10-silver/index.md',
+    '20-gold/index.md', '90-decisions/index.md',
+)
+
+
 class SyntaxViolation(ValueError):
     def __init__(self, line: int, message: str):
         self.line = line
@@ -353,14 +359,16 @@ class Validator:
         position = lambda key: next((i for i, s in enumerate(text.splitlines(), 1)
                                     if re.match(rf'\s*(?:- )?{re.escape(key)}:', s)), 1)
         ids = set()
-        if doc.name == 'log.md':
+        relative = doc.relative_to(self.root / 'knowledge').as_posix()
+        navigation_index = relative in NAVIGATION_INDEXES
+        if relative == 'log.md':
             if fm is not None:
                 self.report(doc, 1, "log.md must not contain frontmatter")
             self.log(doc, text)
-        elif doc == self.root / 'knowledge/index.md':
+        elif relative == 'index.md':
             if not isinstance(fm, dict) or fm.get('okf_version') != '0.2':
                 self.report(doc, 1, 'Root index requires okf_version: "0.2"')
-        elif doc.name != 'index.md':
+        elif not navigation_index:
             if fm is None:
                 self.report(doc, 1, "Missing frontmatter")
                 fm = {}
@@ -387,7 +395,7 @@ class Validator:
         fm = fm or {}
         layer = doc.relative_to(self.root / 'knowledge').parts[0]
         sources = fm.get('sources', [])
-        if layer in ('10-silver', '20-gold') and doc.name not in ('index.md', 'log.md') and not sources:
+        if layer in ('10-silver', '20-gold') and not navigation_index and not sources:
             self.report(doc, position('sources'), "Silver/gold requires nonempty sources")
         if not isinstance(sources, list):
             self.report(doc, position('sources'), "sources must be a list")
@@ -438,8 +446,7 @@ class Validator:
         except (OSError, UnicodeError, ValueError, RecursionError) as exc:
             self.report(config_path, 1, str(exc))
         bundle = self.root / 'knowledge'
-        for relative in ('index.md', 'log.md', '00-bronze/index.md', '10-silver/index.md',
-                         '20-gold/index.md', '90-decisions/index.md', 'imports/index.md'):
+        for relative in (*NAVIGATION_INDEXES, 'log.md'):
             if not (bundle / relative).is_file():
                 self.report(bundle / relative, 1, "Required scaffold file is missing")
         if bundle.is_symlink():
