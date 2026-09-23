@@ -88,6 +88,15 @@ class CreateHubTests(unittest.TestCase):
                 self.assertNotEqual(self.run_generator(destination, *extra).returncode, 0)
                 self.assertFalse(destination.exists())
 
+    def test_incomplete_skill_without_validator_is_refused(self):
+        copied = self.root / "incomplete-skill"
+        shutil.copytree(SKILL, copied)
+        (copied / "assets/hub/scripts/validate_hub.py").unlink()
+        destination = self.root / "hub"
+        result = self.run_generator(destination, script=copied / "scripts/create_hub.py")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse(destination.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -32,6 +32,28 @@ Nowe opracowania są propozycjami (`status: draft`). Aktualizuj indeksy
 i log wraz z treścią. Nie deklaruj przeglądu przez człowieka bez jego
 rzeczywistej decyzji odnoszącej się do konkretnej treści.
 
-Hub może działać jako zwykłe pliki Markdown. Nie zakładaj, że istnieją
-automatyczny linter, synchronizacja, narzędzia do publikacji czy zewnętrzne
-integracje — ta wersja szkieletu ich nie instaluje.
+## Obowiązkowa kontrola po redakcji
+
+Po dodaniu materiału, przygotowaniu gold lub korekcie uruchom lokalnie
+`python3 -B scripts/validate_hub.py` (ścieżka względem korzenia huba).
+Odczytaj JSON i kod zakończenia. Sukces wymaga kodu 0, poprawnego JSON
+i violations == quality.threshold == 0. Ostrzeżenia pokaż osobno.
+
+Po pierwszym sprawdzeniu możesz wykonać maksymalnie quality.max_fix_iterations
+cykli „popraw treść → sprawdź ponownie” (domyślnie 5; razem do 6 uruchomień).
+Nie resetuj licznika przez zmianę nazwy zadania. Poprawiaj wyłącznie zakres
+zlecenia; cudze naruszenia, potrzeba zmiany przyjętego bronze lub brak źródła
+nie są zgodą na nadpisywanie danych, usuwanie twierdzeń lub wymyślanie przypisów.
+Przy potrzebie rozszerzenia zakresu zatrzymaj się i poproś użytkownika o decyzję.
+
+Po wyczerpaniu budżetu zatrzymaj pracę i zgłoś pozostałe naruszenia oraz
+wykorzystany limit. Brak skryptu, awaria, brak poprawnego JSON lub błędny
+kontrakt to brak wyniku, nie sukces. Nie publikuj czerwonego wyniku jako gotowego.
+
+Nie modyfikuj walidatora, progu, budżetu, zakresu skanowania ani reguł parsera,
+żeby uzyskać zielone. Podejrzenie błędu walidatora zatrzymuje pętlę: przedstaw
+użytkownikowi przypadek i propozycję zmiany kontraktu. Dopiero osobno zlecona
+zmiana idzie przez branch + PR, bez samodzielnego merge.
+
+Walidator działa lokalnie i tylko czyta. Nie jest pełnym walidatorem OKF.
+Nie ma synchronizacji, automatycznego ingestu ani zewnętrznych integracji.

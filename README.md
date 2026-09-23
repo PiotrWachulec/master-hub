@@ -53,13 +53,37 @@ instrukcji istniejących hubów ani konfiguracji innych agentów.
 
 ## Wersje i możliwości
 
-Format: OKF 0.2. Lokalny profil pracy ma osobną wersję w `hub.json`.
+Format: OKF 0.2. Lokalny profil pracy: 0.2.0, zapisany w `hub.json`.
 Zmiana szablonów obejmuje nowe huby; istniejące wymagają jawnej migracji.
 Nie ma automatycznego migratora ani obowiązku natychmiastowego przyjęcia
 każdej nowej wersji OKF.
 
-Działają generator i instrukcje redakcji. Automatyczny ingest, synchronizacja,
+Na przyszłość zachowujemy [procedurę migracji 0.1.1 → 0.2.0](docs/migration-0.2.0.md).
+Nie zakładamy obecnie żadnych istniejących hubów i nie wykonujemy migracji.
+Dokument nie wymaga ani nie uruchamia rejestru hubów.
+
+Działają generator, instrukcje redakcji i lokalny walidator struktury.
+Automatyczny ingest, synchronizacja,
 pełny walidator OKF i integracje operacyjne nie są zaimplementowane.
+
+## Kontrola struktury w wygenerowanym hubie
+
+```sh
+python3 -B /wybrana/sciezka/nowy-hub/scripts/validate_hub.py
+```
+
+Skrypt jest częścią huba. Nie potrzebuje generatora, sieci ani bibliotek
+zewnętrznych i niczego nie zapisuje. Na stdout daje JSON, np.:
+
+```json
+{"violations": 0, "errors": [], "warnings": []}
+```
+
+Diagnostyka `plik:linia: komunikat` idzie na stderr. Kod wyjścia 0 oznacza
+brak naruszeń. Kontrakt quality ustala próg 0 i maksymalnie 5 cykli
+naprawa/kontrola po pierwszym sprawdzeniu. Zmiana kontroli wymaga osobnego
+PR, nie może być sposobem na ukrycie błędów treści. To kontrola lokalnego,
+udokumentowanego podzbioru formatu, nie dowód prawdziwości ani walidacja OKF.
 
 [Architektura](docs/architecture.md) · [Diagram przepływu](docs/architecture.svg) ·
 [Opcjonalny model wielu hubów](docs/system-architecture.svg)

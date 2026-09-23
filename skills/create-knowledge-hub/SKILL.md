@@ -32,6 +32,9 @@ istnienia konkretnego huba ani dostępu do innych repozytoriów.
 4. Sprawdź konfigurację, indeksy i kontrakt wygenerowanego huba. Istniejący
    katalog jest odrzucany — nie usuwaj go, żeby ominąć tę ochronę. Wybierz
    nowy cel lub przygotuj migrację, jeśli użytkownik o nią poprosił.
+   Uruchom `python3 -B <katalog-huba>/scripts/validate_hub.py` i pokaż JSON
+   oraz kod wyjścia. Nowy szkielet powinien mieć zero naruszeń. To kontrola
+   struktury lokalnego profilu, nie dowód jakości przyszłych treści.
 5. Podaj lokalizację vaulta i dwa niezależne polecenia: dodanie materiału
    do bronze/silver oraz zamówienie wyniku gold z istniejącej wiedzy.
    Dodanie materiału nie wymaga celu biznesowego. Nie nazywaj
