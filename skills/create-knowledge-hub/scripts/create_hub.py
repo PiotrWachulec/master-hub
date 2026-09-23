@@ -8,7 +8,7 @@ from pathlib import Path
 import re
 import sys
 
-PROFILE_VERSION = "0.2.0"
+PROFILE_VERSION = "0.2.1"
 ASSETS = Path(__file__).resolve().parent.parent / "assets" / "hub"
 
 
@@ -55,6 +55,7 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
             "knowledge_editing": "agent_drafts_with_user_review",
             "publication": "explicit_acceptance",
             "external_actions": "disabled",
+            "remote_copy": "required_after_validated_task",
         },
     }
     files[Path("hub.json")] = json.dumps(config, ensure_ascii=False, indent=2) + "\n"

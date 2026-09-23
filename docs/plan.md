@@ -6,7 +6,7 @@
    potwierdza uruchomienie kopii Git. Bez tego hub istnieje tylko lokalnie.
 2. Otwórz hub jako projekt dla agenta. Dodaj jeden materiał, rozwijając
    bronze i silver bez obowiązkowego gold.
-3. Agent sprawdza strukturę lokalnym walidatorem (profil 0.2.0), poprawia
+3. Agent sprawdza strukturę lokalnym walidatorem (profil 0.2.1), poprawia
    naruszenia w ramach limitu i przedstawia wynik. Przejrzyj treść i przekaż
    korekty przez rozmowę — zielona struktura nie zastępuje tego przeglądu.
    Agent wykonuje commit i push oraz potwierdza obecność commita w remote;

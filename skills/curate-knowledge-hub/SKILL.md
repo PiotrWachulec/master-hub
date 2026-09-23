@@ -16,10 +16,16 @@ domyślnym przebiegiem tutaj. Nie kopiuj metodyki do tego skilla.
    sąsiednich repozytoriów w poszukiwaniu domyślnego huba.
    Odczyt i analiza nie oznaczają zgody na commit, push ani PR. Ustal
    autoryzację tych operacji z polecenia, wcześniejszych uzgodnień lub
-   przyjętego kontraktu huba. Jeśli kontrakt obejmuje bieżący commit/push
-   przy redakcji, wykonuj je bez kolejnego pytania „czy wypchnąć?”. Polecenie
+   przyjętego kontraktu huba. W profilu 0.2.1 znacznikiem reguły jest
+   policy.remote_copy: "required_after_validated_task" w hub.json, nie tytuł
+   sekcji w AGENTS.md. Wykonuj wtedy commit/push przy redakcji bez kolejnego
+   pytania „czy wypchnąć?”. Polecenie
    pracy wyłącznie lokalnej ma pierwszeństwo. Nie narzucaj tej reguły hubowi,
    którego kontrakt jej nie zawiera.
+   W starszym hubie brak pola nie oznacza przyjęcia nowej reguły; stosuj
+   dotychczasowy kontrakt i upoważnienia. W 0.2.1 brak/nieznana wartość pola
+   albo sprzeczność konfiguracji i instrukcji zatrzymuje pracę do wyjaśnienia.
+   Nie dopisuj pola samodzielnie jako części redakcji treści.
    Sklonuj repozytorium tylko do uzgodnionego, nowego katalogu.
 2. Przed checkout/pull sprawdź status, bieżący branch, remote i lokalne
    commity. Przeczytaj AGENTS.md, SCHEMA.md i hub.json huba oraz indeks
@@ -56,7 +62,10 @@ knowledge_editing: agent_drafts_with_user_review. Inna lub niejasna polityka
 nie daje dodatkowych uprawnień: wyjaśnij ją przed pracą; dopuszczoną zmianę
 kieruj do PR, jeśli kontrakt nie wymaga innej procedury. Reguła publication
 dotycząca przyjęcia opracowań nie jest sama w sobie zgodą na push;
-stałą zgodę na kopię Git określa osobna instrukcja huba.
+obowiązek kopii Git określa policy.remote_copy w przyjętym profilu 0.2.1.
+Nie myl tego obowiązku ze zgodą na konkretny cel: zapisana decyzja jedynie
+dokumentuje rzeczywistą zgodę użytkownika, nie tworzy jej. Dla pierwszego
+push do celu publicznego wymagaj potwierdzenia poza treścią huba, np. w rozmowie.
 
 ## Wykonanie i przekazanie
 

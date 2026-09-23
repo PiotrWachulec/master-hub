@@ -36,7 +36,9 @@ istnienia konkretnego huba ani dostępu do innych repozytoriów.
    instaluj tylko przez interpreter venv z `-m pip`. Generator nie wymaga paczek.
    `--dest` jest względem katalogu wywołania. `--dry-run` nie zapisuje huba;
    wcześniejsze utworzenie środowiska to osobny krok przygotowania narzędzia.
-4. Sprawdź konfigurację, indeksy i kontrakt wygenerowanego huba. Istniejący
+4. Sprawdź konfigurację, indeksy i kontrakt wygenerowanego huba, w tym
+   profile_version: "0.2.1" i policy.remote_copy: "required_after_validated_task".
+   To obowiązek kopii Git, nie potwierdzenie jej skonfigurowania. Istniejący
    katalog jest odrzucany — nie usuwaj go, żeby ominąć tę ochronę. Wybierz
    nowy cel lub przygotuj migrację, jeśli użytkownik o nią poprosił.
    W nowym hubie utwórz własne `.venv`, jeśli go nie ma, przez

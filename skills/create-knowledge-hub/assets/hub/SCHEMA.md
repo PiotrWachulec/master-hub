@@ -1,4 +1,4 @@
-# Kontrakt przetwarzania wiedzy — profil 0.2.0
+# Kontrakt przetwarzania wiedzy — profil 0.2.1
 
 Ten kontrakt opisuje pracę w jednym hubie. Bundle OKF 0.2 obejmuje wyłącznie
 `knowledge/`. Konfiguracja i instrukcje w katalogu nadrzędnym nie należą
@@ -74,7 +74,7 @@ najnowsze na górze, bez frontmatteru. Log dokumentuje zmiany; nie zastępuje
 
 `.venv/bin/python -B scripts/validate_hub.py` sprawdza hub zawierający skrypt,
 nie bieżący katalog wywołania. Python 3.10+, tylko biblioteka standardowa,
-bez sieci i bez zapisu. To walidator lokalnego profilu 0.2.0, nie całego OKF.
+bez sieci i bez zapisu. To walidator lokalnego profilu 0.2.1, nie całego OKF.
 Skrypty uruchamiamy wyłącznie w lokalnym środowisku wirtualnym. Jeśli `.venv`
 nie istnieje, agent tworzy je wcześniej przez `python3 -m venv .venv`
 w katalogu huba. Na Windows interpreter jest w `.venv/Scripts/python.exe`.
@@ -84,6 +84,7 @@ venv z `-m pip`. Walidator nie tworzy środowiska ani niczego nie instaluje.
 Sprawdza:
 
 - wymagane pliki szkieletu, konfigurację hub.json i wszystkie `.md` w knowledge;
+- profile_version: "0.2.1" i policy.remote_copy: "required_after_validated_task";
 - frontmatter dokumentów (poza zamkniętą listą wyjątków powyżej): type, title, description,
   status, generated; typ należy do concept_types, status do draft/stable/deprecated;
 - generated.by jest niepustym tekstem, generated.at to data i czas ISO 8601
@@ -264,9 +265,27 @@ aktualności tylko dlatego, że dokument został ponownie wygenerowany.
 ## Autonomia i własność
 
 Trzy osobne zakresy: redakcja wiki, publikacja opracowań oraz działania
-operacyjne. `hub.json` opisuje początkową politykę: agent przygotowuje lokalne
-wersje robocze, publikacja wymaga przyjęcia, działania zewnętrzne są wyłączone.
+operacyjne. `hub.json` opisuje początkową politykę: agent przygotowuje
+wersje robocze, publikacja wymaga przyjęcia, działania operacyjne są wyłączone.
 To instrukcja pracy, a nie techniczna kontrola uprawnień.
+
+```json
+"policy": {
+  "knowledge_editing": "agent_drafts_with_user_review",
+  "publication": "explicit_acceptance",
+  "external_actions": "disabled",
+  "remote_copy": "required_after_validated_task"
+}
+```
+
+`remote_copy` jawnie określa obowiązek kopii Git niezależnie od dwóch innych
+zakresów: `publication` dotyczy przyjęcia opracowań do publikacji, a
+`external_actions` działań operacyjnych, np. zmiany budżetu kampanii.
+Pole nie wybiera remote i nie zezwala na wysyłanie do dowolnego odbiorcy.
+W profilu 0.2.1 jest wymagane. Brak/inna wartość to niespójność kontraktu,
+nie tryb lokalny. Polecenie pracy lokalnej jest wyjątkiem dla zadania,
+nie zmianą konfiguracji. Starszy hub bez tego pola nie przyjął tej reguły
+automatycznie; wymaga jawnej aktualizacji kontraktu.
 
 Zapis wersji roboczych do uzgodnionego repozytorium Git jest częścią redakcji,
 nie publikacją opracowań ani operacyjnym działaniem systemu. Agent wykonuje

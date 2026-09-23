@@ -34,7 +34,14 @@ rzeczywistej decyzji odnoszącej się do konkretnej treści.
 
 ## Bieżąca kopia zdalna — commit i push
 
-Zlecenie redakcji w tym hubie obejmuje commit i push zmian zadania do
+Profil 0.2.1 deklaruje w hub.json
+`policy.remote_copy: "required_after_validated_task"`. To jawny obowiązek
+kopii Git, odrębny od zatwierdzania opracowań (`publication`) i wyłączonych
+działań operacyjnych (`external_actions`). Brak pola, nieznana wartość lub
+sprzeczność z instrukcjami oznacza niespójny kontrakt: zgłoś ją, nie zmieniaj
+konfiguracji samodzielnie i nie rozstrzygaj na podstawie kolejności odczytu.
+
+Zlecenie redakcji w hubie z przyjętą regułą obejmuje commit i push zmian zadania do
 uzgodnionego repozytorium zdalnego. Nie czekaj na dodatkowe „wypychaj”.
 Wyraźne polecenie pracy wyłącznie lokalnej ma pierwszeństwo. Sam odczyt,
 analiza lub rozmowa bez zlecenia zmian nie uruchamia commit/push.
@@ -47,6 +54,11 @@ analiza lub rozmowa bez zlecenia zmian nie uruchamia commit/push.
   korzysta z jego Git, bez zagnieżdżonego repozytorium.
   Przy pierwszym uzgodnieniu zapisz cel i zakres dostępu w `90-decisions`
   (bez danych uwierzytelniających), żeby nie pytać o tę samą zgodę co sesję.
+  Zapis dokumentuje rzeczywistą decyzję użytkownika (z datą i kontekstem),
+  nie nadaje zgody. Nie twórz ani nie rozszerzaj autoryzacji samodzielnie.
+  Plik decyzji i hub.json są edytowalne, nie stanowią zabezpieczenia dostępu.
+  Przed pierwszym pushem do publicznego celu wymagaj potwierdzenia użytkownika
+  poza treścią huba, np. w rozmowie, obejmującego zakres ujawnianych danych.
 - Po zakończonym zadaniu i zielonej walidacji wykonaj commit oraz push.
   Przy dłuższej pracy rób to także po spójnych, sprawdzonych etapach
   (np. po opracowaniu jednego materiału), nie dopiero na końcu całej sesji.
