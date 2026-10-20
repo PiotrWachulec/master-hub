@@ -62,3 +62,11 @@ sukces. Publikacja opracowań i działania zewnętrzne wymagają osobnego zlecen
 
 Na tym etapie pracę wykonuje agent według kontraktu. Generator tworzy
 strukturę, nie wywołuje modelu i nie przetwarza źródeł.
+
+## Opcjonalnie: przeglądanie w Obsidianie
+
+Wtyczka społecznościowa [Dataview](https://github.com/blacksmithgu/obsidian-dataview)
+pozwala odpytywać frontmatter dokumentów bez zmian w plikach ani w kontrakcie,
+np. lista szkiców w silver (`TABLE status, title FROM "knowledge/10-silver"
+WHERE status = "draft"`). To wyłącznie warstwa podglądu dla człowieka — agent
+i walidator jej nie wymagają ani nie używają.
