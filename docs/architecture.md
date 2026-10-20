@@ -1,96 +1,107 @@
-# Jedna baza wiedzy. Wiele zastosowań.
+# One knowledge base. Many uses.
 
-Dwa podstawowe działania: **„rozwiń moją wiedzę”** i **„wykorzystaj ją do konkretnego celu”**.
+Two basic actions: **"extend my knowledge"** and **"use it for a specific purpose"**.
 
-![Bronze → silver → różne opracowania gold](architecture.svg)
+![Bronze → silver → various gold outputs](architecture.svg)
 
-[Otwórz diagram SVG](architecture.svg).
+[Open the SVG diagram](architecture.svg).
 
-Zachowujemy dwa uzupełniające się widoki:
+We keep two complementary views:
 
-- [Przepływ wiedzy](architecture.svg) — codzienna praca: źródła → wiki → różne rezultaty.
-- [Architektura całego systemu](system-architecture.svg) — niezależne huby
-  i agent korzystający ze wskazanej wiedzy oraz kontekstu firmy.
-  Bez importowania hubów, pakietów i synchronizacji. To opcjonalny sposób
-  pracy agenta, nie dodatkowy mechanizm silnika.
+- [Knowledge flow](architecture.svg) — everyday work: sources → wiki →
+  various outputs.
+- [Whole-system architecture](system-architecture.svg) — independent hubs
+  and an agent using designated knowledge plus company context. No
+  importing hubs, packages, or sync. This is an optional way for the
+  agent to work, not an extra engine mechanism.
 
-## 1. Dodaj materiał do bazy
+## 1. Add material to the base
 
-Źródło — albo referencja do oryginału i jego transkrypcja — trafia do bronze.
-Agent analizuje materiał i włącza go do silver: tworzy lub uzupełnia pojęcia,
-łączy źródła, zachowuje przykłady, warunki stosowania i sprzeczności.
+A source — or a reference to the original plus its transcript — lands in
+bronze. The agent analyzes the material and folds it into silver: it
+creates or extends concepts, links sources, keeps examples, applicability
+conditions, and contradictions.
 
-Silver jest rozwijaną wiki wiedzy wielokrotnego użycia. Nie jest zbiorem
-niezależnych streszczeń. To tutaj koncentruje się codzienna praca nad wiedzą.
+Silver is a growing wiki of reusable knowledge. It isn't a collection of
+independent summaries. This is where everyday knowledge work is
+concentrated.
 
-## 2. Poproś o konkretny wynik
+## 2. Ask for a specific result
 
-Gdy potrzebujesz wkładu do ebooka, materiału do fiszek albo instrukcji dla
-automatu, agent tworzy odpowiedni katalog gold i opracowanie w zadanej formie.
+When you need a contribution to an ebook, flashcard material, or
+instructions for an automation, the agent creates the matching gold
+directory and the output in the requested form.
 
-Przykładowe katalogi w `knowledge/20-gold/`:
+Example directories under `knowledge/20-gold/`:
 
-- `ebook-o-xyz/` — wkład do ebooka z referencjami do materiałów źródłowych.
-- `fiszki-xyz/` — materiał pytanie–odpowiedź do wygenerowania fiszek.
-- `instagram-posts-materials/` — materiały, zasady i przykłady dla automatu do postów.
-- `ebook-inna-koncepcja/` — nowe opracowanie tej samej wiedzy pod zmieniony pomysł.
+- `ebook-on-xyz/` — a contribution to an ebook with references to source
+  material.
+- `flashcards-xyz/` — question-answer material for generating flashcards.
+- `instagram-posts-materials/` — material, rules, and examples for a
+  posting automation.
+- `ebook-alt-concept/` — a new piece of work from the same knowledge for a
+  changed idea.
 
-Są to przykłady rezultatów; nie tworzymy pustych katalogów na zapas.
-Gotowe posty są wynikiem działania automatu korzystającego z gold i bieżącego
-zadania. Nie każdy wynik działania musi wracać do bazy wiedzy.
+These are example outputs; we don't create empty directories
+speculatively. Finished posts are the result of an automation using gold
+and the current task. Not every action's output has to go back into the
+knowledge base.
 
-## Wartość warstwy pośredniej
+## The value of the middle layer
 
-Zmiana koncepcji oznacza nowe opracowanie gold z istniejącego silver.
-Wykonana wcześniej analiza pozostaje dostępna dla kolejnych zastosowań.
+A concept change means a new gold output from the existing silver. Earlier
+analysis stays available for future uses.
 
-Silver zachowuje szczegóły, powiązania i referencje, a nie tylko skrót.
-Gdy nowy cel wymaga pominiętej informacji lub dokładnego cytatu, agent wraca
-do odpowiedniego źródła w bronze. Nie zakładamy, że synteza wystarczy zawsze.
-Własne hipotezy i luki w materiale pozostają jawne.
+Silver preserves detail, connections, and references, not just a summary.
+When a new goal needs information that was left out, or an exact quote,
+the agent goes back to the relevant bronze source. We don't assume a
+synthesis is always enough. Your own hypotheses and gaps in the material
+stay explicit.
 
-## Diagram do edycji
+## Diagram to edit
 
 ```mermaid
 flowchart LR
-    A["1. Dodaj nowy materiał"] --> B["BRONZE<br/>Źródło lub referencja + transkrypcja"]
-    B -->|"analiza i łączenie z istniejącą wiedzą"| S["SILVER · LLM Wiki<br/>Pojęcia, syntezy, przykłady, wyjątki<br/>i powiązania ze źródłami"]
-    C["Twoje korekty i decyzje"] --> S
-    S --> E["GOLD / ebook-o-xyz<br/>Wkład do ebooka"]
-    S --> F["GOLD / fiszki-xyz<br/>Materiał do fiszek"]
-    S --> I["GOLD / instagram-posts-materials<br/>Materiały dla automatu do postów"]
-    S --> N["GOLD / ebook-inna-koncepcja<br/>Nowa forma tej samej wiedzy"]
+    A["1. Add new material"] --> B["BRONZE<br/>Source or reference + transcript"]
+    B -->|"analysis and merging with existing knowledge"| S["SILVER · LLM Wiki<br/>Concepts, syntheses, examples, exceptions<br/>and links to sources"]
+    C["Your corrections and decisions"] --> S
+    S --> E["GOLD / ebook-on-xyz<br/>Contribution to an ebook"]
+    S --> F["GOLD / flashcards-xyz<br/>Flashcard material"]
+    S --> I["GOLD / instagram-posts-materials<br/>Material for a posting automation"]
+    S --> N["GOLD / ebook-alt-concept<br/>New form of the same knowledge"]
 ```
 
-Każdy produkt gold powstaje na prośbę o konkretny wynik i zachowuje ścieżkę
-do źródeł. Gotowość użytkowa, sprawdzenie treści i uprawnienie automatu do
-działania są osobnymi sprawami.
+Every gold output is created on request for a specific result and keeps a
+path back to the sources. Being ready for use, checking content, and
+authorizing an automation to act are separate matters.
 
-## Organizacja repozytoriów
+## Repository organization
 
-`master-hub` zawiera wyłącznie narzędzie, szablony i dokumentację.
-Nie przechowuje rejestru hubów. Hub docelowy wskazuje użytkownik; może on
-mieć własne repozytorium albo być częścią projektu. Schemat opisuje wzorzec
-pracy wewnątrz huba, nie istniejące instalacje.
+`master-hub` contains only the tool, templates, and documentation. It
+doesn't store a hub registry. The user points to the target hub; it may
+have its own repository or be part of a project. The diagram describes the
+working pattern inside a hub, not existing installations.
 
-Dokumenty wiedzy są w `knowledge/`, w warstwach `00-bronze`,
-`10-silver` i `20-gold`. Kontrakt i konfiguracja leżą poza bundle'em OKF;
-decyzje użytkownika są zapisywane osobno w `knowledge/90-decisions/`.
-Reguły i metadane definiuje SCHEMA.md danego huba.
+Knowledge documents live in `knowledge/`, in the `00-bronze`, `10-silver`,
+and `20-gold` layers. The contract and configuration sit outside the OKF
+bundle; user decisions are recorded separately in `knowledge/90-decisions/`.
+The target hub's own SCHEMA.md defines the rules and metadata.
 
-Agent może na zlecenie czytać teorię w jednym hubie i kontekst w drugim.
-Wynik zapisuje w hubie odbiorcy. Wykorzystanie dodatkowego huba odnotowuje
-zwykłym tekstem, bez formalnych referencji między repozytoriami. Taki opis
-nie jest walidowany i nie zastępuje lokalnych sources wymaganych w silver/gold.
-Nie kopiujemy bibliotek między hubami ani nie propagujemy zmian automatycznie.
+On request, the agent can read theory in one hub and context in another.
+It writes the result into the recipient's hub. Using an additional hub is
+noted as plain text, without formal references between repositories. That
+note isn't validated and doesn't replace the local sources required in
+silver/gold. We don't copy libraries between hubs or propagate changes
+automatically.
 
-Obecnie treści opracowuje agent według kontraktu. Diagram nie oznacza
-uruchomionego automatycznego procesu w tle. [Plan na teraz](plan.md)
-zaczyna się od jednego materiału; wynik gold zamawiasz, kiedy go potrzebujesz.
+Right now, content is developed by the agent per the contract. The diagram
+doesn't mean an automatic background process is running. [The plan for
+now](plan.md) starts from one piece of material; you request a gold
+output when you need it.
 
-## Podstawa wzorca
+## Basis of the pattern
 
 - [LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f):
-  przyrostowe utrzymywanie wiedzy przez agenta.
+  incremental knowledge maintenance by an agent.
 - [OKF](https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/main/SPEC.md):
-  format zapisu. Obecne szablony używają wersji 0.2.
+  the storage format. The current templates use version 0.2.

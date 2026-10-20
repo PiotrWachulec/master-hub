@@ -1,1 +1,1 @@
-# Historia zmian wiedzy
+# Knowledge change log

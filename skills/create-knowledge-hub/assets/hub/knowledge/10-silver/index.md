@@ -1,9 +1,9 @@
 # Silver
 
-Połączona wiki: pojęcia, zasady, metody, przykłady i syntezy z atrybucją do źródeł.
-Nowe materiały uzupełniają istniejącą wiedzę; nie tworzymy wyłącznie osobnych
-streszczeń. Ta sama wiedza może później zasilić wiele rezultatów gold.
-Katalogi tematyczne powstają w miarę potrzeb. Niepewności, warunki stosowania
-i sprzeczności pozostają widoczne.
+The connected wiki: concepts, principles, methods, examples, and syntheses
+with attribution to sources. New material extends existing knowledge; we
+don't just create separate summaries. The same knowledge can later feed
+multiple gold outputs. Topic directories appear as needed. Uncertainties,
+applicability conditions, and contradictions stay visible.
 
-Brak opracowań.
+No articles yet.

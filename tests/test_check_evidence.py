@@ -9,39 +9,39 @@ import unittest
 GENERATOR = Path(__file__).resolve().parents[1] / 'skills/create-knowledge-hub/scripts/create_hub.py'
 
 BRONZE = '''---
-type: Źródło
-title: Raport kwartalny
-description: Transkrypcja raportu.
+type: Source
+title: Quarterly report
+description: Report transcript.
 status: draft
 generated:
   by: human:editor
   at: 2026-09-23T12:00:00Z
 ---
-# Raport kwartalny
+# Quarterly report
 
-Przychód wyniósł 42,000 zł w roku 2026. Dyrektor powiedział
-„wynik przeszedł oczekiwania”.
+Revenue was $42,000 in 2026. The director said
+“the result beat expectations”.
 '''
 
 SILVER = '''---
-type: Koncept
-title: Przychód
-description: Podsumowanie przychodu.
+type: Concept
+title: Revenue
+description: Revenue summary.
 status: draft
 generated:
   by: process:test
   at: 2026-09-23T12:00:00Z
 sources:
-  - id: raport
+  - id: report
     resource: ../00-bronze/source.md
-    title: Raport kwartalny
+    title: Quarterly report
 ---
-# Przychód
+# Revenue
 
-Przychód wyniósł 42,000 zł w roku 2026.[^raport] Dyrektor powiedział
-„wynik przeszedł oczekiwania”.[^raport]
+Revenue was $42,000 in 2026.[^report] The director said
+“the result beat expectations”.[^report]
 
-[^raport]: Raport kwartalny, akapit 1.
+[^report]: Quarterly report, paragraph 1.
 '''
 
 
@@ -73,19 +73,19 @@ class CheckEvidenceTests(unittest.TestCase):
     def test_grounded_claims_produce_no_suspects(self):
         self.fixture()
         stdout = self.run_script()
-        self.assertIn('## Podejrzenia braku pokrycia (fidelity suspects)', stdout)
-        self.assertIn('0 podejrzeń braku pokrycia', stdout)
+        self.assertIn('## Fidelity suspects', stdout)
+        self.assertIn('0 fidelity suspect(s)', stdout)
 
     def test_value_absent_from_source_is_a_suspect(self):
         self.fixture(silver=SILVER.replace('42,000', '55,000'))
         stdout = self.run_script()
         self.assertIn('55,000', stdout)
-        self.assertIn('1 podejrzeń braku pokrycia', stdout)
+        self.assertIn('1 fidelity suspect(s)', stdout)
 
     def test_fenced_code_values_are_ignored(self):
         silver = SILVER.replace(
-            '[^raport]: Raport kwartalny, akapit 1.\n',
-            '[^raport]: Raport kwartalny, akapit 1.\n\n```text\nprzykład: 999,999\n```\n',
+            '[^report]: Quarterly report, paragraph 1.\n',
+            '[^report]: Quarterly report, paragraph 1.\n\n```text\nexample: 999,999\n```\n',
         )
         self.fixture(silver=silver)
         stdout = self.run_script()
@@ -93,10 +93,10 @@ class CheckEvidenceTests(unittest.TestCase):
 
     def test_status_block_explanation_is_not_checked(self):
         silver = SILVER.replace(
-            '[^raport]: Raport kwartalny, akapit 1.\n',
-            '[^raport]: Raport kwartalny, akapit 1.\n\n'
+            '[^report]: Quarterly report, paragraph 1.\n',
+            '[^report]: Quarterly report, paragraph 1.\n\n'
             '> **Status: Outdated** (2026-07-18)\n'
-            '> Zastąpione raportem z 2026-07-18, nowa wartość to 88,000 zł.\n',
+            '> Superseded by the 2026-07-18 report, the new value is $88,000.\n',
         )
         self.fixture(silver=silver)
         stdout = self.run_script()
@@ -104,33 +104,33 @@ class CheckEvidenceTests(unittest.TestCase):
         self.assertNotIn('88,000', stdout)
 
     def test_document_without_sources_is_reported_as_unverifiable(self):
-        silver = SILVER.split('sources:')[0] + '---\n# Przychód\n\nBrak przypisów.\n'
+        silver = SILVER.split('sources:')[0] + '---\n# Revenue\n\nNo footnotes.\n'
         self.fixture(silver=silver)
         stdout = self.run_script()
-        self.assertIn('## Dokumenty bez możliwej weryfikacji', stdout)
+        self.assertIn('## Documents without possible verification', stdout)
         self.assertIn('no sources field', stdout)
 
     def test_unreferenced_bronze_file_is_listed(self):
         self.fixture()
         orphan = self.hub / 'knowledge/00-bronze/orphan.md'
-        orphan.write_text(BRONZE.replace('Raport kwartalny', 'Notatka'), encoding='utf-8')
+        orphan.write_text(BRONZE.replace('Quarterly report', 'Note'), encoding='utf-8')
         stdout = self.run_script()
-        self.assertIn('## Nieodwołane źródła bronze', stdout)
+        self.assertIn('## Unreferenced bronze sources', stdout)
         self.assertIn('knowledge/00-bronze/orphan.md', stdout)
 
     def test_bronze_file_logged_as_no_material_is_not_listed(self):
         self.fixture()
         orphan = self.hub / 'knowledge/00-bronze/orphan.md'
-        orphan.write_text(BRONZE.replace('Raport kwartalny', 'Notatka'), encoding='utf-8')
+        orphan.write_text(BRONZE.replace('Quarterly report', 'Note'), encoding='utf-8')
         (self.hub / 'knowledge/log.md').write_text(
-            '# Log\n\n## 2026-09-23\n\n- Bez materiału: 00-bronze/orphan.md\n', encoding='utf-8')
+            '# Log\n\n## 2026-09-23\n\n- No material: 00-bronze/orphan.md\n', encoding='utf-8')
         stdout = self.run_script()
         self.assertNotIn('knowledge/00-bronze/orphan.md', stdout)
 
     def test_ignores_arguments_and_still_succeeds(self):
         self.fixture()
         stdout = self.run_script('unexpected-argument')
-        self.assertIn('# Kontrola uziemienia faktów', stdout)
+        self.assertIn('# Evidence check', stdout)
 
     def test_python_310_syntax(self):
         ast.parse(self.script.read_text(), feature_version=(3, 10))

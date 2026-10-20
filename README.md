@@ -1,157 +1,173 @@
 # Master Hub
 
-Przenośne narzędzie do tworzenia i obsługi hubów wiedzy Markdown:
-generator, skille, szablony i kontrakt pracy agenta.
+A portable tool for creating and working with Markdown knowledge hubs:
+generator, skills, templates, and an agent working contract.
 
-To repozytorium nie przechowuje treści, rejestru ani konfiguracji konkretnych
-hubów. Użytkownik wskazuje cel każdej operacji. Wygenerowany hub działa bez
-dostępu do tego repozytorium.
+This repository doesn't store the content, registry, or configuration of
+any specific hubs. The user points to the target of each operation. A
+generated hub works without access to this repository.
 
-## Środowisko Python
+## Python environment
 
-Skrypty i testy zawsze uruchamiamy w lokalnym `.venv`, również jeśli używają
-tylko biblioteki standardowej. Jeśli `.venv` nie istnieje, w katalogu silnika
-utwórz je przez `python3 -m venv .venv` (Python 3.10+). Systemowy Python
-służy tylko do utworzenia środowiska; potem używaj `.venv/bin/python`.
-Na Windows odpowiednikiem jest `.venv/Scripts/python.exe`.
+Scripts and tests always run inside the local `.venv`, even when they only
+use the standard library. If `.venv` doesn't exist, create it in the
+engine directory with `python3 -m venv .venv` (Python 3.10+). The system
+Python is only for creating the environment; afterward use
+`.venv/bin/python`. On Windows the equivalent is `.venv/Scripts/python.exe`.
 
-Każdy hub tworzy własne środowisko po wygenerowaniu. Nie kopiujemy `.venv`
-między projektami ani do Git. Nie nadpisujemy istniejącego, niesprawnego
-środowiska. Nie instalujemy paczek globalnie, przez `pip --user` ani `sudo`.
-Ewentualne zależności instalujemy przez `.venv/bin/python -m pip` bez
-`--system-site-packages`. Generator, walidator i ich testy nie wymagają paczek.
+Every hub creates its own environment after being generated. We don't copy
+`.venv` between projects or into Git. We don't overwrite an existing,
+broken environment. We don't install packages globally, via `pip --user`,
+or `sudo`. Any dependencies are installed via `.venv/bin/python -m pip`
+without `--system-site-packages`. The generator, the validator, and their
+tests need no packages.
 
-## Utwórz hub
+## Create a hub
 
-Poproś agenta o użycie [create-knowledge-hub](skills/create-knowledge-hub/SKILL.md)
-i wskaż nowy katalog, nazwę, właściciela oraz temat. Albo uruchom
-z katalogu master-hub (Python 3.10+, biblioteka standardowa):
+Ask the agent to use [create-knowledge-hub](skills/create-knowledge-hub/SKILL.md)
+and point it to a new directory, a name, an owner, and a topic. Or run it
+from the master-hub directory (Python 3.10+, standard library):
 
 ```sh
 .venv/bin/python skills/create-knowledge-hub/scripts/create_hub.py \
-  --dest /wybrana/sciezka/nowy-hub \
-  --id nowy-hub --title "Nowy hub" --kind personal \
-  --owner "Właściciel" --domain "Temat"
+  --dest /chosen/path/new-hub \
+  --id new-hub --title "New hub" --kind personal \
+  --owner "Owner" --domain "Topic"
 ```
 
-Katalog docelowy musi być nowy. `--dry-run` pokazuje plan bez zapisu.
-Generator nie inicjalizuje Git ani repozytorium zdalnego. Wybór `personal`
-lub `company` opisuje przeznaczenie, nie konfiguruje uprawnień.
+The destination directory must be new. `--dry-run` shows the plan without
+writing. The generator doesn't initialize Git or a remote repository.
+Choosing `personal` or `company` describes the purpose, it doesn't
+configure permissions.
 
-## Pracuj w hubie
+## Work in the hub
 
-Otwórz wygenerowany katalog jako projekt dla agenta, opcjonalnie jako vault
-Obsidiana. Dwa niezależne polecenia:
+Open the generated directory as a project for the agent, optionally as an
+Obsidian vault. Three independent requests:
 
-> Dodaj materiał z [ścieżka] do bazy wiedzy.
+> Add material from [path] to the knowledge base.
 
-Źródło trafia do bronze, a wiedza do połączonej wiki silver. Nie wymaga to
-celu biznesowego ani tworzenia gold.
+The source lands in bronze, and the knowledge in the connected silver
+wiki. This requires no business goal and no gold creation.
 
-> Przygotuj z mojej bazy materiał do [cel] o [temat], w formie [opis].
+> What do I know about [topic]? Answer with links to the wiki.
 
-Agent korzysta z istniejącego silver i tworzy odpowiedni gold z referencjami.
-Nowa koncepcja może dostać nowy katalog bez nadpisywania poprzedniego.
+The agent searches the index and the full text of silver/gold and answers
+in the conversation, writing nothing by default. On request, it archives
+the answer as a new silver document.
 
-[Przykłady poleceń](docs/first-run.md) · [Plan użycia](docs/plan.md)
+> Prepare material for [goal] about [topic], in the form of [description].
 
-## Kopia zdalna właściwych hubów
+The agent uses the existing silver and creates the matching gold with
+references. A new concept can get a new directory without overwriting the
+previous one.
 
-Nowe huby zobowiązują agenta do commit i push po zakończonych, zwalidowanych
-zadaniach oraz spójnych etapach dłuższej pracy. Nie trzeba osobno mówić
-„wypychaj”. Cel i dostęp do repozytorium uzgadnia się przy pierwszej
-konfiguracji; generator sam nie tworzy Git ani remote. Agent potwierdza
-commit w repozytorium zdalnym lub zgłasza brak aktualnej kopii.
-Obowiązek jest jawny w `hub.json` profilu 0.2.2:
-`policy.remote_copy: "required_after_validated_task"`.
+[Example requests](docs/first-run.md) · [Usage plan](docs/plan.md)
 
-To instrukcja pracy agenta, nie backup w tle. Obejmuje wypchnięte pliki Git,
-nie zewnętrzne nagrania czy pliki ignorowane. Istniejące huby nie zmieniają
-się automatycznie: [jawne przyjęcie reguły](docs/hub-git-backup.md).
+## Remote copy of real hubs
 
-## Dwa przenośne skille
+New hubs commit the agent to committing and pushing after completed,
+validated tasks and after consistent stages of longer work. You don't need
+to separately say "push it." The destination and repository access are
+agreed during the first setup; the generator itself doesn't create Git or
+a remote. The agent confirms the commit on the remote repository or
+reports a missing current copy. The obligation is explicit in `hub.json`
+under profile 0.2.2: `policy.remote_copy: "required_after_validated_task"`.
 
-- [create-knowledge-hub](skills/create-knowledge-hub/SKILL.md) — tworzy nowy hub.
-- [curate-knowledge-hub](skills/curate-knowledge-hub/SKILL.md) — obsługuje zadanie
-  w istniejącym repozytorium Git według jego własnego kontraktu.
+This is a working instruction for the agent, not a background backup. It
+covers pushed Git files, not external recordings or ignored files.
+Existing hubs don't change automatically: [explicit rule adoption](docs/hub-git-backup.md).
 
-Skille nie są zainstalowane globalnie. Można przekazać agentowi ścieżkę do
-SKILL.md albo przenieść cały wybrany pakiet. Sam merge w silniku nie zmienia
-instrukcji istniejących hubów ani konfiguracji innych agentów.
+## Two portable skills
 
-## Wersje i możliwości
+- [create-knowledge-hub](skills/create-knowledge-hub/SKILL.md) — creates a new hub.
+- [curate-knowledge-hub](skills/curate-knowledge-hub/SKILL.md) — handles a
+  task in an existing Git repository per its own contract.
 
-Format: OKF 0.2. Lokalny profil pracy: 0.2.2, zapisany w `hub.json`.
-Zmiana szablonów obejmuje nowe huby; istniejące wymagają jawnej migracji.
-Nie ma automatycznego migratora ani obowiązku natychmiastowego przyjęcia
-każdej nowej wersji OKF.
+The skills aren't installed globally. You can hand the agent a path to
+SKILL.md or move the whole chosen package. A merge in the engine alone
+doesn't change the instructions of existing hubs or other agents'
+configuration.
 
-Na przyszłość zachowujemy [procedurę migracji 0.1.1 → 0.2.0](docs/migration-0.2.0.md).
-Przyjęcie kopii Git opisuje [aktualizacja 0.2.0 → 0.2.1](docs/hub-git-backup.md).
-Uziemienie faktów, triage źródeł i Query/Archive opisuje
-[aktualizacja 0.2.1 → 0.2.2](docs/migration-0.2.2.md).
-Nie zakładamy obecnie żadnych istniejących hubów i nie wykonujemy migracji.
-Dokument nie wymaga ani nie uruchamia rejestru hubów.
+## Versions and capabilities
 
-Działają generator, instrukcje redakcji, lokalny walidator struktury
-i nieblokujący raport uziemienia faktów. Automatyczny ingest, synchronizacja,
-pełny walidator OKF i integracje operacyjne nie są zaimplementowane.
+Format: OKF 0.2. Local working profile: 0.2.2, recorded in `hub.json`.
+Template changes affect new hubs; existing ones need an explicit
+migration. There's no automatic migrator, nor an obligation to adopt every
+new OKF version immediately.
 
-### Świadomie niezbudowane
+For the future we keep the [0.1.1 → 0.2.0 migration procedure](docs/migration-0.2.0.md).
+Adopting the Git copy is described in the [0.2.0 → 0.2.1 update](docs/hub-git-backup.md).
+Grounding, source triage, and Query/Archive are described in the
+[0.2.1 → 0.2.2 update](docs/migration-0.2.2.md). We currently assume no
+existing hubs and perform no migrations. This document neither requires
+nor runs a hub registry.
 
-Po wzorze sekcji „Design Boundaries” w README `karpathy-llm-wiki` (zob.
-„Inspiracje” niżej) — krótkie „dlaczego”, nie tylko „czego brak”:
+The generator, the editing instructions, the local structure validator,
+and the non-blocking grounding report all work. Automatic ingest, sync, a
+full OKF validator, and operational integrations are not implemented.
 
-- **Precyzyjne kotwiczenie cytatu do pojedynczego przypisu** w kontroli
-  uziemienia faktów — realne błędy to niemal zawsze „wartość nieobecna w
-  żadnym źródle dokumentu”, co łapie sprawdzenie całego dokumentu; kotwiczenie
-  chroniłoby przed awarią, która w praktyce się nie zdarza.
-- **Automatyczne wykrywanie świeżości po hashu źródeł bronze** — bronze jest
-  niezmienne z definicji kontraktu; nowa wiedza i tak wchodzi jako nowy plik
-  przez ingest, nie przez edycję istniejącego.
-- **Numeryczne wyniki pewności/jakości treści** — fałszywa precyzja bez
-  kalibracji; siła dowodu należy do prozy i przeglądu człowieka, nie do liczby.
-- **Wyszukiwanie wektorowe lub grafowe po wiedzy** — przy skali pojedynczego
-  huba grep i odczyt plików są wystarczające i bardziej przewidywalne; warto
-  to dodać dopiero, gdy trafność mierzalnie spadnie.
-- **Automatyczne haki i harmonogramy uruchomień** — należą do uprzęży agenta
-  (hooki, cron), nie do przenośnego, narzędzio-agnostycznego skilla.
+### Deliberately not built
 
-## Kontrola struktury w wygenerowanym hubie
+Following the "Design Boundaries" section in the `karpathy-llm-wiki`
+README (see "Inspirations" below) — a short "why," not just "what's
+missing":
 
-W katalogu huba utwórz `.venv`, jeśli go nie ma (`python3 -m venv .venv`).
-Potem uruchom:
+- **Anchoring a quote precisely to a single footnote** in the grounding
+  check — real errors are almost always "value absent from any source in
+  the document," which a whole-document check already catches; precise
+  anchoring would only guard against a failure mode that doesn't occur in
+  practice.
+- **Automatic freshness detection via a hash of bronze sources** — bronze
+  is immutable by the contract's own definition; new knowledge enters as a
+  new file via ingest anyway, not by editing an existing one.
+- **Numeric confidence/quality scores for content** — false precision
+  without calibration; the strength of evidence belongs in the prose and
+  in human review, not in a number.
+- **Vector or graph search over the knowledge** — at the scale of a single
+  hub, grep and reading files are sufficient and more predictable; worth
+  adding only once recall measurably degrades.
+- **Automatic hooks and run schedules** — those belong to the agent
+  harness (hooks, cron), not to a portable, tool-agnostic skill.
+
+## Structure check in a generated hub
+
+In the hub directory, create `.venv` if it doesn't exist
+(`python3 -m venv .venv`). Then run:
 
 ```sh
 .venv/bin/python -B scripts/validate_hub.py
 ```
 
-Skrypt jest częścią huba. Nie potrzebuje generatora, sieci ani bibliotek
-zewnętrznych i niczego nie zapisuje. Na stdout daje JSON, np.:
+The script is part of the hub. It needs no generator, network, or external
+libraries, and writes nothing. It gives JSON on stdout, e.g.:
 
 ```json
 {"violations": 0, "errors": [], "warnings": []}
 ```
 
-Diagnostyka `plik:linia: komunikat` idzie na stderr. Kod wyjścia 0 oznacza
-brak naruszeń. Kontrakt quality ustala próg 0 i maksymalnie 5 cykli
-naprawa/kontrola po pierwszym sprawdzeniu. Zmiana kontroli wymaga osobnego
-PR, nie może być sposobem na ukrycie błędów treści. To kontrola lokalnego,
-udokumentowanego podzbioru formatu, nie dowód prawdziwości ani walidacja OKF.
+Diagnostics `file:line: message` go to stderr. Exit code 0 means no
+violations. The quality contract sets a threshold of 0 and at most 5
+fix/check cycles after the first check. Changing the check requires a
+separate PR; it must never be a way to hide content errors. This is a
+check of a local, documented subset of the format, not proof of
+truthfulness or OKF validation.
 
-Osobno, `.venv/bin/python -B scripts/check_evidence.py` daje nieblokujący
-raport: czy liczby, daty i cytaty w `10-silver`/`20-gold` dają się znaleźć
-w treści wskazanych źródeł bronze. Zawsze kończy się kodem 0 i nie wchodzi
-do progu `violations` — podejrzenia ocenia człowiek, nie skrypt.
+Separately, `.venv/bin/python -B scripts/check_evidence.py` gives a
+non-blocking report: whether numbers, dates, and quotes in
+`10-silver`/`20-gold` can be found in the content of the referenced bronze
+sources. It always exits with code 0 and never counts toward the
+`violations` threshold — a human judges the suspects, not the script.
 
-[Architektura](docs/architecture.md) · [Diagram przepływu](docs/architecture.svg) ·
-[Opcjonalny model wielu hubów](docs/system-architecture.svg)
+[Architecture](docs/architecture.md) · [Flow diagram](docs/architecture.svg) ·
+[Optional multi-hub model](docs/system-architecture.svg)
 
-Testy w katalogu silnika: `.venv/bin/python -B -m unittest discover -s tests -v`.
+Tests in the engine directory: `.venv/bin/python -B -m unittest discover -s tests -v`.
 
-Inspiracje: [LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f),
-[OKF](https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/main/SPEC.md)
-i [karpathy-llm-wiki](https://github.com/Astro-Han/karpathy-llm-wiki) (Astro-Han,
-MIT) — niezależna implementacja tego samego pomysłu, źródło wzorca
-ingest/query/lint oraz bezpośrednia inspiracja dla `scripts/check_evidence.py`
-i konwencji triage/Status wprowadzonych w profilu 0.2.2.
+Inspirations: [LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f),
+[OKF](https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/main/SPEC.md),
+and [karpathy-llm-wiki](https://github.com/Astro-Han/karpathy-llm-wiki) (Astro-Han,
+MIT) — an independent implementation of the same idea, the source of the
+ingest/query/lint pattern, and the direct inspiration for
+`scripts/check_evidence.py` and the triage/Status conventions introduced in
+profile 0.2.2.

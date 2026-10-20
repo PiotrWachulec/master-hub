@@ -1,27 +1,30 @@
-# Kontrakt przetwarzania wiedzy — profil 0.2.2
+# Knowledge processing contract — profile 0.2.2
 
-Ten kontrakt opisuje pracę w jednym hubie. Bundle OKF 0.2 obejmuje wyłącznie
-`knowledge/`. Konfiguracja i instrukcje w katalogu nadrzędnym nie należą
-do bundle'a. Dodatkowe reguły poniżej są lokalnym profilem pracy, nie wymaganiami OKF.
+This contract describes work inside a single hub. The OKF 0.2 bundle covers
+only `knowledge/`. Configuration and instructions in the parent directory
+are not part of the bundle. The additional rules below are a local working
+profile, not OKF requirements.
 
-## Warstwy i pochodzenie
+## Layers and provenance
 
-| Miejsce | Zawartość | Zasada pracy |
+| Location | Contents | Working rule |
 |---|---|---|
-| `00-bronze` | tekstowe wersje źródeł po ekstrakcji/transkrypcji | zachowuj wejście; kolejne wersje jako nowe pliki |
-| `10-silver` | pojęcia, zasady, syntezy, sprzeczności | rozwijaj istniejącą wiedzę z zachowaniem atrybucji |
-| `20-gold` | produkty dla konkretnego zastosowania | opisuj odbiorcę, sposób użycia i ograniczenia |
-| `90-decisions` | korekty i decyzje użytkownika | zapisuj zakres, powód i dokumenty objęte decyzją |
+| `00-bronze` | text versions of sources after extraction/transcription | preserve the input; later versions as new files |
+| `10-silver` | concepts, principles, syntheses, contradictions | extend existing knowledge while preserving attribution |
+| `20-gold` | outputs for a specific use case | describe the audience, how to use it, and the limitations |
+| `90-decisions` | corrections and user decisions | record the scope, reason, and the documents covered by the decision |
 
-Nowy materiał musi mieć identyfikację pochodzenia. Dla nagrania zachowaj
-lokalizację oryginału, wersję transkrypcji i znaczniki czasu, jeśli są dostępne.
-Zapisuj braki tych informacji zamiast je wymyślać. Nie sprowadzaj źródła do
-streszczenia przed zachowaniem dostępnego pełnego tekstu w bronze.
+New material must carry provenance identification. For a recording, keep
+the original's location, the transcription version, and timestamps, if
+available. Record gaps in that information instead of inventing it. Don't
+reduce a source to a summary before the available full text is preserved
+in bronze.
 
-## Dokumenty i odsyłacze
+## Documents and references
 
-Każdy `.md` w bundle'u ma frontmatter YAML z metadanymi dokumentu, poza
-zamkniętą listą plików nawigacyjnych i głównym logiem (ścieżki względem huba):
+Every `.md` file in the bundle has YAML frontmatter with document metadata,
+except for the closed list of navigation files and the main log (paths
+relative to the hub):
 
 - `knowledge/index.md`;
 - `knowledge/00-bronze/index.md`;
@@ -30,87 +33,99 @@ zamkniętą listą plików nawigacyjnych i głównym logiem (ścieżki względem
 - `knowledge/90-decisions/index.md`;
 - `knowledge/log.md`.
 
-Inne pliki nazwane `index.md` lub `log.md`, np.
-`knowledge/20-gold/ebook/index.md`, są zwykłymi dokumentami, nie wyjątkami.
-Lokalnie wymagamy `type`, `title`, `description`, jawnego `status` i informacji
-`generated` zgodnej z rzeczywistym autorstwem. Silver i gold wymagają `sources`.
-Typy startowe są w `hub.json`; można je świadomie rozszerzać.
+Other files named `index.md` or `log.md`, e.g.
+`knowledge/20-gold/ebook/index.md`, are ordinary documents, not exceptions.
+Locally we require `type`, `title`, `description`, an explicit `status`,
+and `generated` information matching real authorship. Silver and gold
+require `sources`. The starter types are in `hub.json`; they can be
+deliberately extended.
 
-Przykład szkieletu nowego konceptu — wartości czasu i autorstwa trzeba
-zastąpić rzeczywistymi danymi, a wskazane źródło musi istnieć:
+Example skeleton for a new concept — the time and authorship values must be
+replaced with real data, and the referenced source must exist:
 
 ```yaml
 ---
-type: Metoda
-title: Rozmowa o problemie klienta
-description: Scenariusz zbierania konkretnych przykładów problemu.
-tags: ["marketing", "badania"]
+type: Method
+title: Customer problem interview
+description: Scenario for gathering concrete examples of the problem.
+tags: ["marketing", "research"]
 status: draft
 sources:
   - id: material-a
     resource: ../00-bronze/material-a-v1.md
-    title: Materiał wejściowy A
+    title: Input material A
 ---
 ```
 
-Przy faktycznym zapisie dodaj blok `generated` z polami `by` i `at`, z poprawnym
-aktorem (np. `process:nazwa`, `human:identyfikator` lub `producent/wersja`)
-i czasem ISO 8601 ze strefą. Nie kopiuj fikcyjnej nazwy modelu z przykładów.
+When actually writing, add a `generated` block with `by` and `at` fields,
+with a correct actor (e.g. `process:name`, `human:identifier`, or
+`vendor/version`) and an ISO 8601 timestamp with timezone. Don't copy a
+fictitious model name from the examples.
 
-W treści przypis `[^material-a]` łączy twierdzenie z `sources[].id`.
-Definicja przypisu precyzuje stronę, sekcję lub czas. Stosuj standardowe
-względne odsyłacze Markdown i stabilne nazwy plików ASCII. Przy przeniesieniu
-pliku aktualizuj odsyłacze i wskazania źródeł. Identyfikacja konceptu w OKF
-wynika ze ścieżki względem korzenia bundle'a.
+In the text, the footnote `[^material-a]` links a claim to `sources[].id`.
+The footnote definition specifies the page, section, or time. Use standard
+relative Markdown links and stable ASCII file names. When moving a file,
+update links and source pointers. A concept's identity in OKF comes from
+its path relative to the bundle root.
 
-Indeksy nawigacyjne z powyższej listy zawierają odsyłacze i krótkie opisy,
-nie zastępują dokumentów wiedzy. Główny indeks bundle'a wymaga frontmattera
-`okf_version: "0.2"`; indeksy warstw nie wymagają metadanych dokumentu.
-`knowledge/log.md` ma wpisy pod datami YYYY-MM-DD,
-najnowsze na górze, bez frontmatteru. Log dokumentuje zmiany; nie zastępuje
-źródeł ani decyzji użytkownika.
+The navigation indexes from the list above contain links and short
+descriptions; they don't replace knowledge documents. The bundle's main
+index requires `okf_version: "0.2"` frontmatter; layer indexes don't
+require document metadata. `knowledge/log.md` has entries under
+`YYYY-MM-DD` dates, newest first, with no frontmatter. The log documents
+changes; it doesn't replace sources or user decisions.
 
-Dyspozycję „Bez materiału” (patrz „Dodaj materiał do bazy” niżej) zapisuj
-jako osobną linię pod datą, w formacie `- Bez materiału: <ścieżka względem
-knowledge/>`, np. `- Bez materiału: 00-bronze/newsletter-2025-03.md`.
-Ta ścieżka jest czytelna maszynowo: `scripts/validate_hub.py` i
-`scripts/check_evidence.py` wyłączają tak oznaczony plik bronze z ostrzeżenia
-o źródłach nieodwołanych przez żadne `sources[].resource`.
+The "No material" disposition (see "Add material to the base" below) is
+recorded as a separate line under the date, in the format `- No material:
+<path relative to knowledge/>`, e.g.
+`- No material: 00-bronze/newsletter-2025-03.md`. This path is
+machine-readable: `scripts/validate_hub.py` and `scripts/check_evidence.py`
+exclude a bronze file marked this way from the warning about sources not
+referenced by any `sources[].resource`.
 
-## Kontrola struktury
+## Structure check
 
-`.venv/bin/python -B scripts/validate_hub.py` sprawdza hub zawierający skrypt,
-nie bieżący katalog wywołania. Python 3.10+, tylko biblioteka standardowa,
-bez sieci i bez zapisu. To walidator lokalnego profilu 0.2.2, nie całego OKF.
-Skrypty uruchamiamy wyłącznie w lokalnym środowisku wirtualnym. Jeśli `.venv`
-nie istnieje, agent tworzy je wcześniej przez `python3 -m venv .venv`
-w katalogu huba. Na Windows interpreter jest w `.venv/Scripts/python.exe`.
-Bez instalacji systemowych; ewentualne paczki wyłącznie przez interpreter
-venv z `-m pip`. Walidator nie tworzy środowiska ani niczego nie instaluje.
+`.venv/bin/python -B scripts/validate_hub.py` checks the hub containing the
+script, not the current working directory. Python 3.10+, standard library
+only, no network access, no writes. This is a validator for local profile
+0.2.2, not the full OKF. Scripts always run inside the local virtual
+environment. If `.venv` doesn't exist, the agent creates it beforehand with
+`python3 -m venv .venv` in the hub directory. On Windows the interpreter is
+at `.venv/Scripts/python.exe`. No system-wide installs; any packages only
+through the venv interpreter with `-m pip`. The validator doesn't create
+the environment or install anything.
 
-Sprawdza:
+Checks:
 
-- wymagane pliki szkieletu, konfigurację hub.json i wszystkie `.md` w knowledge;
-- profile_version: "0.2.2" i policy.remote_copy: "required_after_validated_task";
-- frontmatter dokumentów (poza zamkniętą listą wyjątków powyżej): type, title, description,
-  status, generated; typ należy do concept_types, status do draft/stable/deprecated;
-- generated.by jest niepustym tekstem, generated.at to data i czas ISO 8601
-  z `T` i strefą (np. `2026-09-23T12:00:00Z` lub `2026-09-23T14:00:00+02:00`);
-- niepuste sources w dokumentach silver i gold, unikalne id, istniejące pliki
-  wskazane przez resource; id składa się z liter ASCII, cyfr, `_` i `-`;
-- użyte przypisy mają definicję oraz sources[].id; nieużyte id dają ostrzeżenie;
-- względne odsyłacze Markdown prowadzą do istniejących plików;
-- główny knowledge/index.md deklaruje okf_version: "0.2";
-- knowledge/log.md nie ma frontmattera; wpisy są pod nagłówkami `## YYYY-MM-DD`,
-  z poprawnymi, niepowtarzającymi się datami od najnowszej do najstarszej.
-  Pusty log może zawierać tylko nagłówek H1 i puste linie;
-- plik w `00-bronze` nieodwołany przez żadne `sources[].resource` i niezalogowany
-  jako „Bez materiału” daje ostrzeżenie, nie błąd (zob. „Uziemienie faktów” niżej).
+- the required scaffold files, the `hub.json` configuration, and every
+  `.md` file under knowledge;
+- `profile_version: "0.2.2"` and
+  `policy.remote_copy: "required_after_validated_task"`;
+- document frontmatter (outside the closed exception list above): `type`,
+  `title`, `description`, `status`, `generated`; `type` must be in
+  `concept_types`, `status` must be one of `draft`/`stable`/`deprecated`;
+- `generated.by` is a non-empty string, `generated.at` is an ISO 8601 date
+  and time with `T` and a timezone (e.g. `2026-09-23T12:00:00Z` or
+  `2026-09-23T14:00:00+02:00`);
+- non-empty `sources` in silver and gold documents, unique ids, existing
+  files pointed to by `resource`; `id` consists of ASCII letters, digits,
+  `_` and `-`;
+- used footnotes have a definition and a `sources[].id`; unused ids
+  produce a warning;
+- relative Markdown links point to existing files;
+- the main `knowledge/index.md` declares `okf_version: "0.2"`;
+- `knowledge/log.md` has no frontmatter; entries sit under `## YYYY-MM-DD`
+  headings, with valid, non-repeating dates from newest to oldest. An
+  empty log may contain only the H1 heading and blank lines;
+- a file under `00-bronze` not referenced by any `sources[].resource` and
+  not logged as "No material" produces a warning, not an error (see
+  "Grounding Invariant" below).
 
-Wyjście stdout jest jednym obiektem JSON: violations (liczba błędów), errors
-i warnings (listy obiektów file, line, message). Stderr zawiera czytelne
-linie `plik:linia: error/warning: komunikat`. Kod 0 występuje tylko przy
-violations == 0. Ostrzeżenia nie zwiększają violations. W hub.json:
+stdout output is a single JSON object: `violations` (error count), `errors`
+and `warnings` (lists of `file`, `line`, `message` objects). stderr
+contains readable `file:line: error/warning: message` lines. Exit code 0
+occurs only when `violations == 0`. Warnings don't increase `violations`.
+In `hub.json`:
 
 ```json
 "quality": {
@@ -122,42 +137,46 @@ violations == 0. Ostrzeżenia nie zwiększają violations. W hub.json:
 }
 ```
 
-Agent wykonuje pierwszą kontrolę, potem najwyżej 5 cykli naprawa/kontrola.
-Po wyczerpaniu limitu albo przy podejrzeniu błędu sprawdzania zatrzymuje się
-i przedstawia wynik użytkownikowi. Nie naprawia plików spoza zleconego zakresu.
-Nie modyfikuje walidatora, progu, budżetu ani reguł kontraktu w celu uzyskania
-zielonego. Zmiana kontroli wymaga osobnego zlecenia, brancha i PR bez auto-merge.
-Nie wolno usuwać treści/źródeł ani fałszować metadanych tylko dla wyniku.
+The agent runs the first check, then at most 5 fix/check cycles. After
+exhausting the budget, or on suspicion of a checker bug, it stops and
+presents the result to the user. It doesn't fix files outside the assigned
+scope. It doesn't modify the validator, the threshold, the budget, or
+contract rules to get a green result. Changing the check requires a
+separate request, a branch, and a PR without auto-merge. Content/sources
+must not be deleted, and metadata must not be falsified, just to get a
+result.
 
-Jak w zasadach jakości poniżej, zielone nie potwierdza prawdziwości treści.
-Pliki i ustawienia są edytowalne: ta reguła nie jest zabezpieczeniem systemowym
-przed autorem mogącym zmienić kod walidatora. Ochronę zmian kontraktu zapewnia
-osobny proces przeglądu; walidator nie dowodzi kompletności lub autentyczności.
+As in the quality rules below, green doesn't confirm the truthfulness of
+the content. Files and settings are editable: this rule isn't a
+system-level safeguard against an author who could change the validator's
+code. Protection for contract changes comes from a separate review
+process; the validator doesn't prove completeness or authenticity.
 
-### Obsługiwany podzbiór frontmattera
+### Supported frontmatter subset
 
-Frontmatter zaczyna się w pierwszej linii `---` i kończy osobną linią `---`.
-Na górze jest mapa. Klucze ASCII: litery lub `_`, dalej także cyfry i `-`.
-Duplikaty kluczy są błędem, także w mapach inline. Wcięcia: wielokrotności
-dwóch spacji, każdy poziom dokładnie dwa; bez tabulatorów. Maksymalnie
-10 poziomów wcięcia. Puste linie są dozwolone.
+Frontmatter starts on the first line with `---` and ends on a separate
+`---` line. At the top is a map. ASCII keys: letters or `_`, then also
+digits and `-`. Duplicate keys are an error, including in inline maps.
+Indentation: multiples of two spaces, exactly two per level; no tabs. Up
+to 10 levels of indentation. Blank lines are allowed.
 
-- Wartości tekstowe: pojedyncza linia niecytowanego tekstu, string JSON
-  w podwójnych cudzysłowach albo string w pojedynczych cudzysłowach
-  (apostrof wewnątrz jako `''`). `: ` i ` #` wymagają cytowania.
-- Mapy blokowe `key:` z polami o poziom głębiej i listy `- wartość`
-  lub `- key: wartość` z kolejnymi polami na następnym poziomie.
-- Kolekcje inline wyłącznie w składni JSON, np. `["tag-a", "tag-b"]`
-  oraz `{"by": "human:editor", "at": "2026-09-23T12:00:00Z"}`.
-  W JSON dopuszczone są też liczby skończone, bool i null, ale wymagane
-  tekstowe pola dokumentu nadal muszą być niepustymi stringami.
-- Niecytowane liczby i słowa YAML takie jak true/null/yes/no nie są tekstem
-  profilu; użyj cudzysłowów. Daty ISO można zapisać jako tekst bez cudzysłowów.
-- Komentarze YAML, anchory/aliasy, merge keys, tagi YAML, bloki `|`/`>`,
-  wieloliniowe scalars i nie-JSON-owe kolekcje inline są nieobsługiwane.
-  Parser zgłasza naruszenie, nigdy nie ignoruje takiej konstrukcji.
+- Text values: a single line of unquoted text, a JSON string in double
+  quotes, or a single-quoted string (an internal apostrophe as `''`).
+  `: ` and ` #` require quoting.
+- Block maps `key:` with fields one level deeper, and lists `- value` or
+  `- key: value` with further fields at the next level.
+- Inline collections only in JSON syntax, e.g. `["tag-a", "tag-b"]` and
+  `{"by": "human:editor", "at": "2026-09-23T12:00:00Z"}`. JSON also allows
+  finite numbers, bool, and null, but required text fields of the document
+  must still be non-empty strings.
+- Unquoted numbers and YAML words like true/null/yes/no are not text under
+  this profile; quote them. ISO dates can be written as text without
+  quotes.
+- YAML comments, anchors/aliases, merge keys, YAML tags, `|`/`>` blocks,
+  multiline scalars, and non-JSON inline collections are unsupported. The
+  parser reports a violation; it never silently ignores such a construct.
 
-Przykładowy blok (przy zapisie zastąp autora i czas rzeczywistymi):
+Example block (replace the author and time with real values when writing):
 
 ```yaml
 generated:
@@ -166,197 +185,216 @@ generated:
 sources:
   - id: material-a
     resource: ../00-bronze/material-a-v1.md
-    title: Materiał wejściowy A
+    title: Input material A
 ```
 
-### Zakres odsyłaczy i źródeł
+### Scope of links and sources
 
-Resource musi wskazywać lokalny plik w obrębie huba, względnie do dokumentu.
-URL pochodzenia zapisuj osobno, np. origin_url w notatce bronze. Sam URL
-w sources.resource nie wystarcza do tej lokalnej kontroli. Surowy tekst można zachować jako
-`.txt` i opisać notatką bronze z metadanymi; nie zmieniaj historycznego źródła
-tylko po to, aby spełnić nowe reguły.
+`resource` must point to a local file inside the hub, relative to the
+document. Record the origin URL separately, e.g. `origin_url` in the
+bronze note. A bare URL in `sources.resource` isn't enough for this local
+check. Raw text can be kept as `.txt` and described by a bronze note with
+metadata; don't change a historical source just to satisfy new rules.
 
-Huby pozostają niezależne: nie ma katalogu imports, pakietów wiedzy ani
-synchronizacji między hubami. Gdy użytkownik wskaże dodatkowy hub jako
-materiał do zadania, można go czytać bez kopiowania jego wiedzy. Wynik
-zapisuj wyłącznie we wskazanym hubie docelowym. Pomocniczy ślad zapisz
-zwykłym tekstem w treści, np. „Kontekst dodatkowy: hub sprzedażowy,
-dokument SPIN, odczyt 2026-09-23”; wersję dopisz, jeśli jest znana.
-Nie wymaga to pola YAML ani odsyłacza Markdown między repozytoriami.
-Ten opis nie jest sprawdzany przez walidator i nie zastępuje wymaganych
-lokalnych sources ani przypisów. Nie dopisuj pozornych lokalnych źródeł:
-jeśli opracowanie opiera się wyłącznie na innym hubie, zgłoś ograniczenie
-obecnego kontraktu zamiast deklarować poprawną lokalną atrybucję.
+Hubs stay independent: there's no `imports` directory, knowledge packages,
+or sync between hubs. When the user points to an additional hub as
+material for a task, it can be read without copying its knowledge. Write
+the result only into the designated target hub. Record a supporting trace
+as plain text in the content, e.g. "Additional context: sales hub, SPIN
+document, read 2026-09-23"; add the version if known. This doesn't require
+a YAML field or a Markdown link between repositories. This note isn't
+checked by the validator and doesn't replace required local sources or
+footnotes. Don't add fake local sources: if a piece of work relies solely
+on another hub, report the limitation of the current contract instead of
+claiming correct local attribution.
 
-Linki inline (także obrazy), odsyłacze referencyjne `[opis][id]`, `[id][]`
-i `[id]` z definicją `[id]: ścieżka` są sprawdzane. Definicja odsyłacza mieści
-się w jednej linii; tytuł opcjonalny w cudzysłowach lub nawiasach. Ścieżki
-ze spacjami zapisuj w `<...>` lub z kodowaniem URL. Obsługiwane są zagnieżdżone
-nawiasy w etykietach i ścieżkach oraz backslash escapes. Przypisy mają postać
-`[^id]` i osobną definicję `[^id]: ...`; definicja sama nie liczy się jako użycie.
+Inline links (including images), reference links `[text][id]`, `[id][]`,
+and `[id]` with a definition `[id]: path` are checked. A link definition
+fits on one line; an optional title in quotes or parentheses. Write paths
+with spaces inside `<...>` or URL-encoded. Nested brackets in labels and
+paths, and backslash escapes, are supported. Footnotes take the form
+`[^id]` and a separate definition `[^id]: ...`; the definition alone
+doesn't count as a use.
 
-Fragmenty `#naglowek` i query nie są walidowane, sprawdzany jest plik.
-Linki HTTP/HTTPS/mailto nie są odwiedzane. Ścieżki absolutne, ucieczka poza hub,
-symlinki w knowledge i celach odsyłaczy oraz wikilinki/HTML a/img są błędami.
-Przykłady w blokach kodu fenced (backticks lub tyldy, na głównym poziomie)
-i inline code nie są odsyłaczami; niedomknięty fence jest błędem. Indented code
-nie jest wyłączany ze sprawdzania — dla dosłownych przykładów używaj fenced code.
-To udokumentowany profil Markdown, nie pełny parser CommonMark.
+`#heading` fragments and query strings aren't validated; only the file is
+checked. HTTP/HTTPS/mailto links aren't visited. Absolute paths, escaping
+outside the hub, symlinks inside knowledge and in link targets, and
+wikilinks/HTML a/img are errors. Examples inside fenced code blocks
+(backticks or tildes, at the top level) and inline code aren't links; an
+unclosed fence is an error. Indented code is not exempt from checking —
+use fenced code for literal examples. This is a documented Markdown
+profile, not a full CommonMark parser.
 
-## Uziemienie faktów (Grounding Invariant)
+## Grounding Invariant
 
-Każda nośna liczba, data i bezpośredni cytat w `10-silver` i `20-gold` musi
-dać się znaleźć dosłownie w treści plików wskazanych przez `sources[].resource`
-tego dokumentu. Kompilacja *ustanawia* ten niezmiennik (zlokalizuj wartość
-przed zapisem — zob. „Jakość treści” niżej); `scripts/check_evidence.py`
-*sprawdza* go post factum: grepuje liczby o wysokiej sygnalności (sufiksowane
-lub duże, dziesiętne, daty ISO, dłuższe cytaty) w połączonej treści
-wszystkich `sources[].resource` dokumentu. Reszta przypadków — drobne,
-niejednoznaczne wartości — zostaje przy regule kompilacyjnej i ocenie
-człowieka.
+Every load-bearing number, date, and direct quote in `10-silver` and
+`20-gold` must be found verbatim in the content of the files pointed to by
+that document's `sources[].resource`. Compilation *establishes* this
+invariant (locate the value before writing — see "Content quality" below);
+`scripts/check_evidence.py` *verifies* it after the fact: it greps
+high-signal numbers (suffixed or large, decimal, ISO dates, longer quotes)
+in the combined content of all the document's `sources[].resource`. The
+rest — small, ambiguous values — stays with the compile-time rule and
+human judgment.
 
-To raport, nie bramka jakości: skrypt zawsze kończy się kodem 0 i nie wchodzi
-do `violations` ani progu w `hub.json`. „Podejrzenie braku pokrycia” to
-kandydat, nie wyrok — wartości wyliczone i nazwy własne też się pojawią;
-ocena należy do czytającego. Uruchom `.venv/bin/python -B
-scripts/check_evidence.py` z katalogu huba (bez argumentów — skrypt zawsze
-sprawdza hub, w którym leży, tak jak `validate_hub.py`). Raport wylicza też
-pliki `00-bronze` nieodwołane przez żadne `sources[].resource` i niezalogowane
-jako „Bez materiału” — to samo ostrzeżenie, które daje `validate_hub.py`.
+This is a report, not a quality gate: the script always exits with code 0
+and never counts toward `violations` or the `hub.json` threshold. A
+"fidelity suspect" is a candidate, not a verdict — derived values and
+proper names will show up too; judging them is the reader's job. Run
+`.venv/bin/python -B scripts/check_evidence.py` from the hub directory (no
+arguments — the script always checks the hub it lives in, like
+`validate_hub.py`). The report also lists `00-bronze` files not referenced
+by any `sources[].resource` and not logged as "No material" — the same
+warning `validate_hub.py` gives.
 
-Kontrola sprawdza kandydata wobec sumy wszystkich `sources[].resource`
-dokumentu, nie wobec jednego źródła najbliższego konkretnemu przypisowi
-`[^id]`. To świadomy wybór: rzeczywiste błędy uziemienia to niemal zawsze
-„wartość nieobecna w żadnym źródle”, co łapie sprawdzenie całego dokumentu;
-precyzyjne kotwiczenie do pojedynczego przypisu chroniłoby przed awarią,
-która w praktyce się nie zdarza. Ten skrypt i powyższe rozstrzygnięcie są
-adaptacją `scripts/check_evidence.py` z `Astro-Han/karpathy-llm-wiki`
-(MIT) — niezależnej implementacji tego samego pomysłu Karpathy'ego, z inną
-(blockquote'ową, bez frontmattera) konwencją dokumentu. Zob. „Inspiracje”
-w README repozytorium generatora.
+The check tests a candidate against the sum of all the document's
+`sources[].resource`, not against the one source nearest a specific
+`[^id]` footnote. This is a deliberate choice: real grounding errors are
+almost always "value absent from any source," which a whole-document check
+already catches; anchoring precisely to a single footnote would only guard
+against a failure mode that doesn't occur in practice. This script and the
+above decision are an adaptation of `scripts/check_evidence.py` from
+`Astro-Han/karpathy-llm-wiki` (MIT) — an independent implementation of the
+same Karpathy idea, with a different (blockquote-based, no-frontmatter)
+document convention. See "Inspirations" in the generator repository's
+README.
 
-## Jakość treści
+## Content quality
 
-- Zachowuj warunki stosowania, wyjątki i rozbieżności między źródłami.
-- Oznaczaj własną syntezę lub hipotezę jawnie. Wypełnienie luki wymaga
-  materiału źródłowego albo wyraźnie opisanej hipotezy, nie pozorowanej atrybucji.
-- Gold oznacza przygotowanie do użycia, a nie automatyczne zatwierdzenie.
-  Dla procedur oddziel instrukcję działania, uzasadnienie i materiały pomocnicze,
-  jeśli poprawia to użyteczność.
-- Rozmowa zakończona wartościową analizą może zasilić wiki, z zachowaniem
-  pochodzenia i rozróżnieniem decyzji, obserwacji i twierdzeń.
-- Gdy nowe źródło podważa lub unieważnia konkretne twierdzenie, nie nadpisuj
-  go cicho. Oznacz je blokiem wstawionym bezpośrednio pod twierdzeniem,
-  oddzielnie od pola `status` całego dokumentu (to drugie opisuje cały plik,
-  nie pojedyncze zdanie):
+- Preserve applicability conditions, exceptions, and discrepancies between
+  sources.
+- Mark your own synthesis or hypothesis explicitly. Filling a gap requires
+  source material or a clearly labeled hypothesis, not simulated
+  attribution.
+- Gold means prepared for use, not automatic approval. For procedures,
+  separate the action steps, the rationale, and supporting materials, if
+  that improves usability.
+- A conversation that ends with a valuable analysis can feed the wiki,
+  preserving provenance and distinguishing decisions, observations, and
+  claims.
+- Content preserves the language of the source material. Don't translate
+  bronze/silver/gold into English or any other language unless the user
+  explicitly asks for it — this contract being written in English doesn't
+  set the language of the knowledge itself.
+- When a new source challenges or invalidates a specific claim, don't
+  silently overwrite it. Mark it with a block inserted directly under the
+  claim, separate from the whole document's `status` field (the latter
+  describes the whole file, not a single sentence):
 
   ```
   > **Status: Disputed**
-  > {konkurujące twierdzenia, każde z atrybucją źródła}
+  > {the competing claims, each with source attribution}
 
   > **Status: Outdated** (YYYY-MM-DD)
-  > {co się zmieniło i jaki jest aktualny stan, z atrybucją}
+  > {what changed and what the current understanding is, with attribution}
   ```
 
-  Stary zapis zostaje w treści, tylko oznaczony — historia wiki nie znika.
-  `scripts/check_evidence.py` pomija wyjaśnienie pod takim blokiem przy
-  szukaniu dowodów; to adnotacja redakcyjna, nie twierdzenie do ponownego
-  uziemienia.
+  The old text stays in place, only flagged — the wiki's history doesn't
+  disappear. `scripts/check_evidence.py` skips the explanation under such
+  a block when looking for evidence; it's an editorial annotation, not a
+  claim to re-ground.
 
-## Praca agenta
+## Agent work
 
-To trzy niezależne działania. Łącz je tylko wtedy, gdy użytkownik zamawia
-kilka naraz. W każdym dobieraj kontekst przez indeksy, powiązane koncepty
-i wcześniejsze decyzje użytkownika; nie ładuj całej biblioteki bez potrzeby.
+These are three independent actions. Combine them only when the user asks
+for several at once. In each, pull context through indexes, related
+concepts, and earlier user decisions; don't load the whole library without
+need.
 
-### Dodaj materiał do bazy — bronze i silver
+### Add material to the base — bronze and silver
 
-1. Przyjmij źródło w nowym pliku bronze. Sprawdź dostępne wejścia, żeby
-   uniknąć duplikatu. Automatyczny rejestr hashy jest planowany, nie zainstalowany.
-2. Przed redakcją silver ustal dyspozycję, przeszukując istniejącą wiki
-   kluczowymi pojęciami i synonimami źródła: **Nowy** (nowe artykuły),
-   **Aktualizacja** (scalenie z istniejącymi), **Sporne** (przeczy istniejącej
-   treści — można łączyć z Nowy/Aktualizacja, zob. blok `Status:` w „Jakość
-   treści”), **Bez materiału** (nic ponad to, co wiki już ma — wyklucza
-   pozostałe). Przy „Bez materiału” zostaw plik w bronze, zaloguj dyspozycję
-   formatem z sekcji „Dokumenty i odsyłacze” i zatrzymaj się; nie twórz
-   artykułu na siłę z cienkiego źródła.
-3. Rozwiń połączoną wiki silver: pojęcia, metody, przykłady i syntezy z referencjami
-   do źródeł. Łącz nowe informacje z istniejącymi, zachowując warunki stosowania,
-   wyjątki i rozbieżności. To wiedza wielokrotnego użycia, nie tylko osobne
-   streszczenie każdego wejścia ani skrót pod jeden przyszły wynik.
-4. Sprawdź efekty kaskadowe: przeszukaj cały silver pod kątem tych samych
-   encji i aliasów (nie poprzestawaj na indeksie) i zaktualizuj każdy
-   materialnie dotknięty dokument, odświeżając jego datę Updated. Przy
-   sprzeczności oznacz oba miejsca blokiem `Status:` i skrzyżuj je linkami,
-   zamiast ciszej nadpisywać starszy zapis.
-5. Nie wymagaj celu biznesowego i nie twórz gold. Jeśli nowa wiedza wpływa
-   na istniejące gold, wskaż to i zaproponuj aktualizację; nie wdrażaj jej
-   automatycznie bez zlecenia.
+1. Accept the source into a new bronze file. Check existing inputs to
+   avoid a duplicate. An automatic hash registry is planned, not
+   installed.
+2. Before editing silver, determine the disposition by searching the
+   existing wiki for the source's key concepts and synonyms: **New** (new
+   articles), **Update** (merge into existing ones), **Disputed**
+   (contradicts existing content — can combine with New/Update, see the
+   `Status:` block in "Content quality"), **No material** (nothing beyond
+   what the wiki already has — excludes the others). For "No material,"
+   leave the file in bronze, log the disposition in the format from
+   "Documents and references," and stop; don't force an article out of a
+   thin source.
+3. Extend the connected silver wiki: concepts, methods, examples, and
+   syntheses with references to sources. Merge new information with
+   existing content, preserving applicability conditions, exceptions, and
+   discrepancies. This is reusable knowledge, not just a separate summary
+   of each input or a shortcut for one future output.
+4. Check for cascade effects: search the whole silver layer for the same
+   entities and aliases (don't stop at the index) and update every
+   materially affected document, refreshing its Updated date. On a
+   contradiction, mark both places with a `Status:` block and cross-link
+   them, instead of silently overwriting the older entry.
+5. Don't require a business goal and don't create gold. If new knowledge
+   affects existing gold, point that out and propose an update; don't
+   apply it automatically without a request.
 
-### Odpowiedz na pytanie o bazę — Query
+### Answer a question about the base — Query
 
-Domyślnie nic nie zapisuje; to osobne działanie od dwóch pozostałych.
+By default this writes nothing; it's a separate action from the other two.
 
-1. Przeszukaj `knowledge/index.md` i pełny tekst silver/gold po temacie
-   pytania i jego synonimach, zanim stwierdzisz brak wiedzy w bazie — i powiedz
-   wprost, że przeszukano oba. Nie opieraj odpowiedzi na wiedzy własnej modelu,
-   gdy baza ma materiał na dany temat.
-2. Odpowiedz w rozmowie, cytując linkami do artykułów silver/gold. Nie
-   zapisuj plików, dopóki użytkownik wyraźnie o to nie poprosi.
-3. Na prośbę „zarchiwizuj tę odpowiedź” zapisz ją jako nowy dokument w
-   `10-silver` (typ `Synteza`, `sources[]` wskazujące cytowane artykuły
-   silver/gold — nie bronze, bo to nie pierwotne źródło), dopisz go do
-   `knowledge/index.md` i `knowledge/log.md`. Zawsze nowy dokument; nie
-   scalaj archiwum z istniejącym artykułem, bo to zsyntetyzowana odpowiedź,
-   nie materiał źródłowy.
+1. Search `knowledge/index.md` and the full text of silver/gold for the
+   question's topic and its synonyms before concluding the base has no
+   knowledge — and say explicitly that both were searched. Don't base the
+   answer on the model's own knowledge when the base has material on the
+   topic.
+2. Answer in the conversation, citing links to silver/gold articles. Don't
+   write files until the user explicitly asks for it.
+3. On the request "archive this answer," save it as a new document in
+   `10-silver` (type `Synthesis`, `sources[]` pointing to the cited
+   silver/gold articles — not bronze, since this isn't primary source
+   material), add it to `knowledge/index.md` and `knowledge/log.md`.
+   Always a new document; don't merge the archive into an existing
+   article, since it's a synthesized answer, not source material.
 
-### Przygotuj materiał do konkretnego celu — gold
+### Prepare material for a specific purpose — gold
 
-1. Ustal rezultat, temat i potrzebną formę z polecenia. Korzystaj z istniejącego
-   silver; nie wymagaj dodania nowego materiału źródłowego.
-2. Utwórz katalog w `20-gold`, np. `ebook-o-xyz`, `fiszki-xyz` lub
-   `instagram-posts-materials`, i przygotuj zamówione opracowanie.
-   Zachowaj referencje do silver oraz ścieżkę pochodzenia do źródeł w bronze.
-3. Po brakujące szczegóły i dokładne cytaty sięgnij do odpowiednich źródeł
-   bronze. Nie analizuj od nowa wszystkich surowych danych. Jeśli baza nie
-   wystarcza, wskaż braki; nie zastępuj ich zmyślonymi faktami lub przypisami.
-4. Przy zmianie koncepcji twórz nowy katalog gold, zachowując poprzedni wynik.
-   Aktualizuj istniejący, gdy użytkownik prosi o jego korektę lub aktualizację.
-   Nie twórz katalogów na zapas; nie narzucaj modelu PARA.
+1. Determine the result, topic, and required form from the request. Use
+   the existing silver; don't require adding new source material.
+2. Create a directory under `20-gold`, e.g. `ebook-on-xyz`,
+   `flashcards-xyz`, or `instagram-posts-materials`, and prepare the
+   requested output. Keep references to silver and the provenance path to
+   the sources in bronze.
+3. For missing details and exact quotes, go back to the relevant bronze
+   sources. Don't re-analyze all the raw data from scratch. If the base
+   isn't enough, point out the gaps; don't replace them with invented
+   facts or citations.
+4. When the concept changes, create a new gold directory, keeping the
+   previous result. Update the existing one when the user asks for a
+   correction or update to it. Don't create directories speculatively;
+   don't impose the PARA model.
 
-Po każdym działaniu sprawdź odsyłacze i przypisy, uzupełnij odpowiednie indeksy
-i log. Przedstaw zmiany i kwestie otwarte. Sprawdzenie struktury nie dowodzi
-prawdziwości treści. Otrzymane korekty i decyzje zapisuj w `90-decisions`,
-żeby kolejne przebiegi je uwzględniały.
+After each action, check links and footnotes, update the relevant indexes
+and the log. Present the changes and open questions. A structure check
+doesn't prove the content is true. Record corrections and decisions you
+receive in `90-decisions`, so future runs take them into account.
 
-W przypadku pracy równoległej wyniki robocze mają oddzielne miejsca zapisu;
-jedno uzgodnione scalanie publikuje wynik. Nie uruchamiaj dodatkowych agentów
-wyłącznie dlatego, że kontrakt opisuje możliwość pracy równoległej.
+For parallel work, drafts have separate save locations; one agreed-upon
+merge publishes the result. Don't launch additional agents just because
+the contract describes the possibility of parallel work.
 
-## Zatwierdzanie i zmiany
+## Approval and changes
 
-`status` ma wartości `draft`, `stable`, `deprecated`. Początkowo opracowania
-agenta są `draft`. Przejście do `stable` opiera się na decyzji użytkownika
-lub późniejszej, wyraźnie ustalonej polityce danego procesu.
+`status` has the values `draft`, `stable`, `deprecated`. Initially, an
+agent's drafts are `draft`. Moving to `stable` rests on a user decision or
+a later, explicitly established policy for that process.
 
-Pole `verified` opisuje sprawdzenie treści, nie samą zgodę na jej użycie.
-Agent nie nadaje sobie ludzkiej weryfikacji. Może zapisać rzeczywisty wynik
-przeglądu użytkownika, wskazując decyzję i zakres sprawdzonej treści.
-Po zmianie merytorycznej wcześniejsza weryfikacja zostaje w historii starej
-wersji; nowa wymaga ponownego sprawdzenia. Przyszły mechanizm zatwierdzania
-powinien wiązać decyzję z hashem treści.
+The `verified` field describes a content check, not mere consent to use
+it. The agent doesn't grant itself human verification. It may record the
+actual result of a user's review, indicating the decision and the scope
+of content checked. After a substantive change, the earlier verification
+stays in the old version's history; the new one requires a fresh check. A
+future approval mechanism should tie the decision to a content hash.
 
-Opcjonalne `stale_after` określa potrzebę przeglądu w czasie. Nie odnawiaj
-aktualności tylko dlatego, że dokument został ponownie wygenerowany.
+The optional `stale_after` marks the need for a review over time. Don't
+renew freshness just because the document was regenerated.
 
-## Autonomia i własność
+## Autonomy and ownership
 
-Trzy osobne zakresy: redakcja wiki, publikacja opracowań oraz działania
-operacyjne. `hub.json` opisuje początkową politykę: agent przygotowuje
-wersje robocze, publikacja wymaga przyjęcia, działania operacyjne są wyłączone.
-To instrukcja pracy, a nie techniczna kontrola uprawnień.
+Three separate scopes: wiki editing, publishing drafts, and operational
+actions. `hub.json` describes the initial policy: the agent prepares
+drafts, publication requires acceptance, operational actions are disabled.
+This is a working instruction, not a technical permission control.
 
 ```json
 "policy": {
@@ -367,25 +405,29 @@ To instrukcja pracy, a nie techniczna kontrola uprawnień.
 }
 ```
 
-`remote_copy` jawnie określa obowiązek kopii Git niezależnie od dwóch innych
-zakresów: `publication` dotyczy przyjęcia opracowań do publikacji, a
-`external_actions` działań operacyjnych, np. zmiany budżetu kampanii.
-Pole nie wybiera remote i nie zezwala na wysyłanie do dowolnego odbiorcy.
-W profilu 0.2.2 jest wymagane. Brak/inna wartość to niespójność kontraktu,
-nie tryb lokalny. Polecenie pracy lokalnej jest wyjątkiem dla zadania,
-nie zmianą konfiguracji. Starszy hub bez tego pola nie przyjął tej reguły
-automatycznie; wymaga jawnej aktualizacji kontraktu.
+`remote_copy` explicitly states the Git-copy obligation, independent of
+the other two scopes: `publication` concerns accepting drafts for
+publication, and `external_actions` concerns operational actions, e.g.
+changing a campaign budget. The field doesn't pick a remote and doesn't
+authorize sending to just any destination. It's required under profile
+0.2.2. A missing or different value is a contract inconsistency, not a
+local-work mode. An instruction for local-only work is an exception for
+the task, not a configuration change. An older hub without this field
+hasn't automatically adopted this rule; it needs an explicit contract
+update.
 
-Zapis wersji roboczych do uzgodnionego repozytorium Git jest częścią redakcji,
-nie publikacją opracowań ani operacyjnym działaniem systemu. Agent wykonuje
-commit i push po każdym zakończonym, sprawdzonym zadaniu oraz po spójnych
-etapach dłuższej pracy, zgodnie z sekcją „Bieżąca kopia zdalna” w AGENTS.md.
-Nie czeka na osobne zlecenie push; respektuje jednak polecenie pracy lokalnej.
-Brak potwierdzonego push wymaga jawnego raportu o braku aktualnej kopii.
-Walidator nie sprawdza Git ani backupu. Kopia obejmuje tylko wypchnięte pliki
-wersjonowane, nie zewnętrzne oryginały. Generator nie konfiguruje remote.
+Saving drafts to the agreed Git repository is part of editing, not
+publishing drafts or an operational system action. The agent commits and
+pushes after every completed, checked task, and after consistent stages
+of longer work, per the "Ongoing remote copy" section in AGENTS.md. It
+doesn't wait for a separate push request; it does respect an instruction
+for local-only work. A missing confirmed push requires an explicit report
+that there's no current copy. The validator doesn't check Git or backups.
+The copy covers only pushed, version-controlled files, not external
+originals. The generator doesn't configure a remote.
 
-Nie włączaj do huba danych innego właściciela bez zadania, które je obejmuje.
-Nie kopiuj sekretów do wiedzy. Odczyt innego huba nie oznacza zgody na jego
-zmianę ani przeniesienie jego zawartości do huba docelowego.
-Zmiana wiedzy nie daje uprawnienia do zmiany budżetu ani konfiguracji firmy.
+Don't bring another owner's data into the hub without a task that covers
+it. Don't copy secrets into the knowledge base. Reading another hub
+doesn't imply consent to change it or move its content into the target
+hub. Changing knowledge doesn't grant authority to change a budget or
+company configuration.

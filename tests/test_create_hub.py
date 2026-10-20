@@ -20,19 +20,19 @@ class CreateHubTests(unittest.TestCase):
     def run_generator(self, destination, *extra, script=None):
         return subprocess.run(
             [sys.executable, "-B", str(script or SKILL / "scripts/create_hub.py"),
-             "--dest", str(destination), "--id", "test-hub", "--title", "Test wiedzy",
-             "--kind", "company", "--owner", 'Spółka "Żółw"', "--domain", "Marketing",
+             "--dest", str(destination), "--id", "test-hub", "--title", "Test knowledge",
+             "--kind", "company", "--owner", 'Acme "Turtle" Inc.', "--domain", "Marketing",
              *extra], cwd=self.root, text=True, capture_output=True,
         )
 
     def test_portable_skill_produces_independent_hub_with_resolving_links(self):
-        copied = self.root / "przeniesiony skill"
+        copied = self.root / "moved skill"
         shutil.copytree(SKILL, copied)
-        destination = self.root / "hub z odstępami"
+        destination = self.root / "hub with spaces"
         result = self.run_generator(destination, script=copied / "scripts/create_hub.py")
         self.assertEqual(result.returncode, 0, result.stderr)
         config = json.loads((destination / "hub.json").read_text())
-        self.assertEqual(config["owner"], 'Spółka "Żółw"')
+        self.assertEqual(config["owner"], 'Acme "Turtle" Inc.')
         self.assertEqual(config["policy"]["external_actions"], "disabled")
         self.assertEqual(config["policy"]["publication"], "explicit_acceptance")
         self.assertEqual(config["policy"]["remote_copy"], "required_after_validated_task")

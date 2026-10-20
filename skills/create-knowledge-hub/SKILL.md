@@ -1,76 +1,88 @@
 ---
 name: create-knowledge-hub
-description: Twórz samodzielne huby wiedzy Markdown dla Obsidiana według wzorca bronze–silver–gold i OKF 0.2. Używaj przy zakładaniu kolejnej biblioteki osobistej lub huba firmy; istniejące huby wymagają osobnej migracji.
+description: Create standalone Markdown knowledge hubs for Obsidian following the bronze-silver-gold pattern and OKF 0.2. Use when setting up another personal library or a company hub; existing hubs need a separate migration.
 ---
 
-# Utwórz hub wiedzy
+# Create a knowledge hub
 
-Ten pakiet zawiera przenośny generator i kontrakt pracy z wiedzą.
-Wszystkie potrzebne zasoby znajdują się w tym katalogu. Nie zakłada
-istnienia konkretnego huba ani dostępu do innych repozytoriów.
+This package contains a portable generator and a knowledge-work contract.
+All needed resources live in this directory. It doesn't assume a specific
+hub already exists or that other repositories are accessible.
 
-## Przebieg
+## Flow
 
-1. Ustal z kontekstu katalog docelowy, identyfikator ASCII, nazwę, właściciela,
-   rodzaj `personal` lub `company` i temat. Dopytaj tylko o dane, których brak
-   zmienia granicę własności lub przeznaczenie. Sama nowa tematyka nie wymaga
-   osobnego huba; uzasadniają go także niezależna praca, dostęp i cykl publikacji.
-2. Przeczytaj [kontrakt](assets/hub/SCHEMA.md) oraz
-   [zasady profilu](references/profile.md). Dostosuj typy do zastosowania
-   po wygenerowaniu huba; nie przenoś automatycznie taksonomii prawnej.
-3. Użyj `.venv` w repozytorium silnika lub uzgodnionym katalogu roboczym,
-   gdy pakiet skilla jest przeniesiony. Jeśli go nie ma, utwórz środowisko
-   poleceniem `python3 -m venv .venv` w tym katalogu (Python 3.10+).
-   Systemowego Pythona używaj tylko do utworzenia venv. Uruchom generator
-   interpreterem środowiska, podając ścieżkę do tego pakietu:
+1. Determine from context the destination directory, an ASCII identifier,
+   the name, the owner, the kind (`personal` or `company`), and the topic.
+   Ask follow-up questions only about data whose absence changes the
+   ownership boundary or purpose. A new topic alone doesn't require a
+   separate hub; independent work, access, and a separate publication
+   cycle also justify one.
+2. Read the [contract](assets/hub/SCHEMA.md) and the
+   [profile rules](references/profile.md). Adapt the types to the use
+   case after generating the hub; don't carry over a legal taxonomy
+   automatically.
+3. Use `.venv` in the engine repository or an agreed working directory,
+   when the skill package has been moved. If it doesn't exist, create the
+   environment with `python3 -m venv .venv` in that directory (Python
+   3.10+). Use the system Python only to create the venv. Run the
+   generator with the environment's interpreter, giving the path to this
+   package:
 
    ```sh
-   .venv/bin/python /sciezka-do-skilla/scripts/create_hub.py --dest /wybrana/sciezka/nowy-hub \
-     --id nowy-hub --title "Nowy hub" --kind personal \
-     --owner "Właściciel" --domain "Temat"
+   .venv/bin/python /path-to-skill/scripts/create_hub.py --dest /chosen/path/new-hub \
+     --id new-hub --title "New hub" --kind personal \
+     --owner "Owner" --domain "Topic"
    ```
 
-   Na Windows użyj `.venv/Scripts/python.exe`. Nie wymaga to aktywacji powłoki.
-   Nie nadpisuj niesprawnego istniejącego venv; zgłoś problem. Bez globalnego
-   pip, pip --user, sudo pip i --system-site-packages; ewentualne paczki
-   instaluj tylko przez interpreter venv z `-m pip`. Generator nie wymaga paczek.
-   `--dest` jest względem katalogu wywołania. `--dry-run` nie zapisuje huba;
-   wcześniejsze utworzenie środowiska to osobny krok przygotowania narzędzia.
-4. Sprawdź konfigurację, indeksy i kontrakt wygenerowanego huba, w tym
-   profile_version: "0.2.2" i policy.remote_copy: "required_after_validated_task".
-   To obowiązek kopii Git, nie potwierdzenie jej skonfigurowania. Istniejący
-   katalog jest odrzucany — nie usuwaj go, żeby ominąć tę ochronę. Wybierz
-   nowy cel lub przygotuj migrację, jeśli użytkownik o nią poprosił.
-   W nowym hubie utwórz własne `.venv`, jeśli go nie ma, przez
-   `python3 -m venv .venv` uruchomione z katalogu huba. Nie kopiuj środowiska
-   silnika. Uruchom `<katalog-huba>/.venv/bin/python -B <katalog-huba>/scripts/validate_hub.py`
-   (na Windows odpowiednik w `.venv/Scripts`) i pokaż JSON
-   oraz kod wyjścia. Nowy szkielet powinien mieć zero naruszeń. To kontrola
-   struktury lokalnego profilu, nie dowód jakości przyszłych treści.
-5. Ustal z użytkownikiem repozytorium zdalne i zakres dostępu do danych,
-   jeśli nie wynika to z wcześniejszych uzgodnień. Generator nie inicjalizuje
-   Git: jego konfiguracja wymaga wskazanego celu i zgody; nie twórz publicznego
-   repo na podstawie samej nazwy huba. Hub w katalogu projektu używa jego Git.
-   Przy uzgodnionym celu wykonaj pierwszy commit i push zwalidowanego szkieletu
-   według AGENTS.md huba oraz potwierdź commit w remote. Bez skonfigurowanej
-   kopii powiedz wyraźnie, że szkielet istnieje tylko lokalnie i wymaga
-   dokończenia konfiguracji — nie przedstawiaj go jako zabezpieczonego.
-6. Podaj lokalizację vaulta i dwa niezależne polecenia: dodanie materiału
-   do bronze/silver oraz zamówienie wyniku gold z istniejącej wiedzy.
-   Dodanie materiału nie wymaga celu biznesowego. Nie nazywaj
-   samego szkieletu działającym automatycznym pipeline'em.
-   Wyjaśnij, że agent robi commit i push po sprawdzonych zadaniach; nie ma
-   procesu backupu w tle ani kopii nagrań przechowywanych poza Git.
+   On Windows use `.venv/Scripts/python.exe`. No shell activation is
+   needed. Don't overwrite a broken existing venv; report the problem. No
+   global pip, pip --user, sudo pip, or --system-site-packages; install
+   any packages only through the venv interpreter with `-m pip`. The
+   generator needs no packages. `--dest` is relative to the invocation
+   directory. `--dry-run` doesn't write the hub; creating the environment
+   beforehand is a separate tool-setup step.
+4. Check the configuration, indexes, and contract of the generated hub,
+   including `profile_version: "0.2.2"` and
+   `policy.remote_copy: "required_after_validated_task"`. This is the
+   Git-copy obligation, not confirmation that it's configured. An existing
+   directory is refused — don't remove it to work around that protection.
+   Pick a new destination or prepare a migration if the user asked for
+   one. In the new hub, create its own `.venv`, if it doesn't exist, via
+   `python3 -m venv .venv` run from the hub directory. Don't copy the
+   engine's environment. Run
+   `<hub-directory>/.venv/bin/python -B <hub-directory>/scripts/validate_hub.py`
+   (on Windows, the equivalent under `.venv/Scripts`) and show the JSON
+   and exit code. A new scaffold should have zero violations. This is a
+   check of the local profile's structure, not proof of future content
+   quality.
+5. Agree with the user on the remote repository and the data access scope,
+   if that doesn't already follow from earlier agreements. The generator
+   doesn't initialize Git: configuring it requires a stated destination
+   and consent; don't create a public repo based on the hub's name alone.
+   A hub inside a project uses that project's Git. With an agreed
+   destination, make the first commit and push of the validated scaffold
+   per the hub's AGENTS.md and confirm the commit on the remote. Without a
+   configured copy, say clearly that the scaffold exists only locally and
+   needs the configuration finished — don't present it as backed up.
+6. Give the vault's location and three independent requests: adding
+   material to bronze/silver, asking a question against the existing
+   knowledge, and requesting a gold output from the existing knowledge.
+   Adding material doesn't require a business goal. Don't call the
+   scaffold itself a working automatic pipeline. Explain that the agent
+   commits and pushes after checked tasks; there's no background backup
+   process or recording copy kept outside Git.
 
-Generator nie pobiera materiałów, nie inicjalizuje synchronizacji, nie
-konfiguruje kont i nie zmienia budżetów. Źródła i dane właścicieli pozostają
-w swoim zakresie. Tworzenie huba nie oznacza zgody na odczyt innych hubów.
+The generator doesn't fetch material, doesn't initialize sync, doesn't
+configure accounts, and doesn't change budgets. Sources and owner data
+stay within their scope. Creating a hub doesn't imply consent to read
+other hubs.
 
-## Dalsza praca
+## Further work
 
-Hub ma własne AGENTS.md i SCHEMA.md i działa bez dostępu do tego pakietu.
-Użytkownik redaguje wiedzę przez rozmowę z agentem. Korekty zapisuj jako
-decyzje, żeby kolejne przetwarzanie je uwzględniało. Nie twórz mechanizmu
-importu, dystrybucji pakietów ani synchronizacji między hubami. Dodatkowy
-kontekst z huba wskazanego przez użytkownika można odnotować zwykłym tekstem
-w opracowaniu; zasady lokalnych źródeł opisuje SCHEMA.md.
+The hub has its own AGENTS.md and SCHEMA.md and works without access to
+this package. The user edits knowledge through conversation with the
+agent. Record corrections as decisions, so future processing takes them
+into account. Don't build an import mechanism, package distribution, or
+sync between hubs. Additional context from a hub the user points to can be
+noted as plain text in a piece of work; SCHEMA.md describes the rules for
+local sources.

@@ -1,10 +1,11 @@
 # Gold
 
-Materiały tworzone na zamówienie pod konkretne zastosowanie, w osobnych
-katalogach: np. wkład do ebooka, materiał do fiszek lub instrukcje dla automatu.
-Powstają z istniejącego silver, z referencjami i ścieżką do źródeł w bronze;
-nie wymagają nowego wejścia. Nowa koncepcja może mieć osobny katalog bez
-nadpisania poprzedniego wyniku. Nie tworzymy pustych katalogów na zapas.
-Gotowość użytkowa nie jest weryfikacją treści ani zgodą na działania zewnętrzne.
+Material created on request for a specific use, in separate directories:
+e.g. a contribution to an ebook, flashcard material, or instructions for
+an automation. Built from existing silver, with references and a
+provenance path to the sources in bronze; they don't require a new input.
+A new concept can get its own directory without overwriting the previous
+result. We don't create empty directories speculatively. Being ready for
+use is not a content verification or consent for external actions.
 
-Brak produktów.
+No outputs yet.

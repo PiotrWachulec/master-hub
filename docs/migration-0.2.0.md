@@ -1,37 +1,40 @@
-# Ręczna migracja lokalnego profilu 0.1.1 → 0.2.0
+# Manual migration of the local profile 0.1.1 → 0.2.0
 
-Procedura na przyszłość, nie bieżące zadanie ani raport z wykonanej migracji.
-Silnik nie zakłada, że istnieją już jakiekolwiek huby. Poniższe kroki stosuje się wyłącznie wtedy,
-gdy użytkownik w przyszłości wskaże starszy hub i zleci jego aktualizację.
+A procedure for the future, not a current task or a report of a completed
+migration. The engine doesn't assume any hubs already exist. The steps
+below apply only when the user points to an older hub in the future and
+requests its update.
 
-To historyczna procedura dla 0.2.0: użyj szablonów i walidatora z commita
-`1acb58b29bb5058178660a3a374bfc6f47824517`, nie z bieżącego main.
-Generator tworzy obecnie profil 0.2.2; jego przyjęcie wymaga dodatkowo
-[jawnej aktualizacji konfiguracji kopii Git](hub-git-backup.md) (0.2.0 → 0.2.1)
-oraz [uziemienia faktów i Query/Archive](migration-0.2.2.md) (0.2.1 → 0.2.2).
+This is the historical procedure for 0.2.0: use the templates and
+validator from commit `1acb58b29bb5058178660a3a374bfc6f47824517`, not from
+the current main. The generator currently produces profile 0.2.2; adopting
+it also requires [the explicit Git-copy configuration update](hub-git-backup.md)
+(0.2.0 → 0.2.1) and [grounding and Query/Archive](migration-0.2.2.md)
+(0.2.1 → 0.2.2).
 
-OKF pozostaje w wersji 0.2. Zmiana dotyczy lokalnego kontraktu:
-samodzielnego walidatora struktury, udokumentowanego podzbioru frontmattera
-i ograniczonej pętli naprawy. To nie automatyczna aktualizacja istniejących
-hubów. Silnik nie zna ich lokalizacji ani stanu.
+OKF stays at version 0.2. The change concerns the local contract: a
+standalone structure validator, a documented frontmatter subset, and a
+limited fix loop. This is not an automatic update of existing hubs. The
+engine doesn't know their location or state.
 
-## Zakres i zgoda
+## Scope and consent
 
-Użytkownik wskazuje hub i zleca migrację. Przeczytaj jego kontrakt, sprawdź
-lokalne zmiany i stan Git. Zachowaj poprzednią wersję w historii/backupie.
-Pracuj na osobnym branchu; przy niepowiązanych zmianach użyj uzgodnionego
-worktree albo zatrzymaj się. Nie uruchamiaj generatora na istniejącym katalogu.
+The user points to a hub and requests the migration. Read its contract,
+check for local changes and the Git state. Keep the previous version in
+history/backup. Work on a separate branch; for unrelated changes, use an
+agreed worktree or stop. Don't run the generator on an existing directory.
 
-## Procedura
+## Procedure
 
-1. Skopiuj `skills/create-knowledge-hub/assets/hub/scripts/validate_hub.py`
-   do `scripts/validate_hub.py` w docelowym hubie. Zachowaj lokalne skrypty;
-   kolizja istniejącej ścieżki wymaga przeglądu, nie nadpisania w ciemno.
-2. Zastosuj sekcję „Kontrola struktury” nowego szablonu SCHEMA.md i reguły
-   pętli z szablonu AGENTS.md, zachowując domenowe decyzje oraz politykę huba.
-   Instrukcje i kontrola muszą być spójne; nie wymieniaj całego kontraktu.
-3. W hub.json zachowaj tożsamość, concept_types, policy i dodatkowe pola.
-   Zmień profile_version na `0.2.0` i dodaj:
+1. Copy `skills/create-knowledge-hub/assets/hub/scripts/validate_hub.py`
+   to `scripts/validate_hub.py` in the target hub. Keep local scripts; a
+   collision with an existing path needs review, not a blind overwrite.
+2. Apply the "Structure check" section from the new SCHEMA.md template and
+   the loop rules from the AGENTS.md template, keeping the hub's domain
+   decisions and policy. The instructions and the check must be
+   consistent; don't swap the whole contract.
+3. In hub.json, keep the identity, concept_types, policy, and any extra
+   fields. Change profile_version to `0.2.0` and add:
 
    ```json
    "quality": {
@@ -42,43 +45,52 @@ worktree albo zatrzymaj się. Nie uruchamiaj generatora na istniejącym katalogu
    }
    ```
 
-4. Przygotuj lokalne `.venv` huba, jeśli go nie ma (`python3 -m venv .venv`,
-   Python 3.10+). Zachowaj istniejące środowisko, nie instaluj paczek globalnie.
-   Uzupełnij lokalny .gitignore o `.venv/`, nie nadpisując innych reguł.
-   Uruchom `.venv/bin/python -B scripts/validate_hub.py` w migrowanym hubie
-   (Windows: `.venv/Scripts/python.exe`). Zachowaj
-   raport przed naprawami. Nowy walidator może ujawnić starsze niezgodności.
-5. Przejrzyj i popraw wyłącznie uzgodniony zakres struktury. Typowe zmiany:
-   - inline YAML → blokowe mapy/listy albo JSON flow; cytowanie tagów;
-   - daty generated.at ze strefą, ale tylko gdy rzeczywisty czas jest znany;
-   - brakujące źródła i definicje przypisów, bez wymyślania atrybucji;
-   - lokalne, względne ścieżki do plików zamiast URL w sources.resource;
-   - datowane, malejąco uporządkowane wpisy log.md; pusty log bez starego
-     akapitu instruktażowego (wzór nowego logu zawiera tylko nagłówek).
-6. Ponownie sprawdź cały hub. Reguła limitu 5 cykli obowiązuje również tutaj;
-   jeśli zakres jest większy, przedstaw pozostałe naruszenia i uzgodnij
-   następny etap, zamiast obniżać próg lub ogłaszać migrację ukończoną.
-7. Przejrzyj diff: treści, źródła, statusy i historia pochodzenia muszą być
-   zachowane. Zaktualizuj informację o profilu w README huba. Oddaj branch
-   jako PR z raportem walidatora i zakresem zmian. Nie merguj samodzielnie.
+4. Prepare the hub's local `.venv`, if it doesn't exist
+   (`python3 -m venv .venv`, Python 3.10+). Keep the existing environment,
+   don't install packages globally. Add `.venv/` to the local .gitignore
+   without overwriting other rules. Run
+   `.venv/bin/python -B scripts/validate_hub.py` in the migrated hub
+   (Windows: `.venv/Scripts/python.exe`). Keep the report before making
+   fixes. The new validator may surface older inconsistencies.
+5. Review and fix only the agreed structural scope. Typical changes:
+   - inline YAML → block maps/lists or JSON flow; quoting tags;
+   - generated.at dates with a timezone, but only when the real time is
+     known;
+   - missing sources and footnote definitions, without inventing
+     attribution;
+   - local, relative file paths instead of a URL in sources.resource;
+   - dated, descending log.md entries; an empty log without the old
+     instructional paragraph (the new log template has only a heading).
+6. Re-check the whole hub. The 5-cycle limit rule applies here too; if the
+   scope is larger, present the remaining violations and agree on the next
+   stage, instead of lowering the threshold or declaring the migration
+   done.
+7. Review the diff: content, sources, statuses, and provenance history
+   must be preserved. Update the profile information in the hub's README.
+   Hand in the branch as a PR with the validator's report and the scope of
+   changes. Don't merge it yourself.
 
-## Przypadki wymagające zatrzymania
+## Cases that require stopping
 
-- Źródła bronze są przyjętymi, niemutowalnymi wersjami. Nowy profil nie daje
-  zgody na ich zmianę; nie „naprawiaj” ich automatycznie. Przedstaw użytkownikowi
-  naruszenia i propozycję jawnej migracji reprezentacji z zachowaniem oryginału
-  (np. oryginalny tekst i osobna notatka metadanych). Bez zgody migracja stoi.
-- Nie wolno fabrykować generated.at, udawać pełnego źródła na podstawie
-  streszczenia ani kopiować zewnętrznych materiałów bez uprawnień.
-- Hub o innym bundle_root lub formacie potrzebuje osobno zaprojektowanej
-  migracji. Ten walidator oczekuje knowledge/ i lokalnego profilu 0.2.0.
-- Podejrzenie błędu walidatora: zatrzymaj pętlę i zgłoś przykład do użytkownika.
-  Zmiana walidatora/progu jest osobnym zadaniem kontraktowym, nie naprawą danych.
+- Bronze sources are accepted, immutable versions. The new profile doesn't
+  grant consent to change them; don't "fix" them automatically. Present
+  the violations to the user along with a proposal for an explicit
+  representation migration that preserves the original (e.g. the original
+  text plus a separate metadata note). Without consent, the migration
+  stops.
+- Don't fabricate generated.at, fake a full source from a summary, or copy
+  external materials without permission.
+- A hub with a different bundle_root or format needs a separately designed
+  migration. This validator expects knowledge/ and local profile 0.2.0.
+- Suspicion of a validator bug: stop the loop and report the example to
+  the user. Changing the validator/threshold is a separate contract task,
+  not a data fix.
 
-## Granice dowodu
+## Limits of proof
 
-Zielony wynik potwierdza tylko opisane reguły strukturalne. Brak sieci oznacza,
-że skrypt nie sprawdza dostępności URL-i; nie sprawdza też prawdziwości,
-kompletności, autentyczności ani znaczenia powiązań. Walidator i pliki
-kontraktu są edytowalne, więc nie są samodzielnym zabezpieczeniem przed
-złośliwą zmianą kontroli. Przegląd PR pozostaje granicą przyjęcia kontraktu.
+A green result confirms only the described structural rules. No network
+access means the script doesn't check URL availability; it also doesn't
+check truthfulness, completeness, authenticity, or the meaning of links.
+The validator and the contract files are editable, so they aren't a
+standalone safeguard against a malicious change to the check. A PR review
+remains the boundary for accepting the contract.

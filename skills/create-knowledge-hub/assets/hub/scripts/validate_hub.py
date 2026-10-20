@@ -20,7 +20,7 @@ NAVIGATION_INDEXES = (
     '20-gold/index.md', '90-decisions/index.md',
 )
 
-NO_MATERIAL_RE = re.compile(r'^-\s*Bez materiału:\s*(\S+)', re.IGNORECASE)
+NO_MATERIAL_RE = re.compile(r'^-\s*No material:\s*(\S+)', re.IGNORECASE)
 
 
 class SyntaxViolation(ValueError):
@@ -446,7 +446,7 @@ class Validator:
                 continue
             if path.resolve() not in self.referenced_resources:
                 self.report(path, 1, "Bronze file not referenced by any sources[].resource "
-                                      "and not logged as 'Bez materiału' in log.md", warning=True)
+                                      "and not logged as 'No material' in log.md", warning=True)
 
     def run(self):
         config_path = self.root / 'hub.json'

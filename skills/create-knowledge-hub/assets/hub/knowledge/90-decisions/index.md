@@ -1,7 +1,9 @@
-# Decyzje i korekty
+# Decisions and corrections
 
-Zapisuj tutaj istotne uwagi użytkownika, decyzje projektowe, przyjęcie lub
-odrzucenie propozycji i zakres rzeczywistego przeglądu treści. Każdy zapis
-ma typ `Decyzja`, datę, powód oraz odsyłacze do objętych dokumentów.
+Record significant user remarks, design decisions, acceptance or rejection
+of a proposal, and the scope of an actual content review here. Each entry
+has type `Decision`, a date, a reason, and links to the documents it
+covers.
 
-Brak decyzji. Inicjalizacja huba nie jest zatwierdzeniem przyszłej wiedzy.
+No decisions yet. Initializing the hub is not an approval of future
+knowledge.

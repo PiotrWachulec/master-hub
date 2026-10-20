@@ -15,13 +15,13 @@ ASSETS = Path(__file__).resolve().parent.parent / "assets" / "hub"
 def nonempty(value: str) -> str:
     value = value.strip()
     if not value or any(ord(char) < 32 for char in value):
-        raise argparse.ArgumentTypeError("Wartość musi być niepustym tekstem w jednej linii.")
+        raise argparse.ArgumentTypeError("Value must be non-empty, single-line text.")
     return value
 
 
 def hub_id(value: str) -> str:
     if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", value):
-        raise argparse.ArgumentTypeError("ID: małe litery ASCII, cyfry i pojedyncze myślniki.")
+        raise argparse.ArgumentTypeError("ID: lowercase ASCII letters, digits, and single hyphens.")
     return value
 
 
@@ -33,7 +33,7 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
     }
     required = ("SCHEMA.md", "AGENTS.md", "scripts/validate_hub.py", "scripts/check_evidence.py")
     if any(Path(name) not in files for name in required):
-        raise ValueError("Brakuje kontraktu lub walidatora w assets/hub; przenieś cały katalog skilla.")
+        raise ValueError("Missing contract or validator in assets/hub; move the whole skill directory.")
     config = {
         "profile_version": PROFILE_VERSION,
         "okf_version": "0.2",
@@ -50,8 +50,8 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
             "max_fix_iterations": 5,
             "evidence_script": "scripts/check_evidence.py",
         },
-        "concept_types": ["Źródło", "Koncept", "Metoda", "Zasada", "Przykład",
-                          "Synteza", "Narzędzie", "Decyzja"],
+        "concept_types": ["Source", "Concept", "Method", "Principle", "Example",
+                          "Synthesis", "Tool", "Decision"],
         "policy": {
             "knowledge_editing": "agent_drafts_with_user_review",
             "publication": "explicit_acceptance",
@@ -62,74 +62,82 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
     files[Path("hub.json")] = json.dumps(config, ensure_ascii=False, indent=2) + "\n"
     files[Path("README.md")] = (
         f"# {args.title}\n\n"
-        f"Właściciel: {args.owner}. Temat początkowy: {args.domain}.\n\n"
-        "Otwórz ten katalog jako osobny vault w Obsidianie. "
-        "Zacznij od [indeksu wiedzy](knowledge/index.md).\n\n"
-        "## Trzy niezależne działania dla agenta\n\n"
-        "> Dodaj materiał z [ścieżka] do bazy wiedzy.\n\n"
-        "Agent zachowuje źródło w bronze i rozwija połączoną wiki silver. "
-        "Nie musisz podawać celu biznesowego; gold jeszcze nie powstaje.\n\n"
-        "> Co wiem o [temat]? Odpowiedz z linkami do wiki.\n\n"
-        "Agent przeszukuje indeks i pełny tekst silver/gold i odpowiada w "
-        "rozmowie, nic nie zapisując. Na wyraźną prośbę „Zarchiwizuj tę "
-        "odpowiedź” zapisuje ją jako nowy dokument silver z odwołaniami do "
-        "cytowanych artykułów.\n\n"
-        "> Przygotuj z mojej bazy wiedzy materiał do [ebooka / fiszek / automatu] "
-        "o [temat], w formie [opis].\n\n"
-        "Agent korzysta z istniejącego silver i tworzy katalog gold pod zamówiony "
-        "wynik, z referencjami do źródeł. Nie potrzebuje nowego wejścia. "
-        "Po brakujące szczegóły i cytaty wraca do bronze. Nowa koncepcja może "
-        "mieć nowy katalog gold bez nadpisywania poprzedniego.\n\n"
-        "Możesz zamówić kilka działań razem. Agent czyta kontrakt, aktualizuje "
-        "indeksy oraz log i pokazuje propozycje do przeglądu. "
-        "Hub jest pustym szkieletem; "
-        "automatyczne przetwarzanie, publikacja i integracje nie są zainstalowane.\n\n"
-        "Kontrakt: [SCHEMA.md](SCHEMA.md). Konfiguracja: [hub.json](hub.json). "
-        "Reguły polityki opisują pracę agenta, nie techniczne uprawnienia. "
-        "Korekty przekazuj agentowi; ich trwały zapis trafia do "
-        "[decyzji](knowledge/90-decisions/index.md).\n\n"
-        "## Opcjonalnie: przeglądanie w Obsidianie\n\n"
-        "Wtyczka społecznościowa [Dataview](https://github.com/blacksmithgu/obsidian-dataview) "
-        "(Settings → Community plugins → Browse → „Dataview”) pozwala odpytywać "
-        "frontmatter bez zmian w plikach ani w kontrakcie, np. lista szkiców w silver:\n\n"
+        f"Owner: {args.owner}. Starting topic: {args.domain}.\n\n"
+        "Open this directory as a separate vault in Obsidian. "
+        "Start with the [knowledge index](knowledge/index.md).\n\n"
+        "## Three independent actions for the agent\n\n"
+        "> Add material from [path] to the knowledge base.\n\n"
+        "The agent keeps the source in bronze and extends the connected "
+        "silver wiki. You don't need to state a business goal; gold isn't "
+        "created yet.\n\n"
+        "> What do I know about [topic]? Answer with links to the wiki.\n\n"
+        "The agent searches the index and the full text of silver/gold and "
+        "answers in the conversation, writing nothing. On an explicit "
+        "\"Archive this answer\" request, it saves it as a new silver "
+        "document with references to the cited articles.\n\n"
+        "> Prepare material for [an ebook / flashcards / an automation] "
+        "about [topic], in the form of [description].\n\n"
+        "The agent uses the existing silver and creates a gold directory "
+        "for the requested output, with references to sources. It doesn't "
+        "need a new input. For missing details and quotes it goes back to "
+        "bronze. A new concept can get a new gold directory without "
+        "overwriting the previous one.\n\n"
+        "You can request several actions together. The agent reads the "
+        "contract, updates the indexes and the log, and shows proposals "
+        "for review. The hub is an empty scaffold; automatic processing, "
+        "publication, and integrations aren't installed.\n\n"
+        "Contract: [SCHEMA.md](SCHEMA.md). Configuration: [hub.json](hub.json). "
+        "The policy rules describe the agent's work, not technical "
+        "permissions. Hand corrections to the agent; their lasting record "
+        "goes into [decisions](knowledge/90-decisions/index.md).\n\n"
+        "## Optional: browsing in Obsidian\n\n"
+        "The community plugin [Dataview](https://github.com/blacksmithgu/obsidian-dataview) "
+        "(Settings → Community plugins → Browse → \"Dataview\") lets you "
+        "query frontmatter without changing files or the contract, e.g. a "
+        "list of drafts in silver:\n\n"
         "````\n"
         "```dataview\n"
         "TABLE status, title FROM \"knowledge/10-silver\" WHERE status = \"draft\"\n"
         "```\n"
         "````\n\n"
-        "To wyłącznie warstwa podglądu dla człowieka; agent i walidator jej nie używają.\n\n"
-        "## Kontrola struktury\n\n"
-        "Skrypty Python uruchamiaj zawsze w lokalnym `.venv`. Jeśli go nie ma, "
-        "w katalogu huba wykonaj `python3 -m venv .venv` (Python 3.10+). "
-        "Nie nadpisuj niesprawnego środowiska. Nie instaluj paczek globalnie, "
-        "przez pip --user/sudo pip ani z --system-site-packages. "
-        "Walidator nie potrzebuje dodatkowych paczek. Następnie uruchom "
-        "`.venv/bin/python -B scripts/validate_hub.py` z katalogu huba "
-        "(Windows: `.venv/Scripts/python.exe`). Z innego katalogu podaj pełne "
-        "ścieżki do interpretera i skryptu. JSON na stdout zawiera "
-        "`violations`, `errors`, `warnings`; diagnostyka jest na stderr. "
-        "Sukces wymaga kodu 0 i `violations == 0`. Zielony wynik potwierdza "
-        "wyłącznie strukturę lokalnego profilu, nie treść ani cały standard OKF. "
-        "Pętla naprawy i jej limit są opisane w AGENTS.md oraz SCHEMA.md.\n\n"
-        "`.venv/bin/python -B scripts/check_evidence.py` to osobny, "
-        "nieblokujący raport: sprawdza, czy liczby, daty i cytaty w silver/gold "
-        "rzeczywiście dają się znaleźć we wskazanych źródłach bronze. Nie "
-        "wchodzi do progu `violations`; podejrzenia wymagają przeglądu "
-        "człowieka, nie automatycznej poprawki.\n\n"
-        "## Bieżąca kopia zdalna\n\n"
-        "Po zakończonym, zwalidowanym zadaniu oraz spójnych etapach dłuższej "
-        "pracy agent wykonuje commit i push do uzgodnionego repozytorium, "
-        "bez dodatkowego polecenia. Potwierdza commit w remote albo zgłasza "
-        "brak aktualnej kopii zdalnej. Wyraźne polecenie pracy lokalnej ma "
-        "pierwszeństwo. Szczegóły i granice uprawnień opisuje "
+        "This is purely a human viewing layer; the agent and the validator "
+        "don't use it.\n\n"
+        "## Structure check\n\n"
+        "Always run Python scripts in the local `.venv`. If it doesn't "
+        "exist, run `python3 -m venv .venv` (Python 3.10+) in the hub "
+        "directory. Don't overwrite a broken environment. Don't install "
+        "packages globally, via pip --user/sudo pip, or with "
+        "--system-site-packages. The validator needs no extra packages. "
+        "Then run `.venv/bin/python -B scripts/validate_hub.py` from the "
+        "hub directory (Windows: `.venv/Scripts/python.exe`). From another "
+        "directory, give full paths to the interpreter and the script. The "
+        "stdout JSON contains `violations`, `errors`, `warnings`; "
+        "diagnostics go to stderr. Success requires code 0 and "
+        "`violations == 0`. A green result confirms only the local "
+        "profile's structure, not the content or the full OKF standard. "
+        "The fix loop and its limit are described in AGENTS.md and "
+        "SCHEMA.md.\n\n"
+        "`.venv/bin/python -B scripts/check_evidence.py` is a separate, "
+        "non-blocking report: it checks whether numbers, dates, and quotes "
+        "in silver/gold can actually be found in the referenced bronze "
+        "sources. It doesn't count toward the `violations` threshold; "
+        "suspects need a human review, not an automatic fix.\n\n"
+        "## Ongoing remote copy\n\n"
+        "After a completed, validated task and after consistent stages of "
+        "longer work, the agent commits and pushes to the agreed "
+        "repository, with no extra instruction needed. It confirms the "
+        "commit on the remote or reports a missing current remote copy. An "
+        "explicit instruction for local-only work takes precedence. "
+        "Details and the limits of its authority are described in "
         "[AGENTS.md](AGENTS.md).\n\n"
-        "Generator nie inicjalizuje Git ani remote: przy pierwszym uruchomieniu "
-        "uzgodnij z agentem cel i dostęp, aby wykonać pierwszy commit i push. "
-        "Do tego czasu szkielet jest tylko lokalny. To nie backup w tle; "
-        "kopia nie obejmuje zewnętrznych nagrań, plików ignorowanych ani "
-        "niewypchniętych zmian. Wymagają osobnego zabezpieczenia.\n\n"
-        f"Wygenerowano według profilu {PROFILE_VERSION}. "
-        "Ten katalog nie wymaga dostępu do generatora ani nadrzędnego repozytorium.\n"
+        "The generator doesn't initialize Git or a remote: on first run, "
+        "agree with the agent on a destination and access so the first "
+        "commit and push can happen. Until then, the scaffold is local "
+        "only. This isn't a background backup; the copy doesn't cover "
+        "external recordings, ignored files, or unpushed changes. Those "
+        "need their own separate protection.\n\n"
+        f"Generated under profile {PROFILE_VERSION}. "
+        "This directory needs no access to the generator or to a parent repository.\n"
     )
     files[Path(".gitignore")] = (
         ".DS_Store\n.venv/\n__pycache__/\n*.pyc\n.runtime/\n.obsidian/workspace.json\n"
@@ -143,7 +151,7 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--dest", type=Path, required=True, help="Nowy katalog huba")
+    parser.add_argument("--dest", type=Path, required=True, help="New hub directory")
     parser.add_argument("--id", type=hub_id, required=True)
     parser.add_argument("--title", type=nonempty, required=True)
     parser.add_argument("--kind", choices=("personal", "company"), required=True)
@@ -154,16 +162,16 @@ def main(argv: list[str] | None = None) -> int:
     # Inspect the supplied path before resolving: also refuse dangling symlinks.
     destination = args.dest.expanduser().absolute()
     if destination.exists() or destination.is_symlink():
-        parser.error(f"Katalog docelowy już istnieje; nic nie zmieniono: {destination}")
+        parser.error(f"Destination directory already exists; nothing was changed: {destination}")
     try:
         files = build_files(args)
     except (OSError, ValueError) as exc:
         parser.error(str(exc))
-    print(f"{'Plan' if args.dry_run else 'Tworzenie'}: {destination}")
+    print(f"{'Plan' if args.dry_run else 'Creating'}: {destination}")
     for relative in sorted(files):
         print(f"  {relative}")
     if args.dry_run:
-        print(f"{len(files)} plików. Nie zapisano zmian.")
+        print(f"{len(files)} files. No changes written.")
         return 0
     try:
         destination.mkdir(parents=True, exist_ok=False)
@@ -173,10 +181,10 @@ def main(argv: list[str] | None = None) -> int:
             with target.open("x", encoding="utf-8") as handle:
                 handle.write(contents)
     except OSError as exc:
-        print(f"Błąd zapisu: {exc}. Sprawdź {destination}; może zawierać "
-              "częściowy wynik. Nie usunięto żadnych plików.", file=sys.stderr)
+        print(f"Write error: {exc}. Check {destination}; it may contain "
+              "a partial result. No files were removed.", file=sys.stderr)
         return 1
-    print(f"Gotowe: {len(files)} plików. Otwórz katalog huba w Obsidianie.")
+    print(f"Done: {len(files)} files. Open the hub directory in Obsidian.")
     return 0
 
 

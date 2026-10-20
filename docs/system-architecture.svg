@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="940" viewBox="0 0 1200 940" role="img" aria-labelledby="title desc">
-  <title id="title">Master Hub — architektura wiedzy i działania</title>
-  <desc id="desc">Data lake i transkrypcja zasilają bronze. Hub tematyczny rozwija silver i gold. Agent na zlecenie odczytuje wybraną teorię oraz lokalny kontekst huba firmy. Wynik zapisuje w gold huba firmy. Huby nie importują ani nie synchronizują swojej wiedzy. Działania operacyjne wymagają osobnej zgody.</desc>
+  <title id="title">Master Hub — knowledge and action architecture</title>
+  <desc id="desc">A data lake and transcription feed bronze. A topic hub grows silver and gold. On request, an agent reads selected theory plus the local context of a company hub. It writes the result into the company hub's gold. Hubs don't import or sync their knowledge. Operational actions require separate consent.</desc>
   <defs>
     <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="#607087"/></marker>
     <style>
@@ -16,63 +16,63 @@
   </defs>
   <rect width="1200" height="940" fill="#f6f8fb"/>
   <text x="40" y="49" class="title">Master Hub</text>
-  <text x="40" y="77" class="subtitle">Opcjonalna praca agenta • niezależne huby, bez importów i synchronizacji</text>
+  <text x="40" y="77" class="subtitle">Optional agent work • independent hubs, no imports or sync</text>
 
   <rect x="40" y="105" width="300" height="82" class="box"/>
   <text x="60" y="137" class="label">Data lake</text>
-  <text x="60" y="163" class="body">Nagrania, PDF, materiały źródłowe</text>
+  <text x="60" y="163" class="body">Recordings, PDFs, source material</text>
   <rect x="420" y="105" width="360" height="82" class="box"/>
-  <text x="440" y="137" class="label">Transkrypcja i ekstrakcja</text>
-  <text x="440" y="163" class="body">Tekst + pochodzenie + wersja</text>
+  <text x="440" y="137" class="label">Transcription and extraction</text>
+  <text x="440" y="163" class="body">Text + provenance + version</text>
   <path d="M340 146 H420" class="edge"/>
 
   <rect x="40" y="230" width="1120" height="230" rx="16" fill="#eaf2fb" stroke="#bed1e8"/>
-  <text x="60" y="263" class="label">Hub tematyczny · teoria i metody</text>
-  <text x="762" y="263" class="small">Markdown / OKF · edycja przez agenta</text>
+  <text x="60" y="263" class="label">Topic hub · theory and methods</text>
+  <text x="762" y="263" class="small">Markdown / OKF · edited by the agent</text>
   <path d="M600 187 V280 H210 V295" class="edge"/>
 
   <rect x="80" y="295" width="260" height="84" rx="12" fill="#fff3e8" stroke="#c89465"/>
   <text x="100" y="327" class="label">Bronze</text>
-  <text x="100" y="353" class="body">Niezmienne wejścia tekstowe</text>
+  <text x="100" y="353" class="body">Immutable text inputs</text>
   <rect x="460" y="295" width="260" height="84" class="box"/>
   <text x="480" y="327" class="label">Silver</text>
-  <text x="480" y="353" class="body">Pojęcia, syntezy, rozbieżności</text>
+  <text x="480" y="353" class="body">Concepts, syntheses, discrepancies</text>
   <rect x="840" y="295" width="260" height="84" rx="12" fill="#fff8d9" stroke="#c4ab48"/>
   <text x="860" y="327" class="label">Gold</text>
-  <text x="860" y="353" class="body">Metody i produkty do użycia</text>
+  <text x="860" y="353" class="body">Methods and usable outputs</text>
   <path d="M340 337 H460" class="edge"/>
   <path d="M720 337 H840" class="edge"/>
   <rect x="460" y="406" width="260" height="36" rx="9" fill="#dce9f8"/>
-  <text x="480" y="430" class="body">Twoje korekty i decyzje</text>
+  <text x="480" y="430" class="body">Your corrections and decisions</text>
   <path d="M590 406 V379" class="edge"/>
 
   <rect x="840" y="496" width="260" height="80" class="box"/>
-  <text x="860" y="529" class="label">Odczyt na zlecenie</text>
-  <text x="860" y="554" class="body">Wybrana wiedza, bez kopii</text>
+  <text x="860" y="529" class="label">On-request read</text>
+  <text x="860" y="554" class="body">Selected knowledge, no copy</text>
   <path d="M720 365 H800 V480 H970 V496" class="edge"/>
-  <text x="40" y="513" class="label">Trzy oddzielne zakresy autonomii</text>
-  <text x="40" y="541" class="body">Redakcja wiedzy · publikacja · działania operacyjne</text>
-  <text x="40" y="567" class="small">Na początku: propozycja → przegląd → przyjęcie zmiany</text>
+  <text x="40" y="513" class="label">Three separate scopes of autonomy</text>
+  <text x="40" y="541" class="body">Knowledge editing · publication · operational actions</text>
+  <text x="40" y="567" class="small">At first: proposal → review → accepted change</text>
 
   <rect x="40" y="616" width="1120" height="228" rx="16" fill="#eaf5ef" stroke="#bdd9c9"/>
-  <text x="60" y="649" class="label">Hub firmy / service line · własne dane, decyzje i rezultaty</text>
+  <text x="60" y="649" class="label">Company hub / service line · own data, decisions, and outputs</text>
   <rect x="80" y="679" width="250" height="83" class="box"/>
-  <text x="100" y="712" class="label">Kontekst firmy</text>
-  <text x="100" y="738" class="body">Oferta, cele, ustalenia</text>
+  <text x="100" y="712" class="label">Company context</text>
+  <text x="100" y="738" class="body">Offering, goals, agreements</text>
   <rect x="420" y="679" width="290" height="83" class="box"/>
-  <text x="440" y="711" class="label">Lokalne silver</text>
-  <text x="440" y="737" class="body">Własna wiedza i procedury</text>
+  <text x="440" y="711" class="label">Local silver</text>
+  <text x="440" y="737" class="body">Own knowledge and procedures</text>
   <rect x="830" y="679" width="290" height="83" class="box"/>
-  <text x="850" y="711" class="label">Agent → lokalne gold</text>
-  <text x="850" y="737" class="body">Teoria + kontekst → opracowanie</text>
+  <text x="850" y="711" class="label">Agent → local gold</text>
+  <text x="850" y="737" class="body">Theory + context → output</text>
   <path d="M970 576 V679" class="edge"/>
   <path d="M330 721 H420" class="edge"/>
   <path d="M710 721 H830" class="edge"/>
   <rect x="830" y="790" width="290" height="36" rx="9" fill="#d5eadd"/>
-  <text x="850" y="814" class="body">Bieżące zadanie i ograniczenia</text>
+  <text x="850" y="814" class="body">Current task and limits</text>
   <path d="M975 790 V762" class="edge"/>
-  <text x="80" y="806" class="small">Ślad użycia innego huba: zwykła notatka w treści wyniku.</text>
+  <text x="80" y="806" class="small">Trace of using another hub: a plain note in the output's content.</text>
 
-  <text x="40" y="885" class="label">Model opcjonalny: narzędzie nie rejestruje ani nie synchronizuje hubów</text>
-  <text x="40" y="913" class="subtitle">Zacznij od jednego źródła i jednego produktu gold. Działania operacyjne wymagają osobnej zgody.</text>
+  <text x="40" y="885" class="label">Optional model: the tool doesn't register or sync hubs</text>
+  <text x="40" y="913" class="subtitle">Start with one source and one gold output. Operational actions require separate consent.</text>
 </svg>

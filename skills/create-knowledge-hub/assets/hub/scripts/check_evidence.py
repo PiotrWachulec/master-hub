@@ -59,7 +59,7 @@ NUMBER_TOKEN_RE = re.compile(
 )
 SUFFIX_RE = re.compile(r"[KMB%]$")
 DATE_RE = re.compile(r"\d{4}-\d{2}(?:-\d{2})?")
-QUOTE_RES = [re.compile(r'"([^"\n]*)"'), re.compile(r"„([^”\n]*)”")]
+QUOTE_RES = [re.compile(r'"([^"\n]*)"'), re.compile(r"“([^”\n]*)”")]
 STATUS_LINE_RE = re.compile(r"^>\s*\*\*Status:")
 FOOTNOTE_DEF_RE = re.compile(r"^\[\^[^\]]+\]:")
 FENCE_OPEN_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
@@ -67,7 +67,7 @@ FENCE_CLOSE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})[ \t]*$")
 INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
 LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)]*)\)")
 WS_RE = re.compile(r"\s+")
-NO_MATERIAL_RE = re.compile(r"^-\s*Bez materiału:\s*(\S+)", re.IGNORECASE)
+NO_MATERIAL_RE = re.compile(r"^-\s*No material:\s*(\S+)", re.IGNORECASE)
 
 SCOPE_LAYERS = ("10-silver", "20-gold")
 
@@ -311,12 +311,12 @@ def unreferenced_bronze(knowledge_dir: Path, root: Path) -> list[str]:
 
 def main() -> int:
     if len(sys.argv) != 1:
-        print("Brak obsługi argumentów; sprawdzany jest hub zawierający ten skrypt.",
+        print("Arguments are not supported; the hub containing this script is checked.",
               file=sys.stderr)
     root = Path(__file__).resolve().parent.parent
     knowledge_dir = root / "knowledge"
     if not knowledge_dir.is_dir():
-        print(f"Brak knowledge/ w {root}")
+        print(f"No knowledge/ under {root}")
         return 0
 
     suspects: dict[str, list[str]] = {}
@@ -329,8 +329,8 @@ def main() -> int:
         if issues:
             notes[label] = issues
 
-    print("# Kontrola uziemienia faktów (nieblokująca)\n")
-    print("## Podejrzenia braku pokrycia (fidelity suspects)")
+    print("# Evidence check (non-blocking)\n")
+    print("## Fidelity suspects")
     suspect_count = 0
     for label, misses in suspects.items():
         print(f"\n{label}")
@@ -338,27 +338,27 @@ def main() -> int:
             print(f"- {value}")
             suspect_count += 1
     if suspect_count == 0:
-        print("\n(brak)")
+        print("\n(none)")
 
-    print("\n## Dokumenty bez możliwej weryfikacji")
+    print("\n## Documents without possible verification")
     if notes:
         for label, issues in notes.items():
             for issue in issues:
                 print(f"- {label}: {issue}")
     else:
-        print("(brak)")
+        print("(none)")
 
-    print("\n## Nieodwołane źródła bronze")
+    print("\n## Unreferenced bronze sources")
     orphans = unreferenced_bronze(knowledge_dir, root)
     for path in orphans:
         print(f"- {path}")
     if not orphans:
-        print("(brak)")
+        print("(none)")
 
     print(
-        f"\n## Podsumowanie\n{suspect_count} podejrzeń braku pokrycia, "
-        f"{len(notes)} dokument(ów) bez możliwej weryfikacji, "
-        f"{len(orphans)} nieodwołanych źródeł bronze"
+        f"\n## Summary\n{suspect_count} fidelity suspect(s), "
+        f"{len(notes)} document(s) without possible verification, "
+        f"{len(orphans)} unreferenced bronze source(s)"
     )
     return 0
 
