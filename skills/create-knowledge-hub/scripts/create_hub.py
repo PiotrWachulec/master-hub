@@ -8,7 +8,7 @@ from pathlib import Path
 import re
 import sys
 
-PROFILE_VERSION = "0.2.1"
+PROFILE_VERSION = "0.2.2"
 ASSETS = Path(__file__).resolve().parent.parent / "assets" / "hub"
 
 
@@ -31,7 +31,7 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
         for path in sorted(ASSETS.rglob("*"))
         if path.is_file() and '__pycache__' not in path.parts and path.suffix != '.pyc'
     }
-    required = ("SCHEMA.md", "AGENTS.md", "scripts/validate_hub.py")
+    required = ("SCHEMA.md", "AGENTS.md", "scripts/validate_hub.py", "scripts/check_evidence.py")
     if any(Path(name) not in files for name in required):
         raise ValueError("Brakuje kontraktu lub walidatora w assets/hub; przenieś cały katalog skilla.")
     config = {
@@ -48,6 +48,7 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
             "metric": "violations",
             "threshold": 0,
             "max_fix_iterations": 5,
+            "evidence_script": "scripts/check_evidence.py",
         },
         "concept_types": ["Źródło", "Koncept", "Metoda", "Zasada", "Przykład",
                           "Synteza", "Narzędzie", "Decyzja"],
@@ -64,17 +65,22 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
         f"Właściciel: {args.owner}. Temat początkowy: {args.domain}.\n\n"
         "Otwórz ten katalog jako osobny vault w Obsidianie. "
         "Zacznij od [indeksu wiedzy](knowledge/index.md).\n\n"
-        "## Dwa niezależne zadania dla agenta\n\n"
+        "## Trzy niezależne działania dla agenta\n\n"
         "> Dodaj materiał z [ścieżka] do bazy wiedzy.\n\n"
         "Agent zachowuje źródło w bronze i rozwija połączoną wiki silver. "
         "Nie musisz podawać celu biznesowego; gold jeszcze nie powstaje.\n\n"
+        "> Co wiem o [temat]? Odpowiedz z linkami do wiki.\n\n"
+        "Agent przeszukuje indeks i pełny tekst silver/gold i odpowiada w "
+        "rozmowie, nic nie zapisując. Na wyraźną prośbę „Zarchiwizuj tę "
+        "odpowiedź” zapisuje ją jako nowy dokument silver z odwołaniami do "
+        "cytowanych artykułów.\n\n"
         "> Przygotuj z mojej bazy wiedzy materiał do [ebooka / fiszek / automatu] "
         "o [temat], w formie [opis].\n\n"
         "Agent korzysta z istniejącego silver i tworzy katalog gold pod zamówiony "
         "wynik, z referencjami do źródeł. Nie potrzebuje nowego wejścia. "
         "Po brakujące szczegóły i cytaty wraca do bronze. Nowa koncepcja może "
         "mieć nowy katalog gold bez nadpisywania poprzedniego.\n\n"
-        "Możesz zamówić oba działania razem. Agent czyta kontrakt, aktualizuje "
+        "Możesz zamówić kilka działań razem. Agent czyta kontrakt, aktualizuje "
         "indeksy oraz log i pokazuje propozycje do przeglądu. "
         "Hub jest pustym szkieletem; "
         "automatyczne przetwarzanie, publikacja i integracje nie są zainstalowane.\n\n"
@@ -95,6 +101,11 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
         "Sukces wymaga kodu 0 i `violations == 0`. Zielony wynik potwierdza "
         "wyłącznie strukturę lokalnego profilu, nie treść ani cały standard OKF. "
         "Pętla naprawy i jej limit są opisane w AGENTS.md oraz SCHEMA.md.\n\n"
+        "`.venv/bin/python -B scripts/check_evidence.py` to osobny, "
+        "nieblokujący raport: sprawdza, czy liczby, daty i cytaty w silver/gold "
+        "rzeczywiście dają się znaleźć we wskazanych źródłach bronze. Nie "
+        "wchodzi do progu `violations`; podejrzenia wymagają przeglądu "
+        "człowieka, nie automatycznej poprawki.\n\n"
         "## Bieżąca kopia zdalna\n\n"
         "Po zakończonym, zwalidowanym zadaniu oraz spójnych etapach dłuższej "
         "pracy agent wykonuje commit i push do uzgodnionego repozytorium, "

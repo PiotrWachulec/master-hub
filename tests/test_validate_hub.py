@@ -80,7 +80,8 @@ class ValidateHubTests(unittest.TestCase):
         self.assertEqual(report, {'violations': 0, 'errors': [], 'warnings': []})
         self.assertEqual(json.loads((self.hub / 'hub.json').read_text())['quality'], {
             'validator': 'scripts/validate_hub.py', 'metric': 'violations',
-            'threshold': 0, 'max_fix_iterations': 5})
+            'threshold': 0, 'max_fix_iterations': 5,
+            'evidence_script': 'scripts/check_evidence.py'})
 
     def test_valid_document_and_log(self):
         self.fixture()
@@ -109,12 +110,12 @@ class ValidateHubTests(unittest.TestCase):
         self.validate()
 
     def test_profile_version_requires_explicit_upgrade(self):
-        for version in ('0.2.0', '0.1.1', '0.3.0', None, 0.21):
+        for version in ('0.2.1', '0.2.0', '0.1.1', '0.3.0', None, 0.22):
             with self.subTest(version=version):
                 self.config(lambda c: c.update(profile_version=version))
-                self.validate(False, 'implements profile 0.2.1')
+                self.validate(False, 'implements profile 0.2.2')
         self.config(lambda c: c.pop('profile_version'))
-        self.validate(False, 'implements profile 0.2.1')
+        self.validate(False, 'implements profile 0.2.2')
 
     def test_invalid_remote_copy_policy_does_not_skip_documents(self):
         self.config(lambda c: c['policy'].pop('remote_copy'))
@@ -283,6 +284,31 @@ class ValidateHubTests(unittest.TestCase):
         result = self.validate(True, 'Unused sources[].id')
         self.assertEqual(len(result['warnings']), 1)
 
+    def test_unreferenced_bronze_file_is_warning_not_violation(self):
+        self.fixture()
+        (self.hub / 'knowledge/00-bronze/orphan.txt').write_text('Nieużyte.\n', encoding='utf-8')
+        report = self.validate(True, 'not referenced by any sources')
+        self.assertEqual(len(report['warnings']), 1)
+        self.assertEqual(report['warnings'][0]['file'], 'knowledge/00-bronze/orphan.txt')
+
+    def test_bronze_file_referenced_from_any_document_is_not_orphaned(self):
+        self.fixture()
+        (self.hub / 'knowledge/00-bronze/extra.txt').write_text('Dodatkowe.\n', encoding='utf-8')
+        second = (DOCUMENT.replace('id: input', 'id: extra')
+                  .replace('resource: ../00-bronze/source.txt', 'resource: ../00-bronze/extra.txt')
+                  .replace('[^input]', '[^extra]'))
+        (self.hub / 'knowledge/10-silver/second.md').write_text(second, encoding='utf-8')
+        report = self.validate()
+        self.assertEqual(report['warnings'], [])
+
+    def test_bronze_file_logged_as_no_material_is_not_orphaned(self):
+        self.fixture()
+        (self.hub / 'knowledge/00-bronze/orphan.txt').write_text('Nieużyte.\n', encoding='utf-8')
+        (self.hub / 'knowledge/log.md').write_text(
+            '# Log\n\n## 2026-09-23\n\n- Bez materiału: 00-bronze/orphan.txt\n', encoding='utf-8')
+        report = self.validate()
+        self.assertEqual(report['warnings'], [])
+
     def test_inline_image_reference_and_nested_links(self):
         for link in ('[x](missing.md)', '![x](missing.png)', '[x][bad]\n\n[bad]: missing.md',
                      '[x][]\n\n[x]: missing.md', '[x]\n\n[x]: missing.md',
@@ -386,6 +412,8 @@ class ValidateHubTests(unittest.TestCase):
                        lambda c: c['quality'].update(threshold=False),
                        lambda c: c['quality'].update(max_fix_iterations=0),
                        lambda c: c['quality'].update(validator='skip.py'),
+                       lambda c: c['quality'].pop('evidence_script'),
+                       lambda c: c['quality'].update(evidence_script='skip.py'),
                        lambda c: c.update(bundle_root='empty'),
                        lambda c: c.update(concept_types=[]),
                        lambda c: c.update(concept_types=['Koncept', 'Koncept'])):

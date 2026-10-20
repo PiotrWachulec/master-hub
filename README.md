@@ -62,7 +62,7 @@ zadaniach oraz spójnych etapach dłuższej pracy. Nie trzeba osobno mówić
 „wypychaj”. Cel i dostęp do repozytorium uzgadnia się przy pierwszej
 konfiguracji; generator sam nie tworzy Git ani remote. Agent potwierdza
 commit w repozytorium zdalnym lub zgłasza brak aktualnej kopii.
-Obowiązek jest jawny w `hub.json` profilu 0.2.1:
+Obowiązek jest jawny w `hub.json` profilu 0.2.2:
 `policy.remote_copy: "required_after_validated_task"`.
 
 To instrukcja pracy agenta, nie backup w tle. Obejmuje wypchnięte pliki Git,
@@ -81,19 +81,41 @@ instrukcji istniejących hubów ani konfiguracji innych agentów.
 
 ## Wersje i możliwości
 
-Format: OKF 0.2. Lokalny profil pracy: 0.2.1, zapisany w `hub.json`.
+Format: OKF 0.2. Lokalny profil pracy: 0.2.2, zapisany w `hub.json`.
 Zmiana szablonów obejmuje nowe huby; istniejące wymagają jawnej migracji.
 Nie ma automatycznego migratora ani obowiązku natychmiastowego przyjęcia
 każdej nowej wersji OKF.
 
 Na przyszłość zachowujemy [procedurę migracji 0.1.1 → 0.2.0](docs/migration-0.2.0.md).
 Przyjęcie kopii Git opisuje [aktualizacja 0.2.0 → 0.2.1](docs/hub-git-backup.md).
+Uziemienie faktów, triage źródeł i Query/Archive opisuje
+[aktualizacja 0.2.1 → 0.2.2](docs/migration-0.2.2.md).
 Nie zakładamy obecnie żadnych istniejących hubów i nie wykonujemy migracji.
 Dokument nie wymaga ani nie uruchamia rejestru hubów.
 
-Działają generator, instrukcje redakcji i lokalny walidator struktury.
-Automatyczny ingest, synchronizacja,
+Działają generator, instrukcje redakcji, lokalny walidator struktury
+i nieblokujący raport uziemienia faktów. Automatyczny ingest, synchronizacja,
 pełny walidator OKF i integracje operacyjne nie są zaimplementowane.
+
+### Świadomie niezbudowane
+
+Po wzorze sekcji „Design Boundaries” w README `karpathy-llm-wiki` (zob.
+„Inspiracje” niżej) — krótkie „dlaczego”, nie tylko „czego brak”:
+
+- **Precyzyjne kotwiczenie cytatu do pojedynczego przypisu** w kontroli
+  uziemienia faktów — realne błędy to niemal zawsze „wartość nieobecna w
+  żadnym źródle dokumentu”, co łapie sprawdzenie całego dokumentu; kotwiczenie
+  chroniłoby przed awarią, która w praktyce się nie zdarza.
+- **Automatyczne wykrywanie świeżości po hashu źródeł bronze** — bronze jest
+  niezmienne z definicji kontraktu; nowa wiedza i tak wchodzi jako nowy plik
+  przez ingest, nie przez edycję istniejącego.
+- **Numeryczne wyniki pewności/jakości treści** — fałszywa precyzja bez
+  kalibracji; siła dowodu należy do prozy i przeglądu człowieka, nie do liczby.
+- **Wyszukiwanie wektorowe lub grafowe po wiedzy** — przy skali pojedynczego
+  huba grep i odczyt plików są wystarczające i bardziej przewidywalne; warto
+  to dodać dopiero, gdy trafność mierzalnie spadnie.
+- **Automatyczne haki i harmonogramy uruchomień** — należą do uprzęży agenta
+  (hooki, cron), nie do przenośnego, narzędzio-agnostycznego skilla.
 
 ## Kontrola struktury w wygenerowanym hubie
 
@@ -117,10 +139,19 @@ naprawa/kontrola po pierwszym sprawdzeniu. Zmiana kontroli wymaga osobnego
 PR, nie może być sposobem na ukrycie błędów treści. To kontrola lokalnego,
 udokumentowanego podzbioru formatu, nie dowód prawdziwości ani walidacja OKF.
 
+Osobno, `.venv/bin/python -B scripts/check_evidence.py` daje nieblokujący
+raport: czy liczby, daty i cytaty w `10-silver`/`20-gold` dają się znaleźć
+w treści wskazanych źródeł bronze. Zawsze kończy się kodem 0 i nie wchodzi
+do progu `violations` — podejrzenia ocenia człowiek, nie skrypt.
+
 [Architektura](docs/architecture.md) · [Diagram przepływu](docs/architecture.svg) ·
 [Opcjonalny model wielu hubów](docs/system-architecture.svg)
 
 Testy w katalogu silnika: `.venv/bin/python -B -m unittest discover -s tests -v`.
 
-Inspiracje: [LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
-i [OKF](https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/main/SPEC.md).
+Inspiracje: [LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f),
+[OKF](https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/main/SPEC.md)
+i [karpathy-llm-wiki](https://github.com/Astro-Han/karpathy-llm-wiki) (Astro-Han,
+MIT) — niezależna implementacja tego samego pomysłu, źródło wzorca
+ingest/query/lint oraz bezpośrednia inspiracja dla `scripts/check_evidence.py`
+i konwencji triage/Status wprowadzonych w profilu 0.2.2.

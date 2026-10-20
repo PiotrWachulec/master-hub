@@ -1,6 +1,6 @@
 # Profil nowego huba
 
-`hub.json` konfiguruje lokalny wzorzec (wersja 0.2.1). Nie jest elementem
+`hub.json` konfiguruje lokalny wzorzec (wersja 0.2.2). Nie jest elementem
 standardu OKF. Deklaracje polityki są instrukcjami dla agenta; generator
 nie instaluje procesu, który je technicznie egzekwuje.
 
@@ -16,6 +16,7 @@ nie instaluje procesu, który je technicznie egzekwuje.
 | `policy` | etap automatyzacji redakcji, publikacji i działań zewnętrznych |
 | `policy.remote_copy` | w 0.2.1 wymagane `required_after_validated_task`: commit i push po sprawdzonym zadaniu; cel wymaga uzgodnienia |
 | `quality` | lokalny walidator, metryka violations, próg 0 i limit 5 cykli naprawy |
+| `quality.evidence_script` | w 0.2.2 wymagane `scripts/check_evidence.py`: nieblokujący raport uziemienia faktów, poza progiem violations |
 
 Domyślne typy: Źródło, Koncept, Metoda, Zasada, Przykład, Synteza, Narzędzie,
 Decyzja. Nie są zamkniętą taksonomią wiedzy. Nowe typy dodawaj, kiedy odróżniają
@@ -28,6 +29,16 @@ Profil 0.2.1 dodaje jawny obowiązek kopii Git w policy.remote_copy oraz jego
 kontrolę w walidatorze. Nie jest to uprawnienie do dowolnego remote ani
 automatyczna aktualizacja starszych hubów. Procedura przyjęcia 0.2.0 → 0.2.1
 jest w docs/hub-git-backup.md w repozytorium generatora.
+
+Profil 0.2.2 dodaje raportujący (nieblokujący) skrypt uziemienia faktów
+scripts/check_evidence.py, konwencję dyspozycji „Bez materiału” w logu,
+ostrzeżenie walidatora o osieroconych źródłach bronze, formalne działanie
+Query/Archive oraz blok `Status: Disputed/Outdated` przy pojedynczym
+twierdzeniu. Skrypt i rozstrzygnięcie o ziarnistości kontroli (cały dokument,
+nie pojedynczy przypis) są adaptacją scripts/check_evidence.py z
+Astro-Han/karpathy-llm-wiki (MIT) — niezależnej implementacji tego samego
+pomysłu Karpathy'ego. Procedura przyjęcia 0.2.1 → 0.2.2 jest w
+docs/migration-0.2.2.md w repozytorium generatora.
 
 Profil 0.2.0 dodał niezależny skrypt scripts/validate_hub.py do huba.
 Format OKF pozostaje 0.2. Migracja z 0.1.1 jest ręczna i wymaga przeglądu

@@ -6,8 +6,9 @@ gdy użytkownik w przyszłości wskaże starszy hub i zleci jego aktualizację.
 
 To historyczna procedura dla 0.2.0: użyj szablonów i walidatora z commita
 `1acb58b29bb5058178660a3a374bfc6f47824517`, nie z bieżącego main.
-Generator tworzy obecnie profil 0.2.1; jego przyjęcie wymaga dodatkowo
-[jawnej aktualizacji konfiguracji kopii Git](hub-git-backup.md).
+Generator tworzy obecnie profil 0.2.2; jego przyjęcie wymaga dodatkowo
+[jawnej aktualizacji konfiguracji kopii Git](hub-git-backup.md) (0.2.0 → 0.2.1)
+oraz [uziemienia faktów i Query/Archive](migration-0.2.2.md) (0.2.1 → 0.2.2).
 
 OKF pozostaje w wersji 0.2. Zmiana dotyczy lokalnego kontraktu:
 samodzielnego walidatora struktury, udokumentowanego podzbioru frontmattera

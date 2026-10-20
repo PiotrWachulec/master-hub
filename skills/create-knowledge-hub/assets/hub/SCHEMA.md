@@ -1,4 +1,4 @@
-# Kontrakt przetwarzania wiedzy — profil 0.2.1
+# Kontrakt przetwarzania wiedzy — profil 0.2.2
 
 Ten kontrakt opisuje pracę w jednym hubie. Bundle OKF 0.2 obejmuje wyłącznie
 `knowledge/`. Konfiguracja i instrukcje w katalogu nadrzędnym nie należą
@@ -70,11 +70,18 @@ nie zastępują dokumentów wiedzy. Główny indeks bundle'a wymaga frontmattera
 najnowsze na górze, bez frontmatteru. Log dokumentuje zmiany; nie zastępuje
 źródeł ani decyzji użytkownika.
 
+Dyspozycję „Bez materiału” (patrz „Dodaj materiał do bazy” niżej) zapisuj
+jako osobną linię pod datą, w formacie `- Bez materiału: <ścieżka względem
+knowledge/>`, np. `- Bez materiału: 00-bronze/newsletter-2025-03.md`.
+Ta ścieżka jest czytelna maszynowo: `scripts/validate_hub.py` i
+`scripts/check_evidence.py` wyłączają tak oznaczony plik bronze z ostrzeżenia
+o źródłach nieodwołanych przez żadne `sources[].resource`.
+
 ## Kontrola struktury
 
 `.venv/bin/python -B scripts/validate_hub.py` sprawdza hub zawierający skrypt,
 nie bieżący katalog wywołania. Python 3.10+, tylko biblioteka standardowa,
-bez sieci i bez zapisu. To walidator lokalnego profilu 0.2.1, nie całego OKF.
+bez sieci i bez zapisu. To walidator lokalnego profilu 0.2.2, nie całego OKF.
 Skrypty uruchamiamy wyłącznie w lokalnym środowisku wirtualnym. Jeśli `.venv`
 nie istnieje, agent tworzy je wcześniej przez `python3 -m venv .venv`
 w katalogu huba. Na Windows interpreter jest w `.venv/Scripts/python.exe`.
@@ -84,7 +91,7 @@ venv z `-m pip`. Walidator nie tworzy środowiska ani niczego nie instaluje.
 Sprawdza:
 
 - wymagane pliki szkieletu, konfigurację hub.json i wszystkie `.md` w knowledge;
-- profile_version: "0.2.1" i policy.remote_copy: "required_after_validated_task";
+- profile_version: "0.2.2" i policy.remote_copy: "required_after_validated_task";
 - frontmatter dokumentów (poza zamkniętą listą wyjątków powyżej): type, title, description,
   status, generated; typ należy do concept_types, status do draft/stable/deprecated;
 - generated.by jest niepustym tekstem, generated.at to data i czas ISO 8601
@@ -96,7 +103,9 @@ Sprawdza:
 - główny knowledge/index.md deklaruje okf_version: "0.2";
 - knowledge/log.md nie ma frontmattera; wpisy są pod nagłówkami `## YYYY-MM-DD`,
   z poprawnymi, niepowtarzającymi się datami od najnowszej do najstarszej.
-  Pusty log może zawierać tylko nagłówek H1 i puste linie.
+  Pusty log może zawierać tylko nagłówek H1 i puste linie;
+- plik w `00-bronze` nieodwołany przez żadne `sources[].resource` i niezalogowany
+  jako „Bez materiału” daje ostrzeżenie, nie błąd (zob. „Uziemienie faktów” niżej).
 
 Wyjście stdout jest jednym obiektem JSON: violations (liczba błędów), errors
 i warnings (listy obiektów file, line, message). Stderr zawiera czytelne
@@ -108,7 +117,8 @@ violations == 0. Ostrzeżenia nie zwiększają violations. W hub.json:
   "validator": "scripts/validate_hub.py",
   "metric": "violations",
   "threshold": 0,
-  "max_fix_iterations": 5
+  "max_fix_iterations": 5,
+  "evidence_script": "scripts/check_evidence.py"
 }
 ```
 
@@ -194,6 +204,38 @@ i inline code nie są odsyłaczami; niedomknięty fence jest błędem. Indented 
 nie jest wyłączany ze sprawdzania — dla dosłownych przykładów używaj fenced code.
 To udokumentowany profil Markdown, nie pełny parser CommonMark.
 
+## Uziemienie faktów (Grounding Invariant)
+
+Każda nośna liczba, data i bezpośredni cytat w `10-silver` i `20-gold` musi
+dać się znaleźć dosłownie w treści plików wskazanych przez `sources[].resource`
+tego dokumentu. Kompilacja *ustanawia* ten niezmiennik (zlokalizuj wartość
+przed zapisem — zob. „Jakość treści” niżej); `scripts/check_evidence.py`
+*sprawdza* go post factum: grepuje liczby o wysokiej sygnalności (sufiksowane
+lub duże, dziesiętne, daty ISO, dłuższe cytaty) w połączonej treści
+wszystkich `sources[].resource` dokumentu. Reszta przypadków — drobne,
+niejednoznaczne wartości — zostaje przy regule kompilacyjnej i ocenie
+człowieka.
+
+To raport, nie bramka jakości: skrypt zawsze kończy się kodem 0 i nie wchodzi
+do `violations` ani progu w `hub.json`. „Podejrzenie braku pokrycia” to
+kandydat, nie wyrok — wartości wyliczone i nazwy własne też się pojawią;
+ocena należy do czytającego. Uruchom `.venv/bin/python -B
+scripts/check_evidence.py` z katalogu huba (bez argumentów — skrypt zawsze
+sprawdza hub, w którym leży, tak jak `validate_hub.py`). Raport wylicza też
+pliki `00-bronze` nieodwołane przez żadne `sources[].resource` i niezalogowane
+jako „Bez materiału” — to samo ostrzeżenie, które daje `validate_hub.py`.
+
+Kontrola sprawdza kandydata wobec sumy wszystkich `sources[].resource`
+dokumentu, nie wobec jednego źródła najbliższego konkretnemu przypisowi
+`[^id]`. To świadomy wybór: rzeczywiste błędy uziemienia to niemal zawsze
+„wartość nieobecna w żadnym źródle”, co łapie sprawdzenie całego dokumentu;
+precyzyjne kotwiczenie do pojedynczego przypisu chroniłoby przed awarią,
+która w praktyce się nie zdarza. Ten skrypt i powyższe rozstrzygnięcie są
+adaptacją `scripts/check_evidence.py` z `Astro-Han/karpathy-llm-wiki`
+(MIT) — niezależnej implementacji tego samego pomysłu Karpathy'ego, z inną
+(blockquote'ową, bez frontmattera) konwencją dokumentu. Zob. „Inspiracje”
+w README repozytorium generatora.
+
 ## Jakość treści
 
 - Zachowuj warunki stosowania, wyjątki i rozbieżności między źródłami.
@@ -204,24 +246,71 @@ To udokumentowany profil Markdown, nie pełny parser CommonMark.
   jeśli poprawia to użyteczność.
 - Rozmowa zakończona wartościową analizą może zasilić wiki, z zachowaniem
   pochodzenia i rozróżnieniem decyzji, obserwacji i twierdzeń.
+- Gdy nowe źródło podważa lub unieważnia konkretne twierdzenie, nie nadpisuj
+  go cicho. Oznacz je blokiem wstawionym bezpośrednio pod twierdzeniem,
+  oddzielnie od pola `status` całego dokumentu (to drugie opisuje cały plik,
+  nie pojedyncze zdanie):
+
+  ```
+  > **Status: Disputed**
+  > {konkurujące twierdzenia, każde z atrybucją źródła}
+
+  > **Status: Outdated** (YYYY-MM-DD)
+  > {co się zmieniło i jaki jest aktualny stan, z atrybucją}
+  ```
+
+  Stary zapis zostaje w treści, tylko oznaczony — historia wiki nie znika.
+  `scripts/check_evidence.py` pomija wyjaśnienie pod takim blokiem przy
+  szukaniu dowodów; to adnotacja redakcyjna, nie twierdzenie do ponownego
+  uziemienia.
 
 ## Praca agenta
 
-To dwa niezależne działania. Łącz je tylko wtedy, gdy użytkownik zamawia oba.
-W każdym dobieraj kontekst przez indeksy, powiązane koncepty i wcześniejsze
-decyzje użytkownika; nie ładuj całej biblioteki bez potrzeby.
+To trzy niezależne działania. Łącz je tylko wtedy, gdy użytkownik zamawia
+kilka naraz. W każdym dobieraj kontekst przez indeksy, powiązane koncepty
+i wcześniejsze decyzje użytkownika; nie ładuj całej biblioteki bez potrzeby.
 
 ### Dodaj materiał do bazy — bronze i silver
 
 1. Przyjmij źródło w nowym pliku bronze. Sprawdź dostępne wejścia, żeby
    uniknąć duplikatu. Automatyczny rejestr hashy jest planowany, nie zainstalowany.
-2. Rozwiń połączoną wiki silver: pojęcia, metody, przykłady i syntezy z referencjami
+2. Przed redakcją silver ustal dyspozycję, przeszukując istniejącą wiki
+   kluczowymi pojęciami i synonimami źródła: **Nowy** (nowe artykuły),
+   **Aktualizacja** (scalenie z istniejącymi), **Sporne** (przeczy istniejącej
+   treści — można łączyć z Nowy/Aktualizacja, zob. blok `Status:` w „Jakość
+   treści”), **Bez materiału** (nic ponad to, co wiki już ma — wyklucza
+   pozostałe). Przy „Bez materiału” zostaw plik w bronze, zaloguj dyspozycję
+   formatem z sekcji „Dokumenty i odsyłacze” i zatrzymaj się; nie twórz
+   artykułu na siłę z cienkiego źródła.
+3. Rozwiń połączoną wiki silver: pojęcia, metody, przykłady i syntezy z referencjami
    do źródeł. Łącz nowe informacje z istniejącymi, zachowując warunki stosowania,
    wyjątki i rozbieżności. To wiedza wielokrotnego użycia, nie tylko osobne
    streszczenie każdego wejścia ani skrót pod jeden przyszły wynik.
-3. Nie wymagaj celu biznesowego i nie twórz gold. Jeśli nowa wiedza wpływa
+4. Sprawdź efekty kaskadowe: przeszukaj cały silver pod kątem tych samych
+   encji i aliasów (nie poprzestawaj na indeksie) i zaktualizuj każdy
+   materialnie dotknięty dokument, odświeżając jego datę Updated. Przy
+   sprzeczności oznacz oba miejsca blokiem `Status:` i skrzyżuj je linkami,
+   zamiast ciszej nadpisywać starszy zapis.
+5. Nie wymagaj celu biznesowego i nie twórz gold. Jeśli nowa wiedza wpływa
    na istniejące gold, wskaż to i zaproponuj aktualizację; nie wdrażaj jej
    automatycznie bez zlecenia.
+
+### Odpowiedz na pytanie o bazę — Query
+
+Domyślnie nic nie zapisuje; to osobne działanie od dwóch pozostałych.
+
+1. Przeszukaj `knowledge/index.md` i pełny tekst silver/gold po temacie
+   pytania i jego synonimach, zanim stwierdzisz brak wiedzy w bazie — i powiedz
+   wprost, że przeszukano oba. Nie opieraj odpowiedzi na wiedzy własnej modelu,
+   gdy baza ma materiał na dany temat.
+2. Odpowiedz w rozmowie, cytując linkami do artykułów silver/gold. Nie
+   zapisuj plików, dopóki użytkownik wyraźnie o to nie poprosi.
+3. Na prośbę „zarchiwizuj tę odpowiedź” zapisz ją jako nowy dokument w
+   `10-silver` (typ `Synteza`, `sources[]` wskazujące cytowane artykuły
+   silver/gold — nie bronze, bo to nie pierwotne źródło), dopisz go do
+   `knowledge/index.md` i `knowledge/log.md`. Zawsze nowy dokument; nie
+   scalaj archiwum z istniejącym artykułem, bo to zsyntetyzowana odpowiedź,
+   nie materiał źródłowy.
 
 ### Przygotuj materiał do konkretnego celu — gold
 
@@ -282,7 +371,7 @@ To instrukcja pracy, a nie techniczna kontrola uprawnień.
 zakresów: `publication` dotyczy przyjęcia opracowań do publikacji, a
 `external_actions` działań operacyjnych, np. zmiany budżetu kampanii.
 Pole nie wybiera remote i nie zezwala na wysyłanie do dowolnego odbiorcy.
-W profilu 0.2.1 jest wymagane. Brak/inna wartość to niespójność kontraktu,
+W profilu 0.2.2 jest wymagane. Brak/inna wartość to niespójność kontraktu,
 nie tryb lokalny. Polecenie pracy lokalnej jest wyjątkiem dla zadania,
 nie zmianą konfiguracji. Starszy hub bez tego pola nie przyjął tej reguły
 automatycznie; wymaga jawnej aktualizacji kontraktu.

@@ -6,13 +6,17 @@
    potwierdza uruchomienie kopii Git. Bez tego hub istnieje tylko lokalnie.
 2. Otwórz hub jako projekt dla agenta. Dodaj jeden materiał, rozwijając
    bronze i silver bez obowiązkowego gold.
-3. Agent sprawdza strukturę lokalnym walidatorem (profil 0.2.1), poprawia
-   naruszenia w ramach limitu i przedstawia wynik. Przejrzyj treść i przekaż
-   korekty przez rozmowę — zielona struktura nie zastępuje tego przeglądu.
-   Agent wykonuje commit i push oraz potwierdza obecność commita w remote;
-   brak kopii zgłasza jako niedokończony etap zadania.
-4. Gdy pojawi się potrzeba, zamów konkretny rezultat gold.
-5. Dopiero doświadczenie pokaże, jaki kolejny mechanizm jest potrzebny.
+3. Agent sprawdza strukturę lokalnym walidatorem (profil 0.2.2), poprawia
+   naruszenia w ramach limitu i przedstawia wynik; osobno, nieblokujący
+   `scripts/check_evidence.py` pokazuje podejrzenia braku pokrycia faktów
+   w źródłach. Przejrzyj treść i przekaż korekty przez rozmowę — zielona
+   struktura nie zastępuje tego przeglądu. Agent wykonuje commit i push oraz
+   potwierdza obecność commita w remote; brak kopii zgłasza jako niedokończony
+   etap zadania.
+4. Zapytaj bazę o to, co już wie („Co wiem o X?”) — agent odpowiada z linkami
+   bez zapisu; „zarchiwizuj tę odpowiedź” zapisuje ją jako nowy dokument silver.
+5. Gdy pojawi się potrzeba, zamów konkretny rezultat gold.
+6. Dopiero doświadczenie pokaże, jaki kolejny mechanizm jest potrzebny.
 
 [Przykłady poleceń](first-run.md) · [Architektura](architecture.md)
 

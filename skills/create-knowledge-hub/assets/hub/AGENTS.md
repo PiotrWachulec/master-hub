@@ -4,15 +4,21 @@ Przed opracowaniem wiedzy przeczytaj SCHEMA.md, hub.json oraz knowledge/index.md
 Źródła są w knowledge/00-bronze, połączona wiki w knowledge/10-silver,
 a materiały pod konkretne zastosowania w knowledge/20-gold.
 
-Rozróżniaj dwa niezależne zadania:
+Rozróżniaj trzy niezależne zadania:
 
 - „Dodaj materiał do bazy” — zachowaj źródło w bronze i rozwiń silver.
-  Nie wymagaj celu biznesowego ani nie twórz gold przy okazji.
+  Nie wymagaj celu biznesowego ani nie twórz gold przy okazji. Przed
+  kompilacją ustal dyspozycję źródła (Nowy/Aktualizacja/Sporne/Bez materiału)
+  i sprawdź efekty kaskadowe w pozostałych artykułach silver — szczegóły
+  w SCHEMA.md.
+- „Co wiem o…” (query) — przeszukaj indeks i pełny tekst silver/gold,
+  odpowiedz w rozmowie z linkami. Domyślnie nic nie zapisuje. Dopiero
+  wyraźna prośba „zarchiwizuj tę odpowiedź” tworzy nowy dokument silver.
 - „Przygotuj materiał do…” — korzystaj z istniejącego silver i utwórz
   katalog gold pod zamówiony wynik. Nie wymagaj nowego źródła; po brakujące
   szczegóły i dokładne cytaty wracaj do odpowiednich fragmentów bronze.
 
-Możesz połączyć oba działania na prośbę użytkownika. Nowa koncepcja wyniku
+Możesz połączyć kilka działań na prośbę użytkownika. Nowa koncepcja wyniku
 oznacza nowy katalog gold; istniejący poprawiaj, gdy zadanie dotyczy jego
 aktualizacji. Nie twórz katalogów rezultatów na zapas ani nie narzucaj PARA.
 
@@ -34,7 +40,7 @@ rzeczywistej decyzji odnoszącej się do konkretnej treści.
 
 ## Bieżąca kopia zdalna — commit i push
 
-Profil 0.2.1 deklaruje w hub.json
+Profil 0.2.2 deklaruje w hub.json
 `policy.remote_copy: "required_after_validated_task"`. To jawny obowiązek
 kopii Git, odrębny od zatwierdzania opracowań (`publication`) i wyłączonych
 działań operacyjnych (`external_actions`). Brak pola, nieznana wartość lub
@@ -107,6 +113,13 @@ Po dodaniu materiału, przygotowaniu gold lub korekcie uruchom lokalnie
 `.venv/bin/python -B scripts/validate_hub.py` (ścieżki względem korzenia huba).
 Odczytaj JSON i kod zakończenia. Sukces wymaga kodu 0, poprawnego JSON
 i violations == quality.threshold == 0. Ostrzeżenia pokaż osobno.
+
+Po redakcji silver/gold uruchom też `.venv/bin/python -B
+scripts/check_evidence.py`. To osobny, nieblokujący raport (zawsze kod 0,
+poza progiem quality.threshold): wylicza liczby, daty i cytaty, których nie
+znalazł w treści wskazanych źródeł bronze. Pokaż wynik w podsumowaniu;
+realne rozbieżności popraw, zanim przekażesz wynik, ale brak tego skryptu
+lub jego błąd nie blokuje publikacji tak jak czerwony validate_hub.py.
 
 Po pierwszym sprawdzeniu możesz wykonać maksymalnie quality.max_fix_iterations
 cykli „popraw treść → sprawdź ponownie” (domyślnie 5; razem do 6 uruchomień).

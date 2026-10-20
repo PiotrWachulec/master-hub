@@ -36,7 +36,9 @@ class CreateHubTests(unittest.TestCase):
         self.assertEqual(config["policy"]["external_actions"], "disabled")
         self.assertEqual(config["policy"]["publication"], "explicit_acceptance")
         self.assertEqual(config["policy"]["remote_copy"], "required_after_validated_task")
-        self.assertEqual(config["profile_version"], "0.2.1")
+        self.assertEqual(config["profile_version"], "0.2.2")
+        self.assertEqual(config["quality"]["evidence_script"], "scripts/check_evidence.py")
+        self.assertTrue((destination / "scripts/check_evidence.py").is_file())
         self.assertEqual(config["kind"], "company")
         self.assertIn(".venv/", (destination / ".gitignore").read_text().splitlines())
         self.assertFalse((destination / ".venv").exists())
@@ -107,6 +109,15 @@ class CreateHubTests(unittest.TestCase):
         copied = self.root / "incomplete-skill"
         shutil.copytree(SKILL, copied)
         (copied / "assets/hub/scripts/validate_hub.py").unlink()
+        destination = self.root / "hub"
+        result = self.run_generator(destination, script=copied / "scripts/create_hub.py")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse(destination.exists())
+
+    def test_incomplete_skill_without_evidence_script_is_refused(self):
+        copied = self.root / "incomplete-skill-evidence"
+        shutil.copytree(SKILL, copied)
+        (copied / "assets/hub/scripts/check_evidence.py").unlink()
         destination = self.root / "hub"
         result = self.run_generator(destination, script=copied / "scripts/create_hub.py")
         self.assertNotEqual(result.returncode, 0)
