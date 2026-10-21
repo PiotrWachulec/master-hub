@@ -10,9 +10,9 @@ import unittest
 GENERATOR = Path(__file__).resolve().parents[1] / 'skills/create-knowledge-hub/scripts/create_hub.py'
 
 DOCUMENT = '''---
-type: Koncept
-title: Wiedza testowa
-description: Przykład do sprawdzenia struktury.
+type: Concept
+title: Test knowledge
+description: Example for checking the structure.
 status: draft
 generated:
   by: process:test
@@ -20,15 +20,15 @@ generated:
 sources:
   - id: input
     resource: ../00-bronze/source.txt
-    title: Materiał źródłowy
+    title: Source material
 ---
-# Koncept
+# Concept
 
-Twierdzenie.[^input]
+Claim.[^input]
 
-[^input]: Fragment materiału.
+[^input]: Material excerpt.
 
-[Źródło](../00-bronze/source.txt)
+[Source](../00-bronze/source.txt)
 '''
 
 
@@ -80,12 +80,13 @@ class ValidateHubTests(unittest.TestCase):
         self.assertEqual(report, {'violations': 0, 'errors': [], 'warnings': []})
         self.assertEqual(json.loads((self.hub / 'hub.json').read_text())['quality'], {
             'validator': 'scripts/validate_hub.py', 'metric': 'violations',
-            'threshold': 0, 'max_fix_iterations': 5})
+            'threshold': 0, 'max_fix_iterations': 5,
+            'evidence_script': 'scripts/check_evidence.py'})
 
     def test_valid_document_and_log(self):
         self.fixture()
         (self.hub / 'knowledge/log.md').write_text(
-            '# Log\n\n## 2026-09-23\n\nDodano koncept.\n\n## 2026-09-22\n\nStarszy wpis.\n')
+            '# Log\n\n## 2026-09-23\n\nAdded a concept.\n\n## 2026-09-22\n\nOlder entry.\n')
         self.validate()
 
     def test_remote_copy_policy_is_required_and_strict(self):
@@ -109,12 +110,12 @@ class ValidateHubTests(unittest.TestCase):
         self.validate()
 
     def test_profile_version_requires_explicit_upgrade(self):
-        for version in ('0.2.0', '0.1.1', '0.3.0', None, 0.21):
+        for version in ('0.2.1', '0.2.0', '0.1.1', '0.3.0', None, 0.22):
             with self.subTest(version=version):
                 self.config(lambda c: c.update(profile_version=version))
-                self.validate(False, 'implements profile 0.2.1')
+                self.validate(False, 'implements profile 0.2.2')
         self.config(lambda c: c.pop('profile_version'))
-        self.validate(False, 'implements profile 0.2.1')
+        self.validate(False, 'implements profile 0.2.2')
 
     def test_invalid_remote_copy_policy_does_not_skip_documents(self):
         self.config(lambda c: c['policy'].pop('remote_copy'))
@@ -130,7 +131,7 @@ class ValidateHubTests(unittest.TestCase):
                 with self.subTest(layer=layer, name=name):
                     path = self.hub / 'knowledge' / layer / 'product' / name
                     path.parent.mkdir(parents=True, exist_ok=True)
-                    path.write_text('# Dokument bez metadanych\n', encoding='utf-8')
+                    path.write_text('# Document without metadata\n', encoding='utf-8')
                     report = self.validate(False, 'Missing frontmatter')
                     self.assertTrue(all(e['file'] == path.relative_to(self.hub).as_posix()
                                         for e in report['errors']))
@@ -142,12 +143,12 @@ class ValidateHubTests(unittest.TestCase):
             with self.subTest(relative=relative):
                 path = self.hub / 'knowledge' / relative
                 path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text('# Log\n\n## 2026-09-23\n\nTreść.\n', encoding='utf-8')
+                path.write_text('# Log\n\n## 2026-09-23\n\nContent.\n', encoding='utf-8')
                 self.validate(False, 'Missing frontmatter')
                 path.unlink()
 
     def test_nested_index_and_log_require_sources_in_silver_and_gold(self):
-        text = DOCUMENT.split('sources:')[0] + '---\n# Produkt\n'
+        text = DOCUMENT.split('sources:')[0] + '---\n# Product\n'
         for layer in ('10-silver', '20-gold'):
             for name in ('index.md', 'log.md'):
                 with self.subTest(layer=layer, name=name):
@@ -170,9 +171,9 @@ class ValidateHubTests(unittest.TestCase):
                     self.fixture(text.replace('resource: ../../00-bronze/source.txt',
                                               'resource: ../../00-bronze/missing.txt'), path)
                     self.validate(False, 'does not exist')
-                    self.fixture(text + '\n[Brak](missing.md)\n', path)
+                    self.fixture(text + '\n[Missing](missing.md)\n', path)
                     self.validate(False, 'does not exist')
-                    self.fixture(text.replace('[^input]: Fragment materiału.', ''), path)
+                    self.fixture(text.replace('[^input]: Material excerpt.', ''), path)
                     self.validate(False, 'Missing footnote definition')
                     path.unlink()
 
@@ -182,11 +183,11 @@ class ValidateHubTests(unittest.TestCase):
             with self.subTest(relative=relative):
                 path = self.hub / 'knowledge' / relative
                 original = path.read_text(encoding='utf-8')
-                path.write_text(original + '\n[Brak](missing.md)\n', encoding='utf-8')
+                path.write_text(original + '\n[Missing](missing.md)\n', encoding='utf-8')
                 self.validate(False, 'does not exist')
                 path.write_text('---\nokf_version: "0.2"\nsources:\n'
                                 '  - id: missing\n    resource: missing.txt\n---\n'
-                                'Opis.[^missing]\n\n[^missing]: Źródło.\n', encoding='utf-8')
+                                'Description.[^missing]\n\n[^missing]: Source.\n', encoding='utf-8')
                 self.validate(False, 'does not exist')
                 path.write_text(original, encoding='utf-8')
         self.validate()
@@ -196,8 +197,8 @@ class ValidateHubTests(unittest.TestCase):
         self.validate()
 
     def test_plain_text_cross_hub_context_is_not_a_structural_reference(self):
-        self.fixture(DOCUMENT + '\nKontekst dodatkowy: hub sprzedażowy, '
-                     'dokument SPIN, odczyt 2026-09-23.\n')
+        self.fixture(DOCUMENT + '\nAdditional context: sales hub, '
+                     'SPIN document, read 2026-09-23.\n')
         self.validate()
 
     def test_validator_does_not_write_even_on_failure(self):
@@ -208,21 +209,21 @@ class ValidateHubTests(unittest.TestCase):
         self.assertEqual(before, after)
 
     def test_missing_frontmatter(self):
-        self.fixture('# Brak\n')
+        self.fixture('# Missing\n')
         self.validate(False, 'Missing frontmatter')
 
     def test_missing_required_fields(self):
-        for line in ('type: Koncept\n', 'title: Wiedza testowa\n',
-                     'description: Przykład do sprawdzenia struktury.\n', 'status: draft\n',
+        for line in ('type: Concept\n', 'title: Test knowledge\n',
+                     'description: Example for checking the structure.\n', 'status: draft\n',
                      'generated:\n  by: process:test\n  at: 2026-09-23T12:00:00Z\n'):
             with self.subTest(line=line):
                 self.fixture(DOCUMENT.replace(line, ''))
                 self.validate(False)
 
     def test_wrong_field_types_and_empty_values(self):
-        for old, new in [('title: Wiedza testowa', 'title: []'),
-                         ('description: Przykład do sprawdzenia struktury.', 'description: ""'),
-                         ('type: Koncept', 'type: {}'),
+        for old, new in [('title: Test knowledge', 'title: []'),
+                         ('description: Example for checking the structure.', 'description: ""'),
+                         ('type: Concept', 'type: {}'),
                          ('status: draft', 'status: ["draft"]'),
                          ('  by: process:test', '  by: ""')]:
             with self.subTest(new=new):
@@ -231,7 +232,7 @@ class ValidateHubTests(unittest.TestCase):
 
     def test_unknown_status_and_type(self):
         for old, new, error in [('status: draft', 'status: ready', 'Invalid status'),
-                                ('type: Koncept', 'type: Unknown', 'concept_types')]:
+                                ('type: Concept', 'type: Unknown', 'concept_types')]:
             with self.subTest(new=new):
                 self.fixture(DOCUMENT.replace(old, new))
                 self.validate(False, error)
@@ -240,7 +241,7 @@ class ValidateHubTests(unittest.TestCase):
         for layer in ('10-silver', '20-gold'):
             path = self.hub / f'knowledge/{layer}/missing.md'
             with self.subTest(layer=layer):
-                self.fixture(DOCUMENT.replace('sources:\n  - id: input\n    resource: ../00-bronze/source.txt\n    title: Materiał źródłowy', 'sources: []'), path)
+                self.fixture(DOCUMENT.replace('sources:\n  - id: input\n    resource: ../00-bronze/source.txt\n    title: Source material', 'sources: []'), path)
                 self.validate(False, 'requires nonempty sources')
             path.unlink()
 
@@ -251,9 +252,9 @@ class ValidateHubTests(unittest.TestCase):
 
     def test_sources_shapes_ids_and_file_targets(self):
         for old, new, error in [
-            ('sources:\n  - id: input\n    resource: ../00-bronze/source.txt\n    title: Materiał źródłowy',
+            ('sources:\n  - id: input\n    resource: ../00-bronze/source.txt\n    title: Source material',
              'sources: {}', 'sources must be a list'),
-            ('sources:\n  - id: input\n    resource: ../00-bronze/source.txt\n    title: Materiał źródłowy',
+            ('sources:\n  - id: input\n    resource: ../00-bronze/source.txt\n    title: Source material',
              'sources: ["input"]', 'Each source must be a mapping'),
             ('  - id: input', '  - id: "bad id"', 'Source id'),
             ('    resource: ../00-bronze/source.txt', '    resource: ../00-bronze/missing.txt', 'does not exist'),
@@ -264,24 +265,49 @@ class ValidateHubTests(unittest.TestCase):
                 self.validate(False, error)
 
     def test_duplicate_source_id(self):
-        self.fixture(DOCUMENT.replace('    title: Materiał źródłowy',
-                     '    title: Materiał źródłowy\n  - id: input\n    resource: ../00-bronze/source.txt'))
+        self.fixture(DOCUMENT.replace('    title: Source material',
+                     '    title: Source material\n  - id: input\n    resource: ../00-bronze/source.txt'))
         self.validate(False, 'Duplicate sources[].id')
 
     def test_footnotes_require_definition_and_source(self):
-        self.fixture(DOCUMENT.replace('[^input]: Fragment materiału.', ''))
+        self.fixture(DOCUMENT.replace('[^input]: Material excerpt.', ''))
         self.validate(False, 'Missing footnote definition')
-        self.fixture(DOCUMENT + '\nInne.[^other]\n\n[^other]: Wyjaśnienie.\n')
+        self.fixture(DOCUMENT + '\nOther.[^other]\n\n[^other]: Explanation.\n')
         self.validate(False, 'Footnote has no sources[].id')
 
     def test_duplicate_footnote_definition(self):
-        self.fixture(DOCUMENT + '\n[^input]: Powtórzenie.\n')
+        self.fixture(DOCUMENT + '\n[^input]: Repeat.\n')
         self.validate(False, 'Duplicate footnote definition')
 
     def test_unused_source_is_warning_not_violation(self):
-        self.fixture(DOCUMENT.replace('Twierdzenie.[^input]', 'Twierdzenie.'))
+        self.fixture(DOCUMENT.replace('Claim.[^input]', 'Claim.'))
         result = self.validate(True, 'Unused sources[].id')
         self.assertEqual(len(result['warnings']), 1)
+
+    def test_unreferenced_bronze_file_is_warning_not_violation(self):
+        self.fixture()
+        (self.hub / 'knowledge/00-bronze/orphan.txt').write_text('Unused.\n', encoding='utf-8')
+        report = self.validate(True, 'not referenced by any sources')
+        self.assertEqual(len(report['warnings']), 1)
+        self.assertEqual(report['warnings'][0]['file'], 'knowledge/00-bronze/orphan.txt')
+
+    def test_bronze_file_referenced_from_any_document_is_not_orphaned(self):
+        self.fixture()
+        (self.hub / 'knowledge/00-bronze/extra.txt').write_text('Additional.\n', encoding='utf-8')
+        second = (DOCUMENT.replace('id: input', 'id: extra')
+                  .replace('resource: ../00-bronze/source.txt', 'resource: ../00-bronze/extra.txt')
+                  .replace('[^input]', '[^extra]'))
+        (self.hub / 'knowledge/10-silver/second.md').write_text(second, encoding='utf-8')
+        report = self.validate()
+        self.assertEqual(report['warnings'], [])
+
+    def test_bronze_file_logged_as_no_material_is_not_orphaned(self):
+        self.fixture()
+        (self.hub / 'knowledge/00-bronze/orphan.txt').write_text('Unused.\n', encoding='utf-8')
+        (self.hub / 'knowledge/log.md').write_text(
+            '# Log\n\n## 2026-09-23\n\n- No material: 00-bronze/orphan.txt\n', encoding='utf-8')
+        report = self.validate()
+        self.assertEqual(report['warnings'], [])
 
     def test_inline_image_reference_and_nested_links(self):
         for link in ('[x](missing.md)', '![x](missing.png)', '[x][bad]\n\n[bad]: missing.md',
@@ -365,17 +391,17 @@ class ValidateHubTests(unittest.TestCase):
                       'title: Duplicate', 'extra: {"x": "one", "x": "two"}',
                       'extra:\n  x: one\n  x: two'):
             with self.subTest(extra=extra):
-                self.fixture(DOCUMENT.replace('type: Koncept', 'type: Koncept\n' + extra))
+                self.fixture(DOCUMENT.replace('type: Concept', 'type: Concept\n' + extra))
                 self.validate(False, 'Frontmatter:')
 
     def test_unclosed_frontmatter(self):
-        self.fixture('---\ntype: Koncept\n')
+        self.fixture('---\ntype: Concept\n')
         self.validate(False, 'Unclosed frontmatter')
 
     def test_supported_nested_and_inline_frontmatter(self):
         self.fixture(DOCUMENT.replace('generated:\n  by: process:test\n  at: 2026-09-23T12:00:00Z',
                      'generated: {"by": "process:test", "at": "2026-09-23T12:00:00Z"}')
-                     .replace('title: Wiedza testowa', "title: 'Author''s note'")
+                     .replace('title: Test knowledge', "title: 'Author''s note'")
                      .replace('status: draft', 'status: draft\ntags: ["one", "two"]\nextra:\n  labels:\n    - first\n    - second'))
         self.validate()
 
@@ -386,13 +412,15 @@ class ValidateHubTests(unittest.TestCase):
                        lambda c: c['quality'].update(threshold=False),
                        lambda c: c['quality'].update(max_fix_iterations=0),
                        lambda c: c['quality'].update(validator='skip.py'),
+                       lambda c: c['quality'].pop('evidence_script'),
+                       lambda c: c['quality'].update(evidence_script='skip.py'),
                        lambda c: c.update(bundle_root='empty'),
                        lambda c: c.update(concept_types=[]),
-                       lambda c: c.update(concept_types=['Koncept', 'Koncept'])):
+                       lambda c: c.update(concept_types=['Concept', 'Concept'])):
             path.write_text(original)
             self.config(change)
             self.validate(False)
-        for text in ('{', '[]', '{"concept_types": [], "concept_types": ["Koncept"]}'):
+        for text in ('{', '[]', '{"concept_types": [], "concept_types": ["Concept"]}'):
             path.write_text(text)
             self.validate(False)
 

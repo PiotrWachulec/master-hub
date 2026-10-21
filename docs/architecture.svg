@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" role="img" aria-labelledby="title desc">
-  <title id="title">Jedna baza wiedzy. Wiele zastosowań.</title>
-  <desc id="desc">Nowy materiał trafia do bronze. Agent analizuje go i włącza do rozwijanej wiki w silver. Ta sama wiedza zasila niezależne katalogi gold: wkład do ebooka, materiał do fiszek, materiały dla automatu publikującego posty oraz nową koncepcję ebooka. Gold zachowuje referencje do źródeł. Po brakujące szczegóły i dokładne cytaty można wracać do bronze.</desc>
+  <title id="title">One knowledge base. Many uses.</title>
+  <desc id="desc">New material lands in bronze. The agent analyzes it and folds it into the growing silver wiki. The same knowledge feeds independent gold directories: a contribution to an ebook, flashcard material, material for a posting automation, and a new ebook concept. Gold keeps references to sources. For missing details and exact quotes you can go back to bronze.</desc>
   <defs>
     <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8Z" fill="#68798e"/></marker>
     <style>
@@ -17,66 +17,66 @@
     </style>
   </defs>
   <rect width="1400" height="900" fill="#f7f9fc"/>
-  <text x="50" y="65" class="title">Jedna baza wiedzy. Wiele zastosowań.</text>
-  <text x="50" y="102" class="sub">Bronze zachowuje źródła. Silver rozwija wiedzę. Gold nadaje jej formę do konkretnego celu.</text>
+  <text x="50" y="65" class="title">One knowledge base. Many uses.</text>
+  <text x="50" y="102" class="sub">Bronze preserves sources. Silver grows the knowledge. Gold shapes it for a specific purpose.</text>
 
   <rect x="50" y="140" width="755" height="62" rx="14" fill="#e8eef8"/>
-  <text x="73" y="179" class="step">1. „Wrzuć nowy materiał do mojej bazy wiedzy”</text>
+  <text x="73" y="179" class="step">1. "Add new material to my knowledge base"</text>
   <rect x="940" y="140" width="410" height="62" rx="14" fill="#fff0c8"/>
-  <text x="963" y="179" class="step">2. „Przygotuj mi z tego…”</text>
+  <text x="963" y="179" class="step">2. "Prepare this for me…"</text>
 
   <text x="50" y="250" class="layer">BRONZE</text>
   <rect x="50" y="270" width="300" height="344" rx="18" fill="#fff2e8" stroke="#d5ac8c" stroke-width="1.5"/>
-  <text x="76" y="315" class="heading">Materiały źródłowe</text>
-  <text x="76" y="359" class="body">Notatki i artykuły</text>
-  <text x="76" y="390" class="body">Treść kursów i książek</text>
-  <text x="76" y="421" class="body">Transkrypcje wideo</text>
-  <text x="76" y="452" class="body">i podcastów</text>
+  <text x="76" y="315" class="heading">Source material</text>
+  <text x="76" y="359" class="body">Notes and articles</text>
+  <text x="76" y="390" class="body">Course and book content</text>
+  <text x="76" y="421" class="body">Video transcripts</text>
+  <text x="76" y="452" class="body">and podcasts</text>
   <path d="M76 480 H324" stroke="#dfc7b5"/>
-  <text x="76" y="514" class="small">Oryginał lub referencja</text>
-  <text x="76" y="539" class="small">+ wersja tekstowa</text>
-  <text x="76" y="576" class="small">Zachowane pochodzenie i wersja.</text>
+  <text x="76" y="514" class="small">Original or reference</text>
+  <text x="76" y="539" class="small">+ text version</text>
+  <text x="76" y="576" class="small">Provenance and version preserved.</text>
 
-  <text x="435" y="250" class="layer">SILVER · WIKI UTRZYMYWANA PRZEZ LLM</text>
+  <text x="435" y="250" class="layer">SILVER · WIKI MAINTAINED BY THE LLM</text>
   <rect x="435" y="270" width="370" height="344" rx="18" fill="#eaf1fc" stroke="#9db9df" stroke-width="1.5"/>
-  <text x="461" y="315" class="heading">Rozwijana baza wiedzy</text>
-  <text x="461" y="359" class="body">Pojęcia, zasady i metody</text>
-  <text x="461" y="390" class="body">Syntezy i powiązania źródeł</text>
-  <text x="461" y="421" class="body">Przykłady i warunki stosowania</text>
-  <text x="461" y="452" class="body">Wyjątki i sprzeczności</text>
+  <text x="461" y="315" class="heading">Growing knowledge base</text>
+  <text x="461" y="359" class="body">Concepts, principles, and methods</text>
+  <text x="461" y="390" class="body">Syntheses and source links</text>
+  <text x="461" y="421" class="body">Examples and applicability conditions</text>
+  <text x="461" y="452" class="body">Exceptions and contradictions</text>
   <path d="M461 480 H779" stroke="#b9cce5"/>
-  <text x="461" y="514" class="small">Nowy materiał uzupełnia to,</text>
-  <text x="461" y="539" class="small">co już wiemy o danym temacie.</text>
-  <text x="461" y="576" class="small">Wiedza do wielokrotnego użycia.</text>
+  <text x="461" y="514" class="small">New material extends what</text>
+  <text x="461" y="539" class="small">we already know about the topic.</text>
+  <text x="461" y="576" class="small">Knowledge for repeated use.</text>
   <path d="M350 405 H435" class="edge"/>
-  <text x="355" y="381" class="small">analiza</text>
+  <text x="355" y="381" class="small">analysis</text>
 
-  <text x="940" y="250" class="layer">GOLD · OSOBNY KATALOG DLA CELU</text>
+  <text x="940" y="250" class="layer">GOLD · A DIRECTORY PER PURPOSE</text>
   <rect x="940" y="270" width="410" height="84" rx="14" fill="#fff8e4" stroke="#dac278"/>
-  <text x="965" y="304" class="step">Wkład do ebooka o XYZ</text>
-  <text x="965" y="332" class="path">20-gold/ebook-o-xyz/</text>
+  <text x="965" y="304" class="step">Ebook contribution: XYZ</text>
+  <text x="965" y="332" class="path">20-gold/ebook-on-xyz/</text>
   <rect x="940" y="374" width="410" height="84" rx="14" fill="#fff8e4" stroke="#dac278"/>
-  <text x="965" y="408" class="step">Materiał do wygenerowania fiszek</text>
-  <text x="965" y="436" class="path">20-gold/fiszki-xyz/</text>
+  <text x="965" y="408" class="step">Material for flashcards</text>
+  <text x="965" y="436" class="path">20-gold/flashcards-xyz/</text>
   <rect x="940" y="478" width="410" height="84" rx="14" fill="#fff8e4" stroke="#dac278"/>
-  <text x="965" y="512" class="step">Materiały dla automatu do postów</text>
+  <text x="965" y="512" class="step">Material for a posting automation</text>
   <text x="965" y="540" class="path">20-gold/instagram-posts-materials/</text>
   <rect x="940" y="582" width="410" height="84" rx="14" fill="#ffffff" stroke="#c0a04a" stroke-width="2" stroke-dasharray="7 5"/>
-  <text x="965" y="616" class="step">Nowa koncepcja ebooka</text>
-  <text x="965" y="644" class="path">20-gold/ebook-inna-koncepcja/</text>
+  <text x="965" y="616" class="step">New ebook concept</text>
+  <text x="965" y="644" class="path">20-gold/ebook-alt-concept/</text>
 
   <path d="M805 405 H870 V312 H940" class="edge"/>
   <path d="M870 405 V416 H940" class="edge"/>
   <path d="M870 416 V520 H940" class="edge"/>
   <path d="M870 520 V624 H940" class="edge"/>
-  <text x="940" y="698" class="small">Każde opracowanie zachowuje referencje do źródeł.</text>
+  <text x="940" y="698" class="small">Every piece of work keeps references to sources.</text>
 
   <rect x="50" y="646" width="755" height="54" rx="12" fill="#e8eef8"/>
-  <text x="73" y="680" class="body">Twoje korekty i nowe źródła rozwijają silver w czasie.</text>
+  <text x="73" y="680" class="body">Your corrections and new sources grow silver over time.</text>
   <path d="M620 646 V614" class="edge"/>
 
   <rect x="50" y="740" width="1300" height="110" rx="18" fill="#18364f"/>
-  <text x="76" y="783" style="font-size:25px;font-weight:650;fill:#ffffff">Zmiana koncepcji → nowe gold z istniejącego silver.</text>
-  <text x="76" y="819" style="font-size:19px;fill:#d8e7f3">Po brakujący szczegół lub dokładny cytat wracamy do konkretnego źródła w bronze.</text>
-  <text x="50" y="879" class="small">Schemat pracy z agentem • Markdown / OKF • katalogi warstw znajdują się wewnątrz knowledge/</text>
+  <text x="76" y="783" style="font-size:25px;font-weight:650;fill:#ffffff">A concept change → new gold from existing silver.</text>
+  <text x="76" y="819" style="font-size:19px;fill:#d8e7f3">For a missing detail or an exact quote, we go back to the specific source in bronze.</text>
+  <text x="50" y="879" class="small">Agent working pattern • Markdown / OKF • layer directories live inside knowledge/</text>
 </svg>

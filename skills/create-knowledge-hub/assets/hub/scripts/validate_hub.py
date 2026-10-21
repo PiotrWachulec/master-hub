@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only validator of local hub profile 0.2.1, NOT a general OKF validator.
+"""Read-only validator of local hub profile 0.2.2, NOT a general OKF validator.
 
 Python 3.10+, standard library only. The supported frontmatter/Markdown
 subset and deliberate exclusions are documented in the hub's SCHEMA.md.
@@ -19,6 +19,8 @@ NAVIGATION_INDEXES = (
     'index.md', '00-bronze/index.md', '10-silver/index.md',
     '20-gold/index.md', '90-decisions/index.md',
 )
+
+NO_MATERIAL_RE = re.compile(r'^-\s*No material:\s*(\S+)', re.IGNORECASE)
 
 
 class SyntaxViolation(ValueError):
@@ -150,6 +152,7 @@ class Validator:
         self.root = root.resolve()
         self.errors = []
         self.warnings = []
+        self.referenced_resources = set()
 
     def report(self, path, line, message, warning=False):
         item = {"file": str(path.relative_to(self.root)), "line": max(1, line),
@@ -411,8 +414,39 @@ class Validator:
                     self.report(doc, position('sources'), f"Duplicate sources[].id: {key}")
                 else:
                     ids.add(key)
-                self.local_file(doc, source.get('resource'), position('resource'), source=True)
+                resource = source.get('resource')
+                self.local_file(doc, resource, position('resource'), source=True)
+                if isinstance(resource, str) and resource.strip():
+                    try:
+                        candidate = (doc.parent / resource).resolve()
+                        if candidate.is_relative_to(self.root):
+                            self.referenced_resources.add(candidate)
+                    except (ValueError, OSError, RuntimeError):
+                        pass
         self.markdown(doc, body, offset, ids)
+
+    def check_unreferenced_bronze(self, bundle: Path):
+        bronze_dir = bundle / '00-bronze'
+        if not bronze_dir.is_dir():
+            return
+        disposed = set()
+        log_path = bundle / 'log.md'
+        if log_path.is_file():
+            try:
+                text = log_path.read_text(encoding='utf-8')
+            except (OSError, UnicodeError):
+                text = ''
+            for line in text.splitlines():
+                m = NO_MATERIAL_RE.match(line.strip())
+                if m:
+                    disposed.add(m.group(1).strip('`,;.'))
+        for path in sorted(p for ext in ('*.md', '*.txt') for p in bronze_dir.rglob(ext)):
+            relative = path.relative_to(bundle).as_posix()
+            if relative in NAVIGATION_INDEXES or relative in disposed:
+                continue
+            if path.resolve() not in self.referenced_resources:
+                self.report(path, 1, "Bronze file not referenced by any sources[].resource "
+                                      "and not logged as 'No material' in log.md", warning=True)
 
     def run(self):
         config_path = self.root / 'hub.json'
@@ -435,18 +469,20 @@ class Validator:
                 raise ValueError('Duplicate concept_types')
             if config.get('bundle_root') != 'knowledge' or config.get('okf_version') != '0.2':
                 raise ValueError('This profile requires bundle_root=knowledge and okf_version=0.2')
-            if config.get('profile_version') != '0.2.1':
-                raise ValueError('This validator implements profile 0.2.1')
+            if config.get('profile_version') != '0.2.2':
+                raise ValueError('This validator implements profile 0.2.2')
             policy = config.get('policy')
             if (not isinstance(policy, dict)
                     or policy.get('remote_copy') != 'required_after_validated_task'):
-                raise ValueError('Profile 0.2.1 requires policy.remote_copy=required_after_validated_task')
+                raise ValueError('Profile 0.2.2 requires policy.remote_copy=required_after_validated_task')
             quality = config.get('quality', {})
             if (not isinstance(quality, dict) or quality.get('validator') != 'scripts/validate_hub.py'
                     or quality.get('metric') != 'violations' or type(quality.get('threshold')) is not int
                     or quality.get('threshold') != 0 or type(quality.get('max_fix_iterations')) is not int
-                    or quality.get('max_fix_iterations', 0) <= 0):
-                raise ValueError('Invalid quality contract (validator, metric, zero threshold, positive iteration budget)')
+                    or quality.get('max_fix_iterations', 0) <= 0
+                    or quality.get('evidence_script') != 'scripts/check_evidence.py'):
+                raise ValueError('Invalid quality contract (validator, metric, zero threshold, '
+                                 'positive iteration budget, evidence_script)')
         except (OSError, UnicodeError, ValueError, RecursionError) as exc:
             self.report(config_path, 1, str(exc))
         bundle = self.root / 'knowledge'
@@ -472,6 +508,7 @@ class Validator:
             except OSError as exc:
                 self.report(folder, 1, f"Cannot scan directory: {exc}")
         walk(bundle)
+        self.check_unreferenced_bronze(bundle)
 
 
 def main():

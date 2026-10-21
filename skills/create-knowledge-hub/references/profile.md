@@ -1,45 +1,61 @@
-# Profil nowego huba
+# New hub profile
 
-`hub.json` konfiguruje lokalny wzorzec (wersja 0.2.1). Nie jest elementem
-standardu OKF. Deklaracje polityki są instrukcjami dla agenta; generator
-nie instaluje procesu, który je technicznie egzekwuje.
+`hub.json` configures the local pattern (version 0.2.2). It's not part of
+the OKF standard. Policy declarations are instructions for the agent; the
+generator doesn't install a process that technically enforces them.
 
-| Pole | Znaczenie |
+| Field | Meaning |
 |---|---|
-| `id` | identyfikator huba, małe litery ASCII, cyfry i myślniki |
-| `title` | nazwa czytelna dla człowieka |
-| `kind` | `personal` lub `company`; opis przeznaczenia, nie uprawnienie |
-| `owner` | właściciel/odpowiedzialny podany przez użytkownika |
-| `domain` | temat początkowy; może później obejmować kilka dziedzin |
-| `bundle_root` | `knowledge`, granica dokumentów OKF |
-| `concept_types` | początkowy słownik; dostosuj go po pierwszym materiale |
-| `policy` | etap automatyzacji redakcji, publikacji i działań zewnętrznych |
-| `policy.remote_copy` | w 0.2.1 wymagane `required_after_validated_task`: commit i push po sprawdzonym zadaniu; cel wymaga uzgodnienia |
-| `quality` | lokalny walidator, metryka violations, próg 0 i limit 5 cykli naprawy |
+| `id` | hub identifier, lowercase ASCII letters, digits, and hyphens |
+| `title` | human-readable name |
+| `kind` | `personal` or `company`; a description of purpose, not a permission |
+| `owner` | owner/responsible party given by the user |
+| `domain` | starting topic; may later span several fields |
+| `bundle_root` | `knowledge`, the boundary of OKF documents |
+| `concept_types` | starter vocabulary; adapt it after the first material |
+| `policy` | the automation stage for editing, publication, and external actions |
+| `policy.remote_copy` | required in 0.2.1 as `required_after_validated_task`: commit and push after a checked task; the destination needs agreement |
+| `quality` | the local validator, the violations metric, a zero threshold, and a 5-cycle fix limit |
+| `quality.evidence_script` | required in 0.2.2 as `scripts/check_evidence.py`: a non-blocking grounding report, outside the violations threshold |
 
-Domyślne typy: Źródło, Koncept, Metoda, Zasada, Przykład, Synteza, Narzędzie,
-Decyzja. Nie są zamkniętą taksonomią wiedzy. Nowe typy dodawaj, kiedy odróżniają
-rzeczy potrzebne odbiorcy, np. eksperyment, metrykę lub segment klientów.
+Default types: Source, Concept, Method, Principle, Example, Synthesis,
+Tool, Decision. They aren't a closed knowledge taxonomy. Add new types
+when they distinguish things the audience actually needs, e.g. an
+experiment, a metric, or a customer segment.
 
-Katalog skilla można skopiować w całości. Szablony są zasobami generatora.
-Zmiana szablonu dotyczy nowych hubów; istniejący hub zachowuje własny kontrakt.
+The skill directory can be copied in full. The templates are generator
+resources. A template change applies to new hubs; an existing hub keeps
+its own contract.
 
-Profil 0.2.1 dodaje jawny obowiązek kopii Git w policy.remote_copy oraz jego
-kontrolę w walidatorze. Nie jest to uprawnienie do dowolnego remote ani
-automatyczna aktualizacja starszych hubów. Procedura przyjęcia 0.2.0 → 0.2.1
-jest w docs/hub-git-backup.md w repozytorium generatora.
+Profile 0.2.1 adds the explicit Git-copy obligation in `policy.remote_copy`
+and its check in the validator. This isn't authorization for any remote,
+nor an automatic update of older hubs. The adoption procedure for
+0.2.0 → 0.2.1 is in docs/hub-git-backup.md in the generator repository.
 
-Profil 0.2.0 dodał niezależny skrypt scripts/validate_hub.py do huba.
-Format OKF pozostaje 0.2. Migracja z 0.1.1 jest ręczna i wymaga przeglądu
-istniejących metadanych oraz ścieżek; procedura w docs/migration-0.2.0.md
-w repozytorium generatora. Sam hub nie potrzebuje tego repozytorium do walidacji.
+Profile 0.2.2 adds the reporting (non-blocking) grounding script
+`scripts/check_evidence.py`, the "No material" disposition convention in
+the log, a validator warning about orphaned bronze sources, the formal
+Query/Archive action, and the `Status: Disputed/Outdated` block for a
+single claim. The script, and the decision about the check's granularity
+(the whole document, not a single footnote), are an adaptation of
+`scripts/check_evidence.py` from Astro-Han/karpathy-llm-wiki (MIT) — an
+independent implementation of the same Karpathy idea. The adoption
+procedure for 0.2.1 → 0.2.2 is in docs/migration-0.2.2.md in the generator
+repository.
 
-## Migracja istniejącego huba z 0.1.0 do 0.1.1
+Profile 0.2.0 added the standalone script `scripts/validate_hub.py` to the
+hub. The OKF format stays at 0.2. Migration from 0.1.1 is manual and
+requires reviewing existing metadata and paths; the procedure is in
+docs/migration-0.2.0.md in the generator repository. The hub itself
+doesn't need that repository to validate.
 
-To aktualizacja instrukcji: dodawanie wiedzy i zamawianie gold stają się
-niezależnymi działaniami. Nie zmienia formatu OKF 0.2 ani ścieżek dokumentów.
-Po zgodzie użytkownika zaktualizuj AGENTS.md, SCHEMA.md, przykłady w README.md
-i opisy w indeksach wiedzy, silver oraz gold, zachowując własne reguły i odsyłacze
-huba. Następnie ustaw `profile_version` w hub.json na `0.1.1`.
-Nie uruchamiaj ponownie generatora na istniejącym hubie; nie nadpisuj treści
-ani ustawień Obsidiana. Sprawdź diff i zachowaj poprzedni stan w historii Git.
+## Migrating an existing hub from 0.1.0 to 0.1.1
+
+This is an instruction update: adding knowledge and requesting gold become
+independent actions. It doesn't change the OKF 0.2 format or document
+paths. With the user's consent, update AGENTS.md, SCHEMA.md, the examples
+in README.md, and the descriptions in the knowledge, silver, and gold
+indexes, while keeping the hub's own rules and links. Then set
+`profile_version` in hub.json to `0.1.1`. Don't re-run the generator on an
+existing hub; don't overwrite content or Obsidian settings. Check the diff
+and keep the previous state in Git history.

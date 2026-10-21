@@ -1,6 +1,6 @@
 # Bronze
 
-Tekstowe źródła przyjęte do huba. Zachowujemy każdą przyjętą wersję oraz
-pochodzenie. Nowa transkrypcja jest nową wersją wejścia.
+Text sources accepted into the hub. We keep every accepted version and its
+provenance. A new transcription is a new version of the input.
 
-Brak materiałów.
+No material yet.

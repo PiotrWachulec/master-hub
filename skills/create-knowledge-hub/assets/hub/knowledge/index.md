@@ -2,12 +2,13 @@
 okf_version: "0.2"
 ---
 
-# Wiedza
+# Knowledge
 
-- [Bronze](00-bronze/index.md) — przyjęte wersje tekstowych źródeł.
-- [Silver](10-silver/index.md) — pojęcia, syntezy i powiązania.
-- [Gold](20-gold/index.md) — produkty przygotowane do użycia.
-- [Decyzje](90-decisions/index.md) — korekty, ustalenia i zakres przeglądów.
+- [Bronze](00-bronze/index.md) — accepted versions of text sources.
+- [Silver](10-silver/index.md) — concepts, syntheses, and connections.
+- [Gold](20-gold/index.md) — outputs prepared for use.
+- [Decisions](90-decisions/index.md) — corrections, decisions, and review scope.
 
-Dodanie źródła rozwija bronze i wiki silver, bez konieczności wskazywania celu.
-Gdy potrzebujesz konkretnego rezultatu, zamów materiał gold z istniejącej wiedzy.
+Adding a source extends bronze and the silver wiki, with no need to state
+a goal. When you need a specific result, request gold material from the
+existing knowledge.

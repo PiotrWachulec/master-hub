@@ -1,25 +1,33 @@
-# Plan użycia narzędzia
+# Tool usage plan
 
-1. Wskaż nowy katalog i utwórz hub generatorem. Dla istniejącego huba
-   nie uruchamiaj generatora ponownie — pracuj według jego kontraktu.
-   Uzgodnij repozytorium zdalne i dostęp; pierwszy commit i push szkieletu
-   potwierdza uruchomienie kopii Git. Bez tego hub istnieje tylko lokalnie.
-2. Otwórz hub jako projekt dla agenta. Dodaj jeden materiał, rozwijając
-   bronze i silver bez obowiązkowego gold.
-3. Agent sprawdza strukturę lokalnym walidatorem (profil 0.2.1), poprawia
-   naruszenia w ramach limitu i przedstawia wynik. Przejrzyj treść i przekaż
-   korekty przez rozmowę — zielona struktura nie zastępuje tego przeglądu.
-   Agent wykonuje commit i push oraz potwierdza obecność commita w remote;
-   brak kopii zgłasza jako niedokończony etap zadania.
-4. Gdy pojawi się potrzeba, zamów konkretny rezultat gold.
-5. Dopiero doświadczenie pokaże, jaki kolejny mechanizm jest potrzebny.
+1. Point to a new directory and create a hub with the generator. For an
+   existing hub, don't re-run the generator — work per its own contract.
+   Agree on a remote repository and access; the first commit and push of
+   the scaffold confirms the Git copy is running. Without that, the hub
+   exists only locally.
+2. Open the hub as a project for the agent. Add one piece of material,
+   extending bronze and silver without requiring gold.
+3. The agent checks the structure with the local validator (profile
+   0.2.2), fixes violations within the limit, and presents the result;
+   separately, the non-blocking `scripts/check_evidence.py` shows
+   suspected gaps in source coverage. Review the content and hand over
+   corrections through conversation — a green structure doesn't replace
+   that review. The agent commits and pushes and confirms the commit is
+   present on the remote; it reports a missing copy as an unfinished stage
+   of the task.
+4. Ask the base what it already knows ("What do I know about X?") — the
+   agent answers with links, without writing; "archive this answer" saves
+   it as a new silver document.
+5. When the need arises, request a specific gold result.
+6. Only experience will show what mechanism is needed next.
 
-[Przykłady poleceń](first-run.md) · [Architektura](architecture.md)
+[Example requests](first-run.md) · [Architecture](architecture.md)
 
-## Rozwój silnika
+## Engine development
 
-Generator i skille nie utrzymują rejestru swoich użytkowników ani hubów.
-Zmiany lokalnego kontraktu mają opis migracji; nie są propagowane automatycznie.
-Walidator lokalnego profilu jest dostarczany w każdym nowym hubie.
-Automatyczny ingest, synchronizacja, pełna walidacja OKF i operacyjne
-integracje pozostają poza zakresem obecnej implementacji.
+The generator and the skills don't keep a registry of their users or
+hubs. Local-contract changes come with a migration description; they
+aren't propagated automatically. The local-profile validator ships in
+every new hub. Automatic ingest, sync, full OKF validation, and
+operational integrations stay out of scope for the current
+implementation.
