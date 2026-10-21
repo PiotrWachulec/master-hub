@@ -171,3 +171,7 @@ MIT) — an independent implementation of the same idea, the source of the
 ingest/query/lint pattern, and the direct inspiration for
 `scripts/check_evidence.py` and the triage/Status conventions introduced in
 profile 0.2.2.
+
+## License
+
+[MIT](LICENSE).

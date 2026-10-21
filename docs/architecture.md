@@ -1,6 +1,11 @@
 # One knowledge base. Many uses.
 
-Two basic actions: **"extend my knowledge"** and **"use it for a specific purpose"**.
+Three basic actions: **"extend my knowledge"**, **"ask it what it already
+knows"**, and **"use it for a specific purpose"**. The diagrams on this
+page focus on the two that flow through bronze/silver/gold — adding
+material and requesting an output; the read-only Query action writes
+nothing by default and is covered in [plan.md](plan.md) and the hub's
+SCHEMA.md.
 
 ![Bronze → silver → various gold outputs](architecture.svg)
 
