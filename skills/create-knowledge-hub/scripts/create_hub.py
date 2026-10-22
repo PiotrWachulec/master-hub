@@ -8,7 +8,7 @@ from pathlib import Path
 import re
 import sys
 
-PROFILE_VERSION = "0.2.2"
+PROFILE_VERSION = "0.3.0"
 ASSETS = Path(__file__).resolve().parent.parent / "assets" / "hub"
 
 
@@ -57,6 +57,7 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
             "publication": "explicit_acceptance",
             "external_actions": "disabled",
             "remote_copy": "required_after_validated_task",
+            "content_review": "direct",
         },
     }
     files[Path("hub.json")] = json.dumps(config, ensure_ascii=False, indent=2) + "\n"
@@ -130,6 +131,11 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
         "explicit instruction for local-only work takes precedence. "
         "Details and the limits of its authority are described in "
         "[AGENTS.md](AGENTS.md).\n\n"
+        "By default, content pushes straight to the agreed main branch as "
+        "a draft (`policy.content_review: \"direct\"`). For a shared hub, "
+        "switch it to `\"required_pr\"` in `hub.json` so content goes "
+        "through a branch and PR too, same as contract changes — see "
+        "`policy.content_review` in [SCHEMA.md](SCHEMA.md).\n\n"
         "The generator doesn't initialize Git or a remote: on first run, "
         "agree with the agent on a destination and access so the first "
         "commit and push can happen. Until then, the scaffold is local "

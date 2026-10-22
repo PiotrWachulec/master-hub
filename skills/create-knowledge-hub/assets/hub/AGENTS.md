@@ -51,13 +51,22 @@ decision tied to specific content.
 
 ## Ongoing remote copy — commit and push
 
-Profile 0.2.2 declares in hub.json
+Profile 0.3.0 declares in hub.json
 `policy.remote_copy: "required_after_validated_task"`. This is an explicit
 Git-copy obligation, separate from approving drafts (`publication`) and
 from disabled operational actions (`external_actions`). A missing field,
 an unknown value, or a conflict with instructions means an inconsistent
 contract: report it, don't change the configuration yourself, and don't
 resolve it by read order.
+
+`policy.content_review` separately decides *how* content gets saved, once
+`remote_copy` says it should be: `"direct"` (the default — today's
+behavior, content pushes straight to the agreed main branch) or
+`"required_pr"` (content goes through a branch + PR + review, same
+procedure as contract changes below, with no self-merge). It's
+independent of `kind` — don't infer it from whether the hub is
+`personal` or `company`. A missing or unrecognized value is a contract
+inconsistency, same as for `remote_copy`.
 
 A requested edit in a hub with this rule adopted includes committing and
 pushing the task's changes to the agreed remote repository. Don't wait for
@@ -83,9 +92,10 @@ request doesn't trigger a commit/push.
 - After a completed task and a green validation, commit and push. For
   longer work, do this after consistent, checked stages too (e.g. after
   finishing one piece of material), not only at the end of the whole
-  session. Ordinary content can land on the agreed main branch as a draft.
-  Route contract changes to a separate branch and PR; a push doesn't mean
-  merge.
+  session. Under `policy.content_review: "direct"`, ordinary content can
+  land on the agreed main branch as a draft. Under `"required_pr"`, route
+  content to a branch and PR too. Contract changes always go to a branch
+  and PR; a push doesn't mean merge.
 - Review the diff and stage only the files or hunks belonging to your own
   task, including new sources, indexes, and the log. Don't include someone
   else's changes or commits, secrets, `.venv`, or ignored files. Don't use
@@ -97,6 +107,16 @@ request doesn't trigger a commit/push.
   unknown commits require agreement. Never force push, auto-stash/reset,
   or bypass branch protection. If a PR is required, push your own branch
   and open a PR, without merging it yourself.
+- Resuming work on a branch that already has an **open** PR (a contract
+  branch, or a content branch under `"required_pr"`) is different from the
+  pre-first-push case above: the branch is already on the remote, so
+  updating it from a moved base means merging the base into the branch as
+  a normal merge commit, then pushing — never rebasing it, since that
+  would need a force-push and the branch may not be exclusively yours. Do
+  this before resuming work and before handing the branch off for review.
+  Resolve conflicts by stopping and describing them, not by overwriting
+  either side. Re-run validation (and the evidence report, for content) on
+  the merged result before pushing again.
 - Confirm the push succeeded and that the commit is present on the target
   remote branch (e.g. fetch and check that the commit is an ancestor). A
   local commit or a plain "working tree clean" message doesn't prove a

@@ -109,13 +109,34 @@ class ValidateHubTests(unittest.TestCase):
         config_path.write_text(original, encoding='utf-8')
         self.validate()
 
+    def test_content_review_policy_is_required_and_strict(self):
+        config_path = self.hub / 'hub.json'
+        original = config_path.read_text(encoding='utf-8')
+        changes = [lambda c: c['policy'].pop('content_review')]
+        for value in (None, '', 'disabled', 'optional', True, [], {},
+                      ['direct'], 'Direct', 'required-pr'):
+            changes.append(lambda c, value=value: c['policy'].update(content_review=value))
+        for number, change in enumerate(changes):
+            with self.subTest(case=number):
+                config_path.write_text(original, encoding='utf-8')
+                self.config(change)
+                report = self.validate(False, 'policy.content_review')
+                self.assertEqual(report['violations'], 1)
+                self.assertEqual(report['errors'][0]['file'], 'hub.json')
+        for value in ('direct', 'required_pr'):
+            config_path.write_text(original, encoding='utf-8')
+            self.config(lambda c, value=value: c['policy'].update(content_review=value))
+            self.validate()
+        config_path.write_text(original, encoding='utf-8')
+        self.validate()
+
     def test_profile_version_requires_explicit_upgrade(self):
-        for version in ('0.2.1', '0.2.0', '0.1.1', '0.3.0', None, 0.22):
+        for version in ('0.2.2', '0.2.1', '0.2.0', '0.1.1', '0.4.0', None, 0.3):
             with self.subTest(version=version):
                 self.config(lambda c: c.update(profile_version=version))
-                self.validate(False, 'implements profile 0.2.2')
+                self.validate(False, 'implements profile 0.3.0')
         self.config(lambda c: c.pop('profile_version'))
-        self.validate(False, 'implements profile 0.2.2')
+        self.validate(False, 'implements profile 0.3.0')
 
     def test_invalid_remote_copy_policy_does_not_skip_documents(self):
         self.config(lambda c: c['policy'].pop('remote_copy'))
