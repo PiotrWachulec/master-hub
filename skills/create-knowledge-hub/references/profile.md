@@ -39,6 +39,13 @@ own migration doc; **major** (`X.0.0`) is reserved for a breaking change
 to the OKF bundle shape or an existing hub's directory structure. Profile
 history below is in reverse order, newest first.
 
+Every release gets an entry in `CHANGELOG.md` at the repository root
+(`../../../CHANGELOG.md` from here) and an annotated Git tag (`vX.Y.Z`).
+Write the changelog entry as part of the PR that bumps `profile_version`
+(under "Unreleased" until merged, then retitled with the release date).
+The tag can only be created afterward, on the actual merge commit once it
+exists — push it right after merging, not as a later afterthought.
+
 Profile 0.3.0 adds `policy.content_review` (`"direct"` or
 `"required_pr"`), letting content follow the same branch + PR + review
 procedure as contract changes — for hubs with more than one contributor.

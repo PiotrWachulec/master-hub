@@ -100,7 +100,8 @@ configuration.
 Format: OKF 0.2. Local working profile: 0.3.0, recorded in `hub.json`.
 Template changes affect new hubs; existing ones need an explicit
 migration. There's no automatic migrator, nor an obligation to adopt every
-new OKF version immediately.
+new OKF version immediately. Each profile release is tagged (`vX.Y.Z`);
+see [CHANGELOG.md](CHANGELOG.md) for what changed in each one.
 
 For the future we keep the [0.1.1 → 0.2.0 migration procedure](docs/migration-0.2.0.md).
 Adopting the Git copy is described in the [0.2.0 → 0.2.1 update](docs/hub-git-backup.md).
