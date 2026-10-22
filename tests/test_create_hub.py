@@ -22,6 +22,7 @@ class CreateHubTests(unittest.TestCase):
             [sys.executable, "-B", str(script or SKILL / "scripts/create_hub.py"),
              "--dest", str(destination), "--id", "test-hub", "--title", "Test knowledge",
              "--kind", "company", "--owner", 'Acme "Turtle" Inc.', "--domain", "Marketing",
+             "--hub-category", "competency",
              *extra], cwd=self.root, text=True, capture_output=True,
         )
 
@@ -36,8 +37,11 @@ class CreateHubTests(unittest.TestCase):
         self.assertEqual(config["policy"]["external_actions"], "disabled")
         self.assertEqual(config["policy"]["publication"], "explicit_acceptance")
         self.assertEqual(config["policy"]["remote_copy"], "required_after_validated_task")
-        self.assertEqual(config["profile_version"], "0.3.0")
+        self.assertEqual(config["profile_version"], "0.4.0")
         self.assertEqual(config["policy"]["content_review"], "direct")
+        self.assertEqual(config["hub_category"], "competency")
+        self.assertRegex(config["hub_key"],
+                         r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
         self.assertEqual(config["quality"]["evidence_script"], "scripts/check_evidence.py")
         self.assertTrue((destination / "scripts/check_evidence.py").is_file())
         self.assertEqual(config["kind"], "company")
@@ -105,6 +109,21 @@ class CreateHubTests(unittest.TestCase):
             with self.subTest(extra=extra):
                 self.assertNotEqual(self.run_generator(destination, *extra).returncode, 0)
                 self.assertFalse(destination.exists())
+
+    def test_each_generated_hub_gets_a_distinct_hub_key(self):
+        first = self.root / "hub-one"
+        second = self.root / "hub-two"
+        self.assertEqual(self.run_generator(first).returncode, 0)
+        self.assertEqual(self.run_generator(second).returncode, 0)
+        key_one = json.loads((first / "hub.json").read_text())["hub_key"]
+        key_two = json.loads((second / "hub.json").read_text())["hub_key"]
+        self.assertNotEqual(key_one, key_two)
+
+    def test_invalid_hub_category_is_refused(self):
+        destination = self.root / "hub"
+        result = self.run_generator(destination, "--hub-category", "client")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse(destination.exists())
 
     def test_incomplete_skill_without_validator_is_refused(self):
         copied = self.root / "incomplete-skill"

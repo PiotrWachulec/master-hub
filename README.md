@@ -32,13 +32,15 @@ from the master-hub directory (Python 3.10+, standard library):
 .venv/bin/python skills/create-knowledge-hub/scripts/create_hub.py \
   --dest /chosen/path/new-hub \
   --id new-hub --title "New hub" --kind personal \
-  --owner "Owner" --domain "Topic"
+  --owner "Owner" --domain "Topic" --hub-category competency
 ```
 
 The destination directory must be new. `--dry-run` shows the plan without
 writing. The generator doesn't initialize Git or a remote repository.
 Choosing `personal` or `company` describes the purpose, it doesn't
-configure permissions.
+configure permissions. `--hub-category` (`competency` or `initiative`,
+required since profile 0.4.0) is a separate axis: topic-based knowledge
+that cuts across clients, versus work specific to one client or project.
 
 ## Work in the hub
 
@@ -72,7 +74,7 @@ to separately say "push it." The destination and repository access are
 agreed during the first setup; the generator itself doesn't create Git or
 a remote. The agent confirms the commit on the remote repository or
 reports a missing current copy. The obligation is explicit in `hub.json`
-under profile 0.3.0: `policy.remote_copy: "required_after_validated_task"`.
+under profile 0.4.0: `policy.remote_copy: "required_after_validated_task"`.
 
 This is a working instruction for the agent, not a background backup. It
 covers pushed Git files, not external recordings or ignored files.
@@ -97,18 +99,24 @@ configuration.
 
 ## Versions and capabilities
 
-Format: OKF 0.2. Local working profile: 0.3.0, recorded in `hub.json`.
+Format: OKF 0.2. Local working profile: 0.4.0, recorded in `hub.json`.
 Template changes affect new hubs; existing ones need an explicit
 migration. There's no automatic migrator, nor an obligation to adopt every
 new OKF version immediately. Each profile release is tagged (`vX.Y.Z`);
 see [CHANGELOG.md](CHANGELOG.md) for what changed in each one.
 
+Every hub and every silver/gold document has a stable, name-independent
+identity (`hub_key`, `doc_key`) since 0.4.0 — a foundation for a future
+cross-hub citation mechanism, not a feature on its own yet. Hubs stay
+independent in the meantime: no registry, no imports, no sync.
+
 For the future we keep the [0.1.1 → 0.2.0 migration procedure](docs/migration-0.2.0.md).
 Adopting the Git copy is described in the [0.2.0 → 0.2.1 update](docs/hub-git-backup.md).
 Grounding, source triage, and Query/Archive are described in the
 [0.2.1 → 0.2.2 update](docs/migration-0.2.2.md). Opt-in PR review for
-shared hubs is described in the
-[0.2.2 → 0.3.0 update](docs/migration-0.3.0.md). We currently assume no
+shared hubs is described in the [0.2.2 → 0.3.0 update](docs/migration-0.3.0.md).
+Stable cross-hub identity is described in the
+[0.3.0 → 0.4.0 update](docs/migration-0.4.0.md). We currently assume no
 existing hubs and perform no migrations. This document neither requires
 nor runs a hub registry.
 

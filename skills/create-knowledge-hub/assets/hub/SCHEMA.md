@@ -1,4 +1,4 @@
-# Knowledge processing contract — profile 0.3.0
+# Knowledge processing contract — profile 0.4.0
 
 This contract describes work inside a single hub. The OKF 0.2 bundle covers
 only `knowledge/`. Configuration and instructions in the parent directory
@@ -37,11 +37,12 @@ Other files named `index.md` or `log.md`, e.g.
 `knowledge/20-gold/ebook/index.md`, are ordinary documents, not exceptions.
 Locally we require `type`, `title`, `description`, an explicit `status`,
 and `generated` information matching real authorship. Silver and gold
-require `sources`. The starter types are in `hub.json`; they can be
-deliberately extended.
+also require `sources` and a `doc_key`. The starter types are in
+`hub.json`; they can be deliberately extended.
 
-Example skeleton for a new concept — the time and authorship values must be
-replaced with real data, and the referenced source must exist:
+Example skeleton for a new concept — the time, authorship, and `doc_key`
+values must be replaced with real data, and the referenced source must
+exist:
 
 ```yaml
 ---
@@ -50,6 +51,7 @@ title: Customer problem interview
 description: Scenario for gathering concrete examples of the problem.
 tags: ["marketing", "research"]
 status: draft
+doc_key: 7c1e2b9a-4f3d-4a11-9c0e-2a6b8d5f10e4
 sources:
   - id: material-a
     resource: ../00-bronze/material-a-v1.md
@@ -60,13 +62,36 @@ sources:
 When actually writing, add a `generated` block with `by` and `at` fields,
 with a correct actor (e.g. `process:name`, `human:identifier`, or
 `vendor/version`) and an ISO 8601 timestamp with timezone. Don't copy a
-fictitious model name from the examples.
+fictitious model name from the examples. Generate `doc_key` the same way —
+with the real tool, not invented: run
+`.venv/bin/python -c "import uuid; print(uuid.uuid4())"` in the hub and
+use that value.
 
 In the text, the footnote `[^material-a]` links a claim to `sources[].id`.
 The footnote definition specifies the page, section, or time. Use standard
 relative Markdown links and stable ASCII file names. When moving a file,
 update links and source pointers. A concept's identity in OKF comes from
 its path relative to the bundle root.
+
+## Stable identity
+
+`doc_key` and `hub.json`'s `hub_key` exist because paths and names can
+change but a stable reference target shouldn't. Within one hub, a moved
+or renamed file is fine — `validate_hub.py` sees every link and every
+file in the same run and catches a broken reference immediately, so
+OKF's path-based identity (above) is a safe foundation for intra-hub
+links. Nothing today plays that same role *across* hubs: if a cross-hub
+reference pointed at a file path instead, a rename on the other end could
+break it silently, forever, with no validator on either side ever seeing
+both halves of the link to catch it. `doc_key` doesn't change how
+intra-hub links or footnotes work — it's additive, generated once when a
+document is created, and never touched again regardless of later renames
+or moves.
+
+This profile ships identity only. There is no citation mechanism yet — no
+field lets a document reference another hub's `hub_key`/`doc_key`. That
+comes in a later profile; `hub_key` and `doc_key` are the foundation it
+will build on, not something to wire up by hand in the meantime.
 
 The navigation indexes from the list above contain links and short
 descriptions; they don't replace knowledge documents. The bundle's main
@@ -88,7 +113,7 @@ referenced by any `sources[].resource`.
 `.venv/bin/python -B scripts/validate_hub.py` checks the hub containing the
 script, not the current working directory. Python 3.10+, standard library
 only, no network access, no writes. This is a validator for local profile
-0.3.0, not the full OKF. Scripts always run inside the local virtual
+0.4.0, not the full OKF. Scripts always run inside the local virtual
 environment. If `.venv` doesn't exist, the agent creates it beforehand with
 `python3 -m venv .venv` in the hub directory. On Windows the interpreter is
 at `.venv/Scripts/python.exe`. No system-wide installs; any packages only
@@ -99,7 +124,7 @@ Checks:
 
 - the required scaffold files, the `hub.json` configuration, and every
   `.md` file under knowledge;
-- `profile_version: "0.3.0"` and
+- `profile_version: "0.4.0"` and
   `policy.remote_copy: "required_after_validated_task"`;
 - document frontmatter (outside the closed exception list above): `type`,
   `title`, `description`, `status`, `generated`; `type` must be in
@@ -411,7 +436,7 @@ the other two scopes: `publication` concerns accepting drafts for
 publication, and `external_actions` concerns operational actions, e.g.
 changing a campaign budget. The field doesn't pick a remote and doesn't
 authorize sending to just any destination. It's required under profile
-0.3.0. A missing or different value is a contract inconsistency, not a
+0.4.0. A missing or different value is a contract inconsistency, not a
 local-work mode. An instruction for local-only work is an exception for
 the task, not a configuration change. An older hub without this field
 hasn't automatically adopted this rule; it needs an explicit contract
@@ -425,7 +450,7 @@ agreed main branch as a draft, same as before this field existed.
 `"required_pr"` routes content through the same branch + PR + review
 procedure already used for contract changes, with no self-merge — useful
 once more than one person or agent writes to the same hub, to avoid
-silent overwrites. It's required under profile 0.3.0, with the same rule
+silent overwrites. It's required under profile 0.4.0, with the same rule
 as `remote_copy`: a missing or different value is a contract
 inconsistency, not a default, and an older hub without the field hasn't
 adopted either value automatically.

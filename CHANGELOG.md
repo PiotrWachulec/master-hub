@@ -14,6 +14,29 @@ shape or an existing hub's directory structure.
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-10-22
+
+### Added
+
+- `hub_key` (UUID v4, `hub.json`): a stable, name-independent identity for
+  a hub, generated once by the generator and never edited.
+- `hub_category` (`"competency"` or `"initiative"`, `hub.json`): topic-
+  based knowledge that cuts across clients, versus client/project-specific
+  work — orthogonal to `kind`. New required `--hub-category` CLI arg.
+- `doc_key` (UUID v4): required on every silver/gold document's
+  frontmatter — the per-document counterpart to `hub_key`, stable across
+  local renames/moves, unlike the path-based identity OKF otherwise uses.
+- `docs/migration-0.4.0.md`.
+
+### Changed
+
+- `create_hub.py`'s CLI now requires `--hub-category`, with no default —
+  breaks any existing script/automation calling the generator with the
+  old argument set, not just a `hub.json` migration for existing hubs.
+
+This profile ships identity only — no cross-hub citation mechanism yet.
+`hub_key`/`doc_key` are the foundation a later profile will build on.
+
 ## [0.3.0] — 2026-10-22
 
 ### Added

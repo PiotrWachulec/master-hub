@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only validator of local hub profile 0.3.0, NOT a general OKF validator.
+"""Read-only validator of local hub profile 0.4.0, NOT a general OKF validator.
 
 Python 3.10+, standard library only. The supported frontmatter/Markdown
 subset and deliberate exclusions are documented in the hub's SCHEMA.md.
@@ -21,6 +21,7 @@ NAVIGATION_INDEXES = (
 )
 
 NO_MATERIAL_RE = re.compile(r'^-\s*No material:\s*(\S+)', re.IGNORECASE)
+UUID_RE = re.compile(r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}')
 
 
 class SyntaxViolation(ValueError):
@@ -153,6 +154,7 @@ class Validator:
         self.errors = []
         self.warnings = []
         self.referenced_resources = set()
+        self.doc_keys = set()
 
     def report(self, path, line, message, warning=False):
         item = {"file": str(path.relative_to(self.root)), "line": max(1, line),
@@ -400,6 +402,16 @@ class Validator:
         sources = fm.get('sources', [])
         if layer in ('10-silver', '20-gold') and not navigation_index and not sources:
             self.report(doc, position('sources'), "Silver/gold requires nonempty sources")
+        if layer in ('10-silver', '20-gold') and not navigation_index:
+            doc_key = fm.get('doc_key')
+            if not nonempty(doc_key):
+                self.report(doc, position('doc_key'), "Silver/gold requires a nonempty doc_key")
+            elif not UUID_RE.fullmatch(doc_key):
+                self.report(doc, position('doc_key'), "doc_key must be a UUID")
+            elif doc_key in self.doc_keys:
+                self.report(doc, position('doc_key'), f"Duplicate doc_key: {doc_key}")
+            else:
+                self.doc_keys.add(doc_key)
         if not isinstance(sources, list):
             self.report(doc, position('sources'), "sources must be a list")
         else:
@@ -469,14 +481,19 @@ class Validator:
                 raise ValueError('Duplicate concept_types')
             if config.get('bundle_root') != 'knowledge' or config.get('okf_version') != '0.2':
                 raise ValueError('This profile requires bundle_root=knowledge and okf_version=0.2')
-            if config.get('profile_version') != '0.3.0':
-                raise ValueError('This validator implements profile 0.3.0')
+            if config.get('profile_version') != '0.4.0':
+                raise ValueError('This validator implements profile 0.4.0')
+            hub_key = config.get('hub_key')
+            if not isinstance(hub_key, str) or not UUID_RE.fullmatch(hub_key):
+                raise ValueError('hub_key must be a UUID')
+            if config.get('hub_category') not in ('competency', 'initiative'):
+                raise ValueError('hub_category must be "competency" or "initiative"')
             policy = config.get('policy')
             if (not isinstance(policy, dict)
                     or policy.get('remote_copy') != 'required_after_validated_task'):
-                raise ValueError('Profile 0.3.0 requires policy.remote_copy=required_after_validated_task')
+                raise ValueError('Profile 0.4.0 requires policy.remote_copy=required_after_validated_task')
             if policy.get('content_review') not in ('direct', 'required_pr'):
-                raise ValueError('Profile 0.3.0 requires policy.content_review to be '
+                raise ValueError('Profile 0.4.0 requires policy.content_review to be '
                                  '"direct" or "required_pr"')
             quality = config.get('quality', {})
             if (not isinstance(quality, dict) or quality.get('validator') != 'scripts/validate_hub.py'

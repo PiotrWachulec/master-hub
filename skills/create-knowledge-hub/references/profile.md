@@ -1,6 +1,6 @@
 # New hub profile
 
-`hub.json` configures the local pattern (version 0.3.0). It's not part of
+`hub.json` configures the local pattern (version 0.4.0). It's not part of
 the OKF standard. Policy declarations are instructions for the agent; the
 generator doesn't install a process that technically enforces them.
 
@@ -10,7 +10,9 @@ generator doesn't install a process that technically enforces them.
 | `title` | human-readable name |
 | `kind` | `personal` or `company`; a description of purpose, not a permission |
 | `owner` | owner/responsible party given by the user |
-| `domain` | starting topic; may later span several fields |
+| `domain` | starting topic; may later span several fields. Can deliberately repeat across several sibling hubs (e.g. separate Compute, Kubernetes, and Networking hubs all sharing `domain: "Azure"`) as an informal grouping signal — there's no registry behind it, it's just a convention |
+| `hub_key` | UUID v4, generated once by the generator, never edited — a stable, name-independent identity for this hub. Foundation for a future cross-hub citation mechanism; not consumed by anything yet |
+| `hub_category` | `"competency"` (topic-based, cuts across clients/initiatives — Azure, Kubernetes, sales) or `"initiative"` (client/project-specific, cuts across competencies). Orthogonal to `kind`, which is about ownership, not content type |
 | `bundle_root` | `knowledge`, the boundary of OKF documents |
 | `concept_types` | starter vocabulary; adapt it after the first material |
 | `policy` | the automation stage for editing, publication, and external actions |
@@ -23,6 +25,13 @@ Default types: Source, Concept, Method, Principle, Example, Synthesis,
 Tool, Decision. They aren't a closed knowledge taxonomy. Add new types
 when they distinguish things the audience actually needs, e.g. an
 experiment, a metric, or a customer segment.
+
+`doc_key` is a document-level field (not `hub.json`), required in 0.4.0
+on every silver/gold document's frontmatter: a UUID v4, generated once
+when the document is created, never edited afterward — the per-document
+counterpart to `hub_key`. See SCHEMA.md's "Stable identity" section for
+why path-based identity, fine within one hub, doesn't hold up across
+hubs.
 
 The skill directory can be copied in full. The templates are generator
 resources. A template change applies to new hubs; an existing hub keeps
@@ -45,6 +54,15 @@ Write the changelog entry as part of the PR that bumps `profile_version`
 (under "Unreleased" until merged, then retitled with the release date).
 The tag can only be created afterward, on the actual merge commit once it
 exists — push it right after merging, not as a later afterthought.
+
+Profile 0.4.0 adds stable identity: `hub_key` and `hub_category` in
+`hub.json`, and a required `doc_key` on every silver/gold document. This
+also changes the generator's CLI, not just `hub.json`'s shape — a new
+required `--hub-category` argument breaks any existing script or
+automation invoking `create_hub.py` with the old argument set. No
+citation mechanism ships yet; this is the identity foundation a later
+profile will build on. The adoption procedure for 0.3.0 → 0.4.0 is in
+docs/migration-0.4.0.md in the generator repository.
 
 Profile 0.3.0 adds `policy.content_review` (`"direct"` or
 `"required_pr"`), letting content follow the same branch + PR + review
