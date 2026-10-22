@@ -37,7 +37,8 @@ class CreateHubTests(unittest.TestCase):
         self.assertEqual(config["policy"]["external_actions"], "disabled")
         self.assertEqual(config["policy"]["publication"], "explicit_acceptance")
         self.assertEqual(config["policy"]["remote_copy"], "required_after_validated_task")
-        self.assertEqual(config["profile_version"], "0.4.0")
+        self.assertEqual(config["profile_version"], "0.5.0")
+        self.assertEqual(config["default_classification"], "Confidential")
         self.assertEqual(config["policy"]["content_review"], "direct")
         self.assertEqual(config["hub_category"], "competency")
         self.assertRegex(config["hub_key"],
@@ -122,6 +123,19 @@ class CreateHubTests(unittest.TestCase):
     def test_invalid_hub_category_is_refused(self):
         destination = self.root / "hub"
         result = self.run_generator(destination, "--hub-category", "client")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse(destination.exists())
+
+    def test_explicit_default_classification_is_accepted(self):
+        destination = self.root / "hub"
+        result = self.run_generator(destination, "--default-classification", "Public")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        config = json.loads((destination / "hub.json").read_text())
+        self.assertEqual(config["default_classification"], "Public")
+
+    def test_invalid_default_classification_is_refused(self):
+        destination = self.root / "hub"
+        result = self.run_generator(destination, "--default-classification", "TopSecret")
         self.assertNotEqual(result.returncode, 0)
         self.assertFalse(destination.exists())
 

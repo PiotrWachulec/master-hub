@@ -14,6 +14,39 @@ shape or an existing hub's directory structure.
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-10-22
+
+### Added
+
+- Cross-hub citation, built on 0.4.0's identity: `external_refs[]` on
+  silver/gold documents, with `{id, hub, doc, classification, operation,
+  note}` — `operation` is `"cite"` (read-only pointer) or `"derive"`
+  (locally-authored, anonymized content with a provenance trail).
+- `default_classification` (`hub.json`, required field, optional CLI arg
+  defaulting to `"Confidential"`) and per-document `classification`:
+  `Public`/`Internal`/`Confidential`/`Secret`. A `"Secret"` reference is
+  always a hard validator error.
+- A requirement that any `operation: derive` entry be backed by a
+  `knowledge/90-decisions/` entry literally mentioning the deriving
+  document's own `doc_key`.
+- A non-blocking `check_evidence.py` warning for high-signal figures
+  inside a `Confidential` `external_refs[].note`.
+- A separate `check_evidence.py` "Derived documents" report section,
+  excluding them from ordinary fidelity-suspect scanning.
+- `docs/cross-hub-architecture.md`/`.svg`, a competency × initiative
+  matrix diagram summarizing 0.4.0 and 0.5.0 together.
+- `docs/migration-0.5.0.md`.
+
+### Changed
+
+- `create_hub.py`'s CLI gains `--default-classification`, optional with a
+  safe default — unlike 0.4.0's `--hub-category`, this doesn't break an
+  existing invocation.
+
+This profile is unusable alone: citation only works once both the citing
+and the cited hub are on ≥0.5.0, since the target also needs a `doc_key`
+(0.4.0).
+
 ## [0.4.0] — 2026-10-22
 
 ### Added

@@ -74,7 +74,7 @@ to separately say "push it." The destination and repository access are
 agreed during the first setup; the generator itself doesn't create Git or
 a remote. The agent confirms the commit on the remote repository or
 reports a missing current copy. The obligation is explicit in `hub.json`
-under profile 0.4.0: `policy.remote_copy: "required_after_validated_task"`.
+under profile 0.5.0: `policy.remote_copy: "required_after_validated_task"`.
 
 This is a working instruction for the agent, not a background backup. It
 covers pushed Git files, not external recordings or ignored files.
@@ -99,16 +99,24 @@ configuration.
 
 ## Versions and capabilities
 
-Format: OKF 0.2. Local working profile: 0.4.0, recorded in `hub.json`.
+Format: OKF 0.2. Local working profile: 0.5.0, recorded in `hub.json`.
 Template changes affect new hubs; existing ones need an explicit
 migration. There's no automatic migrator, nor an obligation to adopt every
 new OKF version immediately. Each profile release is tagged (`vX.Y.Z`);
 see [CHANGELOG.md](CHANGELOG.md) for what changed in each one.
 
 Every hub and every silver/gold document has a stable, name-independent
-identity (`hub_key`, `doc_key`) since 0.4.0 — a foundation for a future
-cross-hub citation mechanism, not a feature on its own yet. Hubs stay
-independent in the meantime: no registry, no imports, no sync.
+identity (`hub_key`, `doc_key`) since 0.4.0. Since 0.5.0, a document can
+**Cite** (read-only pointer) or **Derive** (locally-authored, anonymized
+content with a provenance trail) material from another hub, governed by
+a closed classification system (`Public`/`Internal`/`Confidential`/
+`Secret`) that keeps `Secret` material from ever being referenced and
+flags likely leaks in a `Confidential` citation's free-text note. See the
+[0.4.0 → 0.5.0 update](docs/migration-0.5.0.md) and the
+[competency × initiative diagram](docs/cross-hub-architecture.md) for the
+full picture. Hubs still never import, sync, or register with each
+other — only these deliberate, pointer-based references exist between
+them.
 
 For the future we keep the [0.1.1 → 0.2.0 migration procedure](docs/migration-0.2.0.md).
 Adopting the Git copy is described in the [0.2.0 → 0.2.1 update](docs/hub-git-backup.md).
@@ -116,9 +124,10 @@ Grounding, source triage, and Query/Archive are described in the
 [0.2.1 → 0.2.2 update](docs/migration-0.2.2.md). Opt-in PR review for
 shared hubs is described in the [0.2.2 → 0.3.0 update](docs/migration-0.3.0.md).
 Stable cross-hub identity is described in the
-[0.3.0 → 0.4.0 update](docs/migration-0.4.0.md). We currently assume no
-existing hubs and perform no migrations. This document neither requires
-nor runs a hub registry.
+[0.3.0 → 0.4.0 update](docs/migration-0.4.0.md), and cross-hub citation
+in the [0.4.0 → 0.5.0 update](docs/migration-0.5.0.md). We currently
+assume no existing hubs and perform no migrations. This document neither
+requires nor runs a hub registry.
 
 The generator, the editing instructions, the local structure validator,
 and the non-blocking grounding report all work. Automatic ingest, sync, a
@@ -177,7 +186,8 @@ sources. It always exits with code 0 and never counts toward the
 `violations` threshold — a human judges the suspects, not the script.
 
 [Architecture](docs/architecture.md) · [Flow diagram](docs/architecture.svg) ·
-[Optional multi-hub model](docs/system-architecture.svg)
+[Optional multi-hub model](docs/system-architecture.svg) ·
+[Competency × initiative matrix](docs/cross-hub-architecture.md)
 
 Tests in the engine directory: `.venv/bin/python -B -m unittest discover -s tests -v`.
 

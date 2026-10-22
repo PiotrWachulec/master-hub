@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only validator of local hub profile 0.4.0, NOT a general OKF validator.
+"""Read-only validator of local hub profile 0.5.0, NOT a general OKF validator.
 
 Python 3.10+, standard library only. The supported frontmatter/Markdown
 subset and deliberate exclusions are documented in the hub's SCHEMA.md.
@@ -155,6 +155,7 @@ class Validator:
         self.warnings = []
         self.referenced_resources = set()
         self.doc_keys = set()
+        self.derive_found = {}
 
     def report(self, path, line, message, warning=False):
         item = {"file": str(path.relative_to(self.root)), "line": max(1, line),
@@ -223,7 +224,7 @@ class Validator:
                     chars[i] = ' '
         return ''.join(chars)
 
-    def markdown(self, doc, body, offset, source_ids):
+    def markdown(self, doc, body, offset, id_origins):
         text = self.mask_code(doc, body, offset)
         line_at = lambda pos: offset + 1 + text.count('\n', 0, pos)
         # Unsupported link notations must not silently evade checks.
@@ -243,10 +244,10 @@ class Validator:
         for key, line in uses.items():
             if key not in definitions:
                 self.report(doc, line, f"Missing footnote definition: {key}")
-            if key not in source_ids:
-                self.report(doc, line, f"Footnote has no sources[].id: {key}")
-        for key in sorted(source_ids - uses.keys()):
-            self.report(doc, 1, f"Unused sources[].id: {key}", warning=True)
+            if key not in id_origins:
+                self.report(doc, line, f"Footnote has no sources[].id or external_refs[].id: {key}")
+        for key in sorted(set(id_origins) - uses.keys()):
+            self.report(doc, 1, f"Unused {id_origins[key]}[].id: {key}", warning=True)
 
         def destination(raw, line):
             raw = raw.strip()
@@ -363,7 +364,7 @@ class Validator:
             return  # A parse failure is always red, never a silent skip.
         position = lambda key: next((i for i, s in enumerate(text.splitlines(), 1)
                                     if re.match(rf'\s*(?:- )?{re.escape(key)}:', s)), 1)
-        ids = set()
+        ids = {}
         relative = doc.relative_to(self.root / 'knowledge').as_posix()
         navigation_index = relative in NAVIGATION_INDEXES
         if relative == 'log.md':
@@ -412,6 +413,11 @@ class Validator:
                 self.report(doc, position('doc_key'), f"Duplicate doc_key: {doc_key}")
             else:
                 self.doc_keys.add(doc_key)
+            classification = fm.get('classification')
+            if classification is not None and classification not in (
+                    'Public', 'Internal', 'Confidential', 'Secret'):
+                self.report(doc, position('classification'),
+                            "classification must be Public, Internal, Confidential, or Secret")
         if not isinstance(sources, list):
             self.report(doc, position('sources'), "sources must be a list")
         else:
@@ -425,7 +431,7 @@ class Validator:
                 elif key in ids:
                     self.report(doc, position('sources'), f"Duplicate sources[].id: {key}")
                 else:
-                    ids.add(key)
+                    ids[key] = 'sources'
                 resource = source.get('resource')
                 self.local_file(doc, resource, position('resource'), source=True)
                 if isinstance(resource, str) and resource.strip():
@@ -435,6 +441,44 @@ class Validator:
                             self.referenced_resources.add(candidate)
                     except (ValueError, OSError, RuntimeError):
                         pass
+        external_refs = fm.get('external_refs', [])
+        if not isinstance(external_refs, list):
+            self.report(doc, position('external_refs'), "external_refs must be a list")
+        else:
+            for ref in external_refs:
+                if not isinstance(ref, dict):
+                    self.report(doc, position('external_refs'), "Each external_refs entry must be a mapping")
+                    continue
+                key = ref.get('id')
+                if not nonempty(key) or not re.fullmatch(r'[A-Za-z0-9_-]+', key):
+                    self.report(doc, position('external_refs'),
+                                "external_refs id must use ASCII letters, digits, _ or -")
+                elif key in ids:
+                    self.report(doc, position('external_refs'), f"Duplicate external_refs[].id: {key}")
+                else:
+                    ids[key] = 'external_refs'
+                for field in ('hub', 'doc'):
+                    value = ref.get(field)
+                    if not isinstance(value, str) or not UUID_RE.fullmatch(value):
+                        self.report(doc, position('external_refs'),
+                                    f"external_refs[].{field} must be a UUID")
+                operation = ref.get('operation')
+                if operation not in ('cite', 'derive'):
+                    self.report(doc, position('external_refs'),
+                                'external_refs[].operation must be "cite" or "derive"')
+                elif operation == 'derive' and nonempty(fm.get('doc_key')):
+                    self.derive_found[doc] = fm.get('doc_key')
+                classification = ref.get('classification')
+                if classification not in ('Public', 'Internal', 'Confidential', 'Secret'):
+                    self.report(doc, position('external_refs'),
+                                "external_refs[].classification must be Public, Internal, "
+                                "Confidential, or Secret")
+                elif classification == 'Secret':
+                    self.report(doc, position('external_refs'),
+                                "external_refs[].classification must not be \"Secret\" — "
+                                "Secret-classified material must not be externally referenced")
+                if not nonempty(ref.get('note')):
+                    self.report(doc, position('external_refs'), "external_refs[].note is required")
         self.markdown(doc, body, offset, ids)
 
     def check_unreferenced_bronze(self, bundle: Path):
@@ -460,6 +504,24 @@ class Validator:
                 self.report(path, 1, "Bronze file not referenced by any sources[].resource "
                                       "and not logged as 'No material' in log.md", warning=True)
 
+    def check_derive_requires_decision(self, bundle: Path):
+        if not self.derive_found:
+            return
+        decisions_dir = bundle / '90-decisions'
+        decision_text = ''
+        if decisions_dir.is_dir():
+            for path in sorted(decisions_dir.rglob('*.md')):
+                if path.relative_to(bundle).as_posix() == '90-decisions/index.md':
+                    continue
+                try:
+                    decision_text += path.read_text(encoding='utf-8') + '\n'
+                except (OSError, UnicodeError):
+                    continue
+        for doc, doc_key in self.derive_found.items():
+            if doc_key not in decision_text:
+                self.report(doc, 1, "operation: derive requires a 90-decisions entry "
+                                     f"mentioning this document's doc_key ({doc_key})")
+
     def run(self):
         config_path = self.root / 'hub.json'
         types = []
@@ -481,19 +543,23 @@ class Validator:
                 raise ValueError('Duplicate concept_types')
             if config.get('bundle_root') != 'knowledge' or config.get('okf_version') != '0.2':
                 raise ValueError('This profile requires bundle_root=knowledge and okf_version=0.2')
-            if config.get('profile_version') != '0.4.0':
-                raise ValueError('This validator implements profile 0.4.0')
+            if config.get('profile_version') != '0.5.0':
+                raise ValueError('This validator implements profile 0.5.0')
             hub_key = config.get('hub_key')
             if not isinstance(hub_key, str) or not UUID_RE.fullmatch(hub_key):
                 raise ValueError('hub_key must be a UUID')
             if config.get('hub_category') not in ('competency', 'initiative'):
                 raise ValueError('hub_category must be "competency" or "initiative"')
+            if config.get('default_classification') not in (
+                    'Public', 'Internal', 'Confidential', 'Secret'):
+                raise ValueError('default_classification must be Public, Internal, '
+                                 'Confidential, or Secret')
             policy = config.get('policy')
             if (not isinstance(policy, dict)
                     or policy.get('remote_copy') != 'required_after_validated_task'):
-                raise ValueError('Profile 0.4.0 requires policy.remote_copy=required_after_validated_task')
+                raise ValueError('Profile 0.5.0 requires policy.remote_copy=required_after_validated_task')
             if policy.get('content_review') not in ('direct', 'required_pr'):
-                raise ValueError('Profile 0.4.0 requires policy.content_review to be '
+                raise ValueError('Profile 0.5.0 requires policy.content_review to be '
                                  '"direct" or "required_pr"')
             quality = config.get('quality', {})
             if (not isinstance(quality, dict) or quality.get('validator') != 'scripts/validate_hub.py'
@@ -529,6 +595,7 @@ class Validator:
                 self.report(folder, 1, f"Cannot scan directory: {exc}")
         walk(bundle)
         self.check_unreferenced_bronze(bundle)
+        self.check_derive_requires_decision(bundle)
 
 
 def main():

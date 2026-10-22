@@ -32,6 +32,24 @@ Claim.[^input]
 [Source](../00-bronze/source.txt)
 '''
 
+EXTERNAL_REF_BLOCK = (
+    'external_refs:\n'
+    '  - id: ext-ref\n'
+    '    hub: 33333333-3333-4333-8333-333333333333\n'
+    '    doc: 44444444-4444-4444-8444-444444444444\n'
+    '    classification: Internal\n'
+    '    operation: cite\n'
+    '    note: "Cited from a competency hub."\n'
+)
+
+DOCUMENT_WITH_EXTERNAL_REF = (
+    DOCUMENT.replace('    title: Source material\n---\n',
+                     '    title: Source material\n' + EXTERNAL_REF_BLOCK + '---\n')
+            .replace('[Source](../00-bronze/source.txt)\n',
+                     '[Source](../00-bronze/source.txt)\n\n'
+                     'External claim.[^ext-ref]\n\n[^ext-ref]: External detail.\n')
+)
+
 
 class ValidateHubTests(unittest.TestCase):
     def setUp(self):
@@ -156,13 +174,25 @@ class ValidateHubTests(unittest.TestCase):
             self.config(lambda c, value=value: c.update(hub_category=value))
             self.validate()
 
+    def test_default_classification_is_required_and_strict(self):
+        for value in (None, '', 'secret', 'Top Secret', 123, [], {}):
+            with self.subTest(value=value):
+                self.config(lambda c, value=value: c.update(default_classification=value))
+                report = self.validate(False, 'default_classification must be')
+                self.assertEqual(report['violations'], 1)
+        self.config(lambda c: c.pop('default_classification'))
+        self.validate(False, 'default_classification must be')
+        for value in ('Public', 'Internal', 'Confidential', 'Secret'):
+            self.config(lambda c, value=value: c.update(default_classification=value))
+            self.validate()
+
     def test_profile_version_requires_explicit_upgrade(self):
-        for version in ('0.3.0', '0.2.2', '0.2.1', '0.2.0', '0.1.1', '0.5.0', None, 0.4):
+        for version in ('0.3.0', '0.2.2', '0.2.1', '0.2.0', '0.1.1', '0.4.0', None, 0.4):
             with self.subTest(version=version):
                 self.config(lambda c: c.update(profile_version=version))
-                self.validate(False, 'implements profile 0.4.0')
+                self.validate(False, 'implements profile 0.5.0')
         self.config(lambda c: c.pop('profile_version'))
-        self.validate(False, 'implements profile 0.4.0')
+        self.validate(False, 'implements profile 0.5.0')
 
     def test_invalid_remote_copy_policy_does_not_skip_documents(self):
         self.config(lambda c: c['policy'].pop('remote_copy'))
@@ -324,6 +354,92 @@ class ValidateHubTests(unittest.TestCase):
                 self.fixture(text, self.hub / target)
                 self.validate()
                 (self.hub / target).unlink()
+
+    def test_document_classification_is_optional_and_strict(self):
+        self.fixture()
+        self.validate()
+        self.fixture(DOCUMENT.replace('status: draft', 'status: draft\nclassification: Public'))
+        self.validate()
+        self.fixture(DOCUMENT.replace('status: draft', 'status: draft\nclassification: secret'))
+        self.validate(False, 'classification must be Public, Internal, Confidential, or Secret')
+
+    def test_well_formed_external_ref_resolves_as_footnote(self):
+        self.fixture(DOCUMENT_WITH_EXTERNAL_REF)
+        self.validate()
+
+    def test_external_ref_missing_note_is_violation(self):
+        self.fixture(DOCUMENT_WITH_EXTERNAL_REF.replace(
+            '    note: "Cited from a competency hub."\n', ''))
+        self.validate(False, 'external_refs[].note is required')
+
+    def test_external_ref_malformed_hub_or_doc_is_violation(self):
+        for old, new in [
+            ('    hub: 33333333-3333-4333-8333-333333333333\n', '    hub: not-a-uuid\n'),
+            ('    doc: 44444444-4444-4444-8444-444444444444\n', '    doc: not-a-uuid\n')]:
+            with self.subTest(new=new):
+                self.fixture(DOCUMENT_WITH_EXTERNAL_REF.replace(old, new))
+                self.validate(False, 'external_refs[].' + ('hub' if 'hub' in new else 'doc')
+                              + ' must be a UUID')
+
+    def test_external_ref_missing_or_invalid_operation_is_violation(self):
+        for old, new in [('    operation: cite\n', ''),
+                         ('    operation: cite\n', '    operation: sync\n')]:
+            with self.subTest(new=new):
+                self.fixture(DOCUMENT_WITH_EXTERNAL_REF.replace(old, new))
+                self.validate(False, 'external_refs[].operation must be "cite" or "derive"')
+
+    def test_external_ref_secret_classification_is_hard_block(self):
+        self.fixture(DOCUMENT_WITH_EXTERNAL_REF.replace(
+            '    classification: Internal\n', '    classification: Secret\n'))
+        report = self.validate(False, 'external_refs[].classification must not be "Secret"')
+        self.assertEqual(report['violations'], 1)
+
+    def test_external_ref_duplicate_id_against_sources_id(self):
+        self.fixture(DOCUMENT_WITH_EXTERNAL_REF.replace('id: ext-ref', 'id: input').replace(
+            'External claim.[^ext-ref]\n\n[^ext-ref]: External detail.\n', ''))
+        self.validate(False, 'Duplicate external_refs[].id: input')
+
+    def test_unused_external_ref_id_uses_distinct_message(self):
+        text = DOCUMENT_WITH_EXTERNAL_REF.replace(
+            'External claim.[^ext-ref]\n\n[^ext-ref]: External detail.\n', '')
+        self.fixture(text)
+        report = self.validate(True, 'Unused external_refs[].id: ext-ref')
+        self.assertEqual(len(report['warnings']), 1)
+
+    def test_footnote_with_unknown_id_names_both_origins(self):
+        self.fixture(DOCUMENT_WITH_EXTERNAL_REF + '\nOther.[^other]\n\n[^other]: Explanation.\n')
+        self.validate(False, 'Footnote has no sources[].id or external_refs[].id: other')
+
+    def test_derive_without_decision_entry_is_violation(self):
+        self.fixture(DOCUMENT_WITH_EXTERNAL_REF.replace(
+            '    operation: cite\n', '    operation: derive\n'
+        ).replace('    classification: Internal\n', '    classification: Confidential\n'))
+        report = self.validate(False, '90-decisions entry')
+        self.assertEqual(report['violations'], 1)
+
+    def test_derive_decision_entry_without_doc_key_mention_still_violation(self):
+        self.fixture(DOCUMENT_WITH_EXTERNAL_REF.replace(
+            '    operation: cite\n', '    operation: derive\n'
+        ).replace('    classification: Internal\n', '    classification: Confidential\n'))
+        decision = (DOCUMENT.split('sources:')[0] + '---\n# Decision\n\nApproved generalization.\n'
+                   ).replace('doc_key: 11111111-1111-4111-8111-111111111111\n', '')
+        decision_path = self.hub / 'knowledge/90-decisions/decision.md'
+        decision_path.parent.mkdir(parents=True, exist_ok=True)
+        decision_path.write_text(decision, encoding='utf-8')
+        self.validate(False, '90-decisions entry')
+
+    def test_derive_decision_entry_mentioning_doc_key_is_clean(self):
+        self.fixture(DOCUMENT_WITH_EXTERNAL_REF.replace(
+            '    operation: cite\n', '    operation: derive\n'
+        ).replace('    classification: Internal\n', '    classification: Confidential\n'))
+        decision = (DOCUMENT.split('sources:')[0] + '---\n# Decision\n\n'
+                   'Approved generalization referencing doc_key '
+                   '11111111-1111-4111-8111-111111111111.\n'
+                   ).replace('doc_key: 11111111-1111-4111-8111-111111111111\n', '')
+        decision_path = self.hub / 'knowledge/90-decisions/decision.md'
+        decision_path.parent.mkdir(parents=True, exist_ok=True)
+        decision_path.write_text(decision, encoding='utf-8')
+        self.validate()
 
     def test_sources_shapes_ids_and_file_targets(self):
         for old, new, error in [

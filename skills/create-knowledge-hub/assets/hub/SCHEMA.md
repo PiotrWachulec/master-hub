@@ -1,4 +1,4 @@
-# Knowledge processing contract — profile 0.4.0
+# Knowledge processing contract — profile 0.5.0
 
 This contract describes work inside a single hub. The OKF 0.2 bundle covers
 only `knowledge/`. Configuration and instructions in the parent directory
@@ -88,10 +88,8 @@ intra-hub links or footnotes work — it's additive, generated once when a
 document is created, and never touched again regardless of later renames
 or moves.
 
-This profile ships identity only. There is no citation mechanism yet — no
-field lets a document reference another hub's `hub_key`/`doc_key`. That
-comes in a later profile; `hub_key` and `doc_key` are the foundation it
-will build on, not something to wire up by hand in the meantime.
+`hub_key` and `doc_key` are the foundation the citation mechanism below is
+built on — see "Cross-hub references."
 
 The navigation indexes from the list above contain links and short
 descriptions; they don't replace knowledge documents. The bundle's main
@@ -108,12 +106,146 @@ machine-readable: `scripts/validate_hub.py` and `scripts/check_evidence.py`
 exclude a bronze file marked this way from the warning about sources not
 referenced by any `sources[].resource`.
 
+## Cross-hub references
+
+`hub_key` and `doc_key` make it safe to point at another hub's document
+without depending on its current path or title. This section defines how:
+a closed classification system that decides what's safe to move across a
+hub boundary at all, and `external_refs[]`, the frontmatter array that
+records an actual reference once classification says it's allowed.
+
+### Classification
+
+Every hub has a `default_classification` in `hub.json` — one of `Public`,
+`Internal`, `Confidential`, `Secret`. A document's own `classification`
+frontmatter field is optional and overrides the hub default for that one
+document when present; when absent, the hub default applies. The four
+levels:
+
+- **Public** — citable and quotable anywhere, including in an
+  external-facing deliverable, with no further handling.
+- **Internal** — fine to reference across the user's own hubs, but not
+  meant to land verbatim in something that leaves the user's hands (a
+  client-facing document, a public page).
+- **Confidential** — never copied verbatim across a hub boundary.
+  Reference it only by pointer (a `cite` entry whose `note` stays
+  abstract) or use it as the basis for a `derive` entry that writes new,
+  anonymized content. See "Cite vs. Derive" below.
+- **Secret** — never referenced cross-hub at all, not even by pointer or
+  acknowledgment. An `external_refs[]` entry with `classification:
+  "Secret"` is always a hard validator error, regardless of the target
+  or the `operation`: declaring the citation is itself the violation.
+
+Classification is declared, not inferred — the validator trusts the
+value it's given. It's agent judgment and user review that decide
+whether a document is marked correctly in the first place, same as every
+other frontmatter field in this contract.
+
+### `external_refs[]`
+
+A silver or gold document may carry an `external_refs[]` array alongside
+`sources[]`. Each entry:
+
+```yaml
+external_refs:
+  - id: azure-bluegreen
+    hub: 3f29b9b2-6e1a-4b7e-9a2a-8e4b1f0c7d21
+    doc: 7c1e2b9a-4f3d-4a11-9c0e-2a6b8d5f10e4
+    classification: Internal
+    operation: cite
+    note: "Blue-green deployment pattern, cited from a competency hub."
+```
+
+- `id` shares the same uniqueness and footnote namespace as
+  `sources[].id` — `[^azure-bluegreen]` in the body resolves against
+  either array, and an `id` can't be reused between them.
+- `hub` / `doc` are the target's `hub_key` / `doc_key`. The validator
+  only checks they're UUID-shaped; it never opens, fetches, or otherwise
+  reads the other hub. It can't tell you whether the target document
+  still exists, still means what the `note` says it means, or is itself
+  classified consistently with this reference — that's a judgment made
+  once, by whoever adds the entry, the same way `content_review`'s
+  branch-merge rule and `remote_copy`'s push obligation are agent
+  judgment calls the validator can't verify from inside one hub.
+- `classification` is the level asserted for the cited material in this
+  reference. Always required; always a hard error when `"Secret"`.
+- `operation` is `"cite"` or `"derive"`, required, with no default — a
+  field this consequential doesn't get a silent fallback, the same
+  reasoning behind `hub_category` and `content_review` having none.
+- `note` is required, non-empty prose explaining the reference. It must
+  never name the source hub or client in plain text, even for a `derive`
+  entry that deliberately keeps a provenance trail — see below.
+
+### Cite vs. Derive
+
+**Cite** is a read-only pointer: nothing from the target is copied in.
+The citing document says, in its own words, what the cited material is
+and why it's relevant; the `[^id]` footnote and the `hub`/`doc` pair are
+the actual reference.
+
+**Derive** is not a copy either. It's new, original content the agent
+writes locally — in bronze or silver, under the same rules as any other
+material — generalizing or anonymizing something from the target hub so
+the result is safe to hold in this one. The `note` is where that
+anonymization gets explained ("figures generalized to a range, client
+identity removed"), but, like `cite`, it must never say which hub or
+client the material came from. Traceability survives entirely in the
+opaque `hub`/`doc` UUIDs: anyone holding both hubs can follow the link;
+no one reading only this hub's content ever sees the source named.
+
+`operation` always describes *this citing document's own authorship
+act* toward the referenced hub/doc — never a claim about the target
+document's provenance. A cited document could itself be the product of
+some other Derive in its own hub; that has no bearing on whether *this*
+particular reference is a Cite or a Derive.
+
+Every `derive` entry anywhere in the hub requires a corresponding entry
+in `knowledge/90-decisions/` whose text literally mentions the deriving
+document's own `doc_key`. Not just the existence of some decision file —
+`validate_hub.py` reads every non-index document under `90-decisions/`
+and reports a violation unless the specific `doc_key` string shows up
+somewhere in that text. This keeps the check from being permanently
+satisfied by one old, unrelated decision the hub happens to already
+have; it's still a presence/pattern check, not proof the anonymization
+itself is adequate — that remains a human judgment the decision entry
+should actually record.
+
+A `Confidential` `external_refs[].note` is also scanned mechanically by
+`check_evidence.py`, reusing its existing number/date candidate
+extraction, and flagged (non-blocking) if it contains a high-signal
+figure. The `Secret` hard-block in `validate_hub.py` only catches a
+reference that admits its own classification; the likelier real mistake
+is a `Confidential` citation whose free-text `note` leaks a specific
+number or date that was supposed to stay abstracted. This check exists
+for that gap.
+
+### Scope and rollout
+
+Cross-hub edits go through the hub's existing `policy.content_review`
+like any other content change — there's no special routing for an
+`external_refs[]` edit, and no code treats one differently from a
+same-hub edit.
+
+This is not the same mechanism 0.2.0 removed. Cross-hub `imports` was
+content *sync* — copying or merging another hub's knowledge wholesale,
+with the risk that a rename or edit on one side silently diverged from
+the other with no validator watching both. Cite is a pointer, not a
+copy; Derive is deliberately-authored new content with an explicit
+provenance note. Neither re-introduces the sync problem 0.2.0 was
+removing.
+
+Citation needs both hubs on profile ≥0.5.0: the target needs a
+`doc_key`, which only exists from 0.4.0 onward, and the citing hub needs
+the `external_refs[]` schema itself, which starts here. A single hub
+upgrading alone gains nothing from this section until a second hub is
+also ready to be a citation target.
+
 ## Structure check
 
 `.venv/bin/python -B scripts/validate_hub.py` checks the hub containing the
 script, not the current working directory. Python 3.10+, standard library
 only, no network access, no writes. This is a validator for local profile
-0.4.0, not the full OKF. Scripts always run inside the local virtual
+0.5.0, not the full OKF. Scripts always run inside the local virtual
 environment. If `.venv` doesn't exist, the agent creates it beforehand with
 `python3 -m venv .venv` in the hub directory. On Windows the interpreter is
 at `.venv/Scripts/python.exe`. No system-wide installs; any packages only
@@ -124,7 +256,7 @@ Checks:
 
 - the required scaffold files, the `hub.json` configuration, and every
   `.md` file under knowledge;
-- `profile_version: "0.4.0"` and
+- `profile_version: "0.5.0"` and
   `policy.remote_copy: "required_after_validated_task"`;
 - document frontmatter (outside the closed exception list above): `type`,
   `title`, `description`, `status`, `generated`; `type` must be in
@@ -436,7 +568,7 @@ the other two scopes: `publication` concerns accepting drafts for
 publication, and `external_actions` concerns operational actions, e.g.
 changing a campaign budget. The field doesn't pick a remote and doesn't
 authorize sending to just any destination. It's required under profile
-0.4.0. A missing or different value is a contract inconsistency, not a
+0.5.0. A missing or different value is a contract inconsistency, not a
 local-work mode. An instruction for local-only work is an exception for
 the task, not a configuration change. An older hub without this field
 hasn't automatically adopted this rule; it needs an explicit contract
@@ -450,7 +582,7 @@ agreed main branch as a draft, same as before this field existed.
 `"required_pr"` routes content through the same branch + PR + review
 procedure already used for contract changes, with no self-merge — useful
 once more than one person or agent writes to the same hub, to avoid
-silent overwrites. It's required under profile 0.4.0, with the same rule
+silent overwrites. It's required under profile 0.5.0, with the same rule
 as `remote_copy`: a missing or different value is a contract
 inconsistency, not a default, and an older hub without the field hasn't
 adopted either value automatically.

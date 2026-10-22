@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Report-only grounding (evidence) check for the local hub profile 0.4.0.
+"""Report-only grounding (evidence) check for the local hub profile 0.5.0.
 
 The Grounding Invariant: every load-bearing fact in 10-silver/ and 20-gold/
 (numbers, dates, direct quotes) must exist verbatim in the body of the
@@ -259,6 +259,46 @@ def check_document(doc: Path):
     return misses, []
 
 
+def is_derived(fm: dict) -> bool:
+    """True if any external_refs entry on this document is operation: derive.
+
+    Caller passes fm or {} -- never None -- so a document with unparseable
+    frontmatter still falls through to check_document() and lands in the
+    existing "Documents without possible verification" section, instead
+    of vanishing from the report or crashing the script.
+    """
+    refs = fm.get("external_refs")
+    if not isinstance(refs, list):
+        return False
+    return any(isinstance(r, dict) and r.get("operation") == "derive" for r in refs)
+
+
+def confidential_note_candidates(fm: dict) -> dict[str, list[str]]:
+    """Fidelity-style candidates found inside Confidential external_refs notes.
+
+    Reuses extract_candidates() -- normally run on a whole document body --
+    on a single short note string. A degenerate but valid input for its
+    paragraph-flush logic: a one-line string is just a one-paragraph body.
+    Report-only, same "candidate, not verdict" framing as the rest of this
+    script; applies to both cite and derive entries, independent of
+    is_derived() above.
+    """
+    refs = fm.get("external_refs")
+    if not isinstance(refs, list):
+        return {}
+    hits = {}
+    for ref in refs:
+        if not isinstance(ref, dict) or ref.get("classification") != "Confidential":
+            continue
+        note = ref.get("note")
+        if not isinstance(note, str):
+            continue
+        candidates = [value for _, value in extract_candidates(note)]
+        if candidates:
+            hits[ref.get("id") or "?"] = candidates
+    return hits
+
+
 def iter_scope_documents(knowledge_dir: Path):
     for layer in SCOPE_LAYERS:
         layer_dir = knowledge_dir / layer
@@ -321,8 +361,20 @@ def main() -> int:
 
     suspects: dict[str, list[str]] = {}
     notes: dict[str, list[str]] = {}
+    derived: list[str] = []
+    confidential_hits: dict[str, dict[str, list[str]]] = {}
     for doc in iter_scope_documents(knowledge_dir):
         label = doc.relative_to(root).as_posix()
+        fm, _ = read_frontmatter(doc)
+        fm = fm or {}
+        # Confidential-note scan runs for every document, before any
+        # continue below -- it must not be skipped for derived documents.
+        hits = confidential_note_candidates(fm)
+        if hits:
+            confidential_hits[label] = hits
+        if is_derived(fm):
+            derived.append(label)
+            continue
         misses, issues = check_document(doc)
         if misses:
             suspects[label] = misses
@@ -348,6 +400,22 @@ def main() -> int:
     else:
         print("(none)")
 
+    print("\n## Derived documents (not locally grounded, by design)")
+    for label in derived:
+        print(f"- {label}")
+    if not derived:
+        print("(none)")
+
+    print("\n## External reference notes with specific figures (review before citing)")
+    note_hit_count = 0
+    for label, hits in confidential_hits.items():
+        for ref_id, values in hits.items():
+            for value in values:
+                print(f"- {label} [{ref_id}]: {value}")
+                note_hit_count += 1
+    if note_hit_count == 0:
+        print("(none)")
+
     print("\n## Unreferenced bronze sources")
     orphans = unreferenced_bronze(knowledge_dir, root)
     for path in orphans:
@@ -358,6 +426,8 @@ def main() -> int:
     print(
         f"\n## Summary\n{suspect_count} fidelity suspect(s), "
         f"{len(notes)} document(s) without possible verification, "
+        f"{len(derived)} derived document(s), "
+        f"{note_hit_count} external reference note figure(s), "
         f"{len(orphans)} unreferenced bronze source(s)"
     )
     return 0
