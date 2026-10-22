@@ -54,7 +54,8 @@ class CheckEvidenceTests(unittest.TestCase):
         result = subprocess.run(
             [sys.executable, '-B', str(GENERATOR), '--dest', str(self.hub),
              '--id', 'test', '--title', 'Test', '--kind', 'personal',
-             '--owner', 'Tester', '--domain', 'Testing'], capture_output=True, text=True)
+             '--owner', 'Tester', '--domain', 'Testing',
+             '--hub-category', 'competency'], capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.script = self.hub / 'scripts/check_evidence.py'
         self.bronze = self.hub / 'knowledge/00-bronze/source.md'

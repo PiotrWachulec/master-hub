@@ -7,8 +7,9 @@ import json
 from pathlib import Path
 import re
 import sys
+import uuid
 
-PROFILE_VERSION = "0.3.0"
+PROFILE_VERSION = "0.4.0"
 ASSETS = Path(__file__).resolve().parent.parent / "assets" / "hub"
 
 
@@ -42,6 +43,8 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
         "kind": args.kind,
         "owner": args.owner,
         "domain": args.domain,
+        "hub_key": str(uuid.uuid4()),
+        "hub_category": args.hub_category,
         "bundle_root": "knowledge",
         "quality": {
             "validator": "scripts/validate_hub.py",
@@ -64,6 +67,8 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
     files[Path("README.md")] = (
         f"# {args.title}\n\n"
         f"Owner: {args.owner}. Starting topic: {args.domain}.\n\n"
+        f"Hub key (for other hubs to eventually cite this one): "
+        f"`{config['hub_key']}`. Category: `{args.hub_category}`.\n\n"
         "Open this directory as a separate vault in Obsidian. "
         "Start with the [knowledge index](knowledge/index.md).\n\n"
         "## Three independent actions for the agent\n\n"
@@ -163,6 +168,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--kind", choices=("personal", "company"), required=True)
     parser.add_argument("--owner", type=nonempty, required=True)
     parser.add_argument("--domain", type=nonempty, required=True)
+    parser.add_argument("--hub-category", dest="hub_category",
+                        choices=("competency", "initiative"), required=True)
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
     # Inspect the supplied path before resolving: also refuse dangling symlinks.

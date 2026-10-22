@@ -14,6 +14,7 @@ type: Concept
 title: Test knowledge
 description: Example for checking the structure.
 status: draft
+doc_key: 11111111-1111-4111-8111-111111111111
 generated:
   by: process:test
   at: 2026-09-23T12:00:00Z
@@ -41,7 +42,8 @@ class ValidateHubTests(unittest.TestCase):
         result = subprocess.run(
             [sys.executable, '-B', str(GENERATOR), '--dest', str(self.hub),
              '--id', 'test', '--title', 'Test', '--kind', 'personal',
-             '--owner', 'Tester', '--domain', 'Testing'], capture_output=True, text=True)
+             '--owner', 'Tester', '--domain', 'Testing',
+             '--hub-category', 'competency'], capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.script = self.hub / 'scripts/validate_hub.py'
         self.doc = self.hub / 'knowledge/10-silver/concept.md'
@@ -130,13 +132,37 @@ class ValidateHubTests(unittest.TestCase):
         config_path.write_text(original, encoding='utf-8')
         self.validate()
 
+    def test_hub_key_must_be_a_uuid(self):
+        for value in (None, '', 'not-a-uuid', 123, [], {},
+                      '11111111-1111-4111-8111-11111111111'):
+            with self.subTest(value=value):
+                self.config(lambda c, value=value: c.update(hub_key=value))
+                report = self.validate(False, 'hub_key must be a UUID')
+                self.assertEqual(report['violations'], 1)
+        self.config(lambda c: c.pop('hub_key'))
+        self.validate(False, 'hub_key must be a UUID')
+        self.config(lambda c: c.update(hub_key='11111111-1111-4111-8111-111111111111'))
+        self.validate()
+
+    def test_hub_category_is_required_and_strict(self):
+        for value in (None, '', 'client', 'Competency', 123, [], {}):
+            with self.subTest(value=value):
+                self.config(lambda c, value=value: c.update(hub_category=value))
+                report = self.validate(False, 'hub_category must be')
+                self.assertEqual(report['violations'], 1)
+        self.config(lambda c: c.pop('hub_category'))
+        self.validate(False, 'hub_category must be')
+        for value in ('competency', 'initiative'):
+            self.config(lambda c, value=value: c.update(hub_category=value))
+            self.validate()
+
     def test_profile_version_requires_explicit_upgrade(self):
-        for version in ('0.2.2', '0.2.1', '0.2.0', '0.1.1', '0.4.0', None, 0.3):
+        for version in ('0.3.0', '0.2.2', '0.2.1', '0.2.0', '0.1.1', '0.5.0', None, 0.4):
             with self.subTest(version=version):
                 self.config(lambda c: c.update(profile_version=version))
-                self.validate(False, 'implements profile 0.3.0')
+                self.validate(False, 'implements profile 0.4.0')
         self.config(lambda c: c.pop('profile_version'))
-        self.validate(False, 'implements profile 0.3.0')
+        self.validate(False, 'implements profile 0.4.0')
 
     def test_invalid_remote_copy_policy_does_not_skip_documents(self):
         self.config(lambda c: c['policy'].pop('remote_copy'))
@@ -271,6 +297,34 @@ class ValidateHubTests(unittest.TestCase):
         self.fixture(text, self.hub / 'knowledge/00-bronze/source.md')
         self.validate()
 
+    def test_doc_key_is_required_on_silver_and_gold(self):
+        self.fixture(DOCUMENT.replace('doc_key: 11111111-1111-4111-8111-111111111111\n', ''))
+        self.validate(False, 'requires a nonempty doc_key')
+
+    def test_doc_key_must_be_a_uuid(self):
+        self.fixture(DOCUMENT.replace('doc_key: 11111111-1111-4111-8111-111111111111',
+                                      'doc_key: not-a-uuid'))
+        self.validate(False, 'doc_key must be a UUID')
+
+    def test_duplicate_doc_key_across_documents(self):
+        self.fixture()
+        (self.hub / 'knowledge/00-bronze/extra.txt').write_text('Additional.\n', encoding='utf-8')
+        second = (DOCUMENT.replace('id: input', 'id: extra')
+                  .replace('resource: ../00-bronze/source.txt', 'resource: ../00-bronze/extra.txt')
+                  .replace('[^input]', '[^extra]'))
+        (self.hub / 'knowledge/20-gold/second.md').write_text(second, encoding='utf-8')
+        report = self.validate(False, 'Duplicate doc_key')
+        self.assertEqual(report['violations'], 1)
+
+    def test_bronze_and_decisions_do_not_require_doc_key(self):
+        text = (DOCUMENT.split('sources:')[0] + '---\n# Note\n').replace(
+            'doc_key: 11111111-1111-4111-8111-111111111111\n', '')
+        for target in ('knowledge/00-bronze/source.md', 'knowledge/90-decisions/decision.md'):
+            with self.subTest(target=target):
+                self.fixture(text, self.hub / target)
+                self.validate()
+                (self.hub / target).unlink()
+
     def test_sources_shapes_ids_and_file_targets(self):
         for old, new, error in [
             ('sources:\n  - id: input\n    resource: ../00-bronze/source.txt\n    title: Source material',
@@ -317,7 +371,9 @@ class ValidateHubTests(unittest.TestCase):
         (self.hub / 'knowledge/00-bronze/extra.txt').write_text('Additional.\n', encoding='utf-8')
         second = (DOCUMENT.replace('id: input', 'id: extra')
                   .replace('resource: ../00-bronze/source.txt', 'resource: ../00-bronze/extra.txt')
-                  .replace('[^input]', '[^extra]'))
+                  .replace('[^input]', '[^extra]')
+                  .replace('11111111-1111-4111-8111-111111111111',
+                           '22222222-2222-4222-8222-222222222222'))
         (self.hub / 'knowledge/10-silver/second.md').write_text(second, encoding='utf-8')
         report = self.validate()
         self.assertEqual(report['warnings'], [])

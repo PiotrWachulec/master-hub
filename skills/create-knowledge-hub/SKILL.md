@@ -12,8 +12,10 @@ hub already exists or that other repositories are accessible.
 ## Flow
 
 1. Determine from context the destination directory, an ASCII identifier,
-   the name, the owner, the kind (`personal` or `company`), and the topic.
-   Ask follow-up questions only about data whose absence changes the
+   the name, the owner, the kind (`personal` or `company`), the hub
+   category (`competency` — topic-based, cuts across clients/initiatives
+   — or `initiative` — client/project-specific), and the topic. Ask
+   follow-up questions only about data whose absence changes the
    ownership boundary or purpose. A new topic alone doesn't require a
    separate hub; independent work, access, and a separate publication
    cycle also justify one.
@@ -31,7 +33,7 @@ hub already exists or that other repositories are accessible.
    ```sh
    .venv/bin/python /path-to-skill/scripts/create_hub.py --dest /chosen/path/new-hub \
      --id new-hub --title "New hub" --kind personal \
-     --owner "Owner" --domain "Topic"
+     --owner "Owner" --domain "Topic" --hub-category competency
    ```
 
    On Windows use `.venv/Scripts/python.exe`. No shell activation is
@@ -42,7 +44,7 @@ hub already exists or that other repositories are accessible.
    directory. `--dry-run` doesn't write the hub; creating the environment
    beforehand is a separate tool-setup step.
 4. Check the configuration, indexes, and contract of the generated hub,
-   including `profile_version: "0.3.0"` and
+   including `profile_version: "0.4.0"` and
    `policy.remote_copy: "required_after_validated_task"`. This is the
    Git-copy obligation, not confirmation that it's configured. An existing
    directory is refused — don't remove it to work around that protection.
