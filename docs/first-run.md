@@ -58,7 +58,7 @@ request. This isn't a mandatory flow for every import.
 
 The agent reads `AGENTS.md`, `SCHEMA.md`, `hub.json`, and the knowledge
 index, updates the relevant indexes and the log, and presents new drafts
-for review. Under profile 0.4.0 it also runs the local validator and a
+for review. Under profile 0.5.0 it also runs the local validator and a
 limited fix loop per the contract, and after editing silver/gold, also
 the non-blocking `scripts/check_evidence.py` report. A missing check, or
 violations after the limit is exhausted, stop the work; they aren't

@@ -44,6 +44,33 @@ Revenue was $42,000 in 2026.[^report] The director said
 [^report]: Quarterly report, paragraph 1.
 '''
 
+EXTERNAL_REF_DERIVE = (
+    'external_refs:\n'
+    '  - id: ext-ref\n'
+    '    hub: 33333333-3333-4333-8333-333333333333\n'
+    '    doc: 44444444-4444-4444-8444-444444444444\n'
+    '    classification: Internal\n'
+    '    operation: derive\n'
+    '    note: "Generalized pattern, specifics removed."\n'
+)
+
+
+def with_external_ref(silver, block):
+    return silver.replace('    title: Quarterly report\n---\n',
+                          '    title: Quarterly report\n' + block + '---\n')
+
+
+def confidential_ref(operation, note):
+    return (
+        'external_refs:\n'
+        '  - id: ext-ref\n'
+        '    hub: 33333333-3333-4333-8333-333333333333\n'
+        '    doc: 44444444-4444-4444-8444-444444444444\n'
+        '    classification: Confidential\n'
+        f'    operation: {operation}\n'
+        f'    note: "{note}"\n'
+    )
+
 
 class CheckEvidenceTests(unittest.TestCase):
     def setUp(self):
@@ -127,6 +154,52 @@ class CheckEvidenceTests(unittest.TestCase):
             '# Log\n\n## 2026-09-23\n\n- No material: 00-bronze/orphan.md\n', encoding='utf-8')
         stdout = self.run_script()
         self.assertNotIn('knowledge/00-bronze/orphan.md', stdout)
+
+    def test_derived_document_is_excluded_from_fidelity_suspects(self):
+        silver = with_external_ref(SILVER.replace('42,000', '99,000'), EXTERNAL_REF_DERIVE)
+        self.fixture(silver=silver)
+        stdout = self.run_script()
+        self.assertIn('0 fidelity suspect(s)', stdout)
+        self.assertNotIn('99,000', stdout)
+        self.assertIn('## Derived documents (not locally grounded, by design)', stdout)
+        self.assertIn('knowledge/10-silver/concept.md', stdout.split(
+            '## Derived documents')[1].split('##')[0])
+        self.assertIn('1 derived document(s)', stdout)
+
+    def test_confidential_note_with_specific_figure_is_flagged(self):
+        silver = with_external_ref(SILVER, confidential_ref('cite', 'Estimated at $140K.'))
+        self.fixture(silver=silver)
+        stdout = self.run_script()
+        self.assertIn('## External reference notes with specific figures (review before citing)',
+                       stdout)
+        self.assertIn('140K', stdout)
+        self.assertIn('1 external reference note figure(s)', stdout)
+
+    def test_public_classified_note_with_same_figure_is_not_flagged(self):
+        block = confidential_ref('cite', 'Estimated at $140K.').replace(
+            'classification: Confidential', 'classification: Public')
+        silver = with_external_ref(SILVER, block)
+        self.fixture(silver=silver)
+        stdout = self.run_script()
+        self.assertIn('0 external reference note figure(s)', stdout)
+        self.assertNotIn('140K', stdout)
+
+    def test_confidential_note_check_fires_for_derived_documents_too(self):
+        block = confidential_ref('derive', 'Estimated at $140K.')
+        silver = with_external_ref(SILVER, block)
+        self.fixture(silver=silver)
+        stdout = self.run_script()
+        self.assertIn('140K', stdout)
+        self.assertIn('1 external reference note figure(s)', stdout)
+        self.assertIn('1 derived document(s)', stdout)
+
+    def test_unparseable_frontmatter_produces_one_line_and_does_not_crash(self):
+        silver = SILVER.replace('type: Concept', 'type: Concept\ntype: Concept')
+        self.fixture(silver=silver)
+        stdout = self.run_script()
+        self.assertIn('## Documents without possible verification', stdout)
+        self.assertIn('could not parse frontmatter', stdout)
+        self.assertEqual(stdout.count('knowledge/10-silver/concept.md'), 1)
 
     def test_ignores_arguments_and_still_succeeds(self):
         self.fixture()

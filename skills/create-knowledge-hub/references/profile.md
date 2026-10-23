@@ -1,6 +1,6 @@
 # New hub profile
 
-`hub.json` configures the local pattern (version 0.4.0). It's not part of
+`hub.json` configures the local pattern (version 0.5.0). It's not part of
 the OKF standard. Policy declarations are instructions for the agent; the
 generator doesn't install a process that technically enforces them.
 
@@ -13,6 +13,7 @@ generator doesn't install a process that technically enforces them.
 | `domain` | starting topic; may later span several fields. Can deliberately repeat across several sibling hubs (e.g. separate Compute, Kubernetes, and Networking hubs all sharing `domain: "Azure"`) as an informal grouping signal — there's no registry behind it, it's just a convention |
 | `hub_key` | UUID v4, generated once by the generator, never edited — a stable, name-independent identity for this hub. Foundation for a future cross-hub citation mechanism; not consumed by anything yet |
 | `hub_category` | `"competency"` (topic-based, cuts across clients/initiatives — Azure, Kubernetes, sales) or `"initiative"` (client/project-specific, cuts across competencies). Orthogonal to `kind`, which is about ownership, not content type |
+| `default_classification` | one of `Public`/`Internal`/`Confidential`/`Secret`, required in 0.5.0: the fallback sensitivity level for any document that doesn't declare its own `classification`. The CLI argument is optional, defaulting to `"Confidential"` — fail-closed — but the field is always present in `hub.json` |
 | `bundle_root` | `knowledge`, the boundary of OKF documents |
 | `concept_types` | starter vocabulary; adapt it after the first material |
 | `policy` | the automation stage for editing, publication, and external actions |
@@ -32,6 +33,18 @@ when the document is created, never edited afterward — the per-document
 counterpart to `hub_key`. See SCHEMA.md's "Stable identity" section for
 why path-based identity, fine within one hub, doesn't hold up across
 hubs.
+
+`classification` and `external_refs[]` are also document-level fields,
+added in 0.5.0. `classification` is optional per document — one of the
+same four values as `default_classification`, overriding the hub default
+for that document when present. `external_refs[]` is the array that
+records an actual cross-hub reference: `{id, hub, doc, classification,
+operation, note}`, where `hub`/`doc` are the target's `hub_key`/`doc_key`
+and `operation` is `"cite"` (read-only pointer) or `"derive"` (new,
+locally-authored, anonymized content with a provenance trail). See
+SCHEMA.md's "Cross-hub references" section for the full mechanics,
+including the classification tiers' semantics and the hard `Secret`
+block.
 
 The skill directory can be copied in full. The templates are generator
 resources. A template change applies to new hubs; an existing hub keeps
@@ -54,6 +67,20 @@ Write the changelog entry as part of the PR that bumps `profile_version`
 (under "Unreleased" until merged, then retitled with the release date).
 The tag can only be created afterward, on the actual merge commit once it
 exists — push it right after merging, not as a later afterthought.
+
+Profile 0.5.0 adds the cross-hub citation mechanism built on 0.4.0's
+identity fields: a required `default_classification` in `hub.json`
+(`Public`/`Internal`/`Confidential`/`Secret`, CLI argument optional,
+defaulting to `"Confidential"`), an optional per-document
+`classification`, and `external_refs[]` for Cite (read-only pointer) and
+Derive (locally-authored, anonymized content with a provenance trail)
+references to another hub's document. A `classification: "Secret"`
+reference is always a hard validator error; any Derive requires a
+`knowledge/90-decisions/` entry naming the deriving document's own
+`doc_key`; a `Confidential` reference's free-text `note` is scanned
+(non-blocking) for leaked figures. Citation only works once both hubs
+are on ≥0.5.0. The adoption procedure for 0.4.0 → 0.5.0 is in
+docs/migration-0.5.0.md in the generator repository.
 
 Profile 0.4.0 adds stable identity: `hub_key` and `hub_category` in
 `hub.json`, and a required `doc_key` on every silver/gold document. This

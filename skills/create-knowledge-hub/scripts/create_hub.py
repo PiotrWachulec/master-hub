@@ -9,7 +9,7 @@ import re
 import sys
 import uuid
 
-PROFILE_VERSION = "0.4.0"
+PROFILE_VERSION = "0.5.0"
 ASSETS = Path(__file__).resolve().parent.parent / "assets" / "hub"
 
 
@@ -45,6 +45,7 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
         "domain": args.domain,
         "hub_key": str(uuid.uuid4()),
         "hub_category": args.hub_category,
+        "default_classification": args.default_classification,
         "bundle_root": "knowledge",
         "quality": {
             "validator": "scripts/validate_hub.py",
@@ -67,8 +68,13 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
     files[Path("README.md")] = (
         f"# {args.title}\n\n"
         f"Owner: {args.owner}. Starting topic: {args.domain}.\n\n"
-        f"Hub key (for other hubs to eventually cite this one): "
-        f"`{config['hub_key']}`. Category: `{args.hub_category}`.\n\n"
+        f"Hub key (for other hubs to cite this one): "
+        f"`{config['hub_key']}`. Category: `{args.hub_category}`. "
+        f"Default classification: `{args.default_classification}`.\n\n"
+        "Other hubs can cite this one's documents (read-only) or derive "
+        "anonymized content from them — see `SCHEMA.md`'s \"Cross-hub "
+        "references\" section for the mechanics and the classification "
+        "rules.\n\n"
         "Open this directory as a separate vault in Obsidian. "
         "Start with the [knowledge index](knowledge/index.md).\n\n"
         "## Three independent actions for the agent\n\n"
@@ -170,6 +176,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--domain", type=nonempty, required=True)
     parser.add_argument("--hub-category", dest="hub_category",
                         choices=("competency", "initiative"), required=True)
+    parser.add_argument("--default-classification", dest="default_classification",
+                        choices=("Public", "Internal", "Confidential", "Secret"),
+                        default="Confidential")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
     # Inspect the supplied path before resolving: also refuse dangling symlinks.

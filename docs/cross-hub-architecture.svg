@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1040" viewBox="0 0 1400 1040" role="img" aria-labelledby="title desc">
+  <title id="title">Competency hubs × initiative hubs</title>
+  <desc id="desc">A matrix of competency hubs (topic knowledge, e.g. Azure, Kubernetes, Sales) against initiative hubs (client/project work, e.g. Client A, Client B, Project X). Each intersection is one dedicated agent session. It can Cite competency knowledge into the initiative's deliverable as a read-only pointer, or Derive anonymized, generalized knowledge back into the competency hub as new, locally-written content. A classification boundary separates the two: Cite never copies raw content across it, and a Derive crossing it is always new content with the source never named, traceable later only via hub_key and doc_key.</desc>
+  <defs>
+    <marker id="arrowGray" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8Z" fill="#68798e"/></marker>
+    <marker id="arrowCite" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8Z" fill="#2f6fa8"/></marker>
+    <marker id="arrowDerive" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8Z" fill="#b5651d"/></marker>
+    <style>
+      text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #172b42; }
+      .title { font-size: 36px; font-weight: 700; letter-spacing: -1px; }
+      .sub { font-size: 20px; fill: #53647a; }
+      .step { font-size: 20px; font-weight: 600; }
+      .layer { font-size: 15px; font-weight: 700; letter-spacing: 2px; }
+      .heading { font-size: 22px; font-weight: 700; }
+      .body { font-size: 19px; }
+      .small { font-size: 16px; fill: #53647a; }
+      .tiny { font-size: 14px; fill: #53647a; }
+      .path { font-family: ui-monospace, Menlo, monospace; font-size: 14px; fill: #6c592c; }
+      .citeLabel { font-size: 16px; fill: #2f6fa8; font-weight: 600; }
+      .deriveLabel { font-size: 16px; fill: #b5651d; font-weight: 600; }
+      .edge { fill: none; stroke: #68798e; stroke-width: 2.5; marker-end: url(#arrowGray); }
+      .edgeCite { fill: none; stroke: #2f6fa8; stroke-width: 3; marker-end: url(#arrowCite); }
+      .edgeDerive { fill: none; stroke: #b5651d; stroke-width: 3; stroke-dasharray: 9 6; marker-end: url(#arrowDerive); }
+      .boundary { fill: none; stroke: #94a3b8; stroke-width: 2; stroke-dasharray: 6 5; }
+    </style>
+  </defs>
+  <rect width="1400" height="1040" fill="#f7f9fc"/>
+
+  <text x="50" y="65" class="title">Competency hubs × initiative hubs</text>
+  <text x="50" y="100" class="sub">Where topic knowledge and client work meet — Cite pulls it in, Derive feeds it back, anonymized.</text>
+
+  <text x="270" y="155" class="layer">INITIATIVE HUBS</text>
+  <text x="30" y="455" class="layer" transform="rotate(-90 30 455)">COMPETENCY HUBS</text>
+
+  <!-- Column headers: initiative hubs -->
+  <rect x="270" y="170" width="320" height="60" rx="12" fill="#eaf5ef" stroke="#bdd9c9" stroke-width="1.5"/>
+  <text x="290" y="196" class="step">Client A</text>
+  <text x="290" y="218" class="small">initiative hub</text>
+
+  <rect x="620" y="170" width="320" height="60" rx="12" fill="#eaf5ef" stroke="#bdd9c9" stroke-width="1.5"/>
+  <text x="640" y="196" class="step">Client B</text>
+  <text x="640" y="218" class="small">initiative hub</text>
+
+  <rect x="970" y="170" width="320" height="60" rx="12" fill="#eaf5ef" stroke="#bdd9c9" stroke-width="1.5"/>
+  <text x="990" y="196" class="step">Project X</text>
+  <text x="990" y="218" class="small">initiative hub</text>
+
+  <!-- Row headers: competency hubs -->
+  <rect x="50" y="240" width="200" height="130" rx="14" fill="#eaf1fc" stroke="#9db9df" stroke-width="1.5"/>
+  <text x="70" y="290" class="heading">Azure</text>
+  <text x="70" y="318" class="small">competency hub</text>
+
+  <rect x="50" y="390" width="200" height="130" rx="14" fill="#eaf1fc" stroke="#9db9df" stroke-width="1.5"/>
+  <text x="70" y="440" class="heading">Kubernetes</text>
+  <text x="70" y="468" class="small">competency hub</text>
+
+  <rect x="50" y="540" width="200" height="130" rx="14" fill="#eaf1fc" stroke="#9db9df" stroke-width="1.5"/>
+  <text x="70" y="590" class="heading">Sales</text>
+  <text x="70" y="618" class="small">competency hub</text>
+
+  <!-- Grid cells: 9 intersections, each one dedicated agent session -->
+  <!-- Row: Azure -->
+  <rect x="270" y="240" width="320" height="130" rx="12" fill="#fff8e4" stroke="#dac278" stroke-width="2"/>
+  <text x="430" y="295" class="small" text-anchor="middle">Agent session</text>
+  <text x="430" y="325" class="path" text-anchor="middle">Azure × Client A</text>
+  <text x="430" y="348" class="tiny" text-anchor="middle">see detail below ↓</text>
+
+  <rect x="620" y="240" width="320" height="130" rx="12" fill="#ffffff" stroke="#c4d0dd" stroke-width="1.5"/>
+  <text x="780" y="295" class="small" text-anchor="middle">Agent session</text>
+  <text x="780" y="325" class="path" text-anchor="middle">Azure × Client B</text>
+
+  <rect x="970" y="240" width="320" height="130" rx="12" fill="#ffffff" stroke="#c4d0dd" stroke-width="1.5"/>
+  <text x="1130" y="295" class="small" text-anchor="middle">Agent session</text>
+  <text x="1130" y="325" class="path" text-anchor="middle">Azure × Project X</text>
+
+  <!-- Row: Kubernetes -->
+  <rect x="270" y="390" width="320" height="130" rx="12" fill="#ffffff" stroke="#c4d0dd" stroke-width="1.5"/>
+  <text x="430" y="445" class="small" text-anchor="middle">Agent session</text>
+  <text x="430" y="475" class="path" text-anchor="middle">Kubernetes × Client A</text>
+
+  <rect x="620" y="390" width="320" height="130" rx="12" fill="#ffffff" stroke="#c4d0dd" stroke-width="1.5"/>
+  <text x="780" y="445" class="small" text-anchor="middle">Agent session</text>
+  <text x="780" y="475" class="path" text-anchor="middle">Kubernetes × Client B</text>
+
+  <rect x="970" y="390" width="320" height="130" rx="12" fill="#ffffff" stroke="#c4d0dd" stroke-width="1.5"/>
+  <text x="1130" y="445" class="small" text-anchor="middle">Agent session</text>
+  <text x="1130" y="475" class="path" text-anchor="middle">Kubernetes × Project X</text>
+
+  <!-- Row: Sales -->
+  <rect x="270" y="540" width="320" height="130" rx="12" fill="#ffffff" stroke="#c4d0dd" stroke-width="1.5"/>
+  <text x="430" y="595" class="small" text-anchor="middle">Agent session</text>
+  <text x="430" y="625" class="path" text-anchor="middle">Sales × Client A</text>
+
+  <rect x="620" y="540" width="320" height="130" rx="12" fill="#ffffff" stroke="#c4d0dd" stroke-width="1.5"/>
+  <text x="780" y="595" class="small" text-anchor="middle">Agent session</text>
+  <text x="780" y="625" class="path" text-anchor="middle">Sales × Client B</text>
+
+  <rect x="970" y="540" width="320" height="130" rx="12" fill="#ffffff" stroke="#c4d0dd" stroke-width="1.5"/>
+  <text x="1130" y="595" class="small" text-anchor="middle">Agent session</text>
+  <text x="1130" y="625" class="path" text-anchor="middle">Sales × Project X</text>
+
+  <text x="50" y="703" class="body">Detail — how the highlighted Azure × Client A intersection works, below:</text>
+
+  <!-- Detail: one competency hub, one initiative hub session, Cite/Derive crossing a classification boundary -->
+  <rect x="90" y="760" width="380" height="130" rx="14" fill="#eaf1fc" stroke="#9db9df" stroke-width="1.5"/>
+  <text x="110" y="800" class="heading">Azure (competency)</text>
+  <text x="110" y="828" class="small">stable topic knowledge</text>
+  <text x="110" y="854" class="path">default_classification: Confidential</text>
+
+  <rect x="930" y="760" width="380" height="130" rx="14" fill="#eaf5ef" stroke="#bdd9c9" stroke-width="1.5"/>
+  <text x="950" y="800" class="heading">Client A (initiative)</text>
+  <text x="950" y="828" class="small">dedicated session for this engagement</text>
+  <text x="950" y="854" class="path">classification: per document, optional</text>
+
+  <path d="M745 745 V905" class="boundary"/>
+  <text x="745" y="738" class="small" text-anchor="middle">classification boundary</text>
+
+  <path d="M470 795 H925" class="edgeCite"/>
+  <text x="700" y="780" class="citeLabel" text-anchor="middle">Cite — read-only pointer</text>
+  <text x="700" y="812" class="tiny" text-anchor="middle">hub_key + doc_key only, nothing copied</text>
+
+  <path d="M925 855 H470" class="edgeDerive"/>
+  <text x="700" y="840" class="deriveLabel" text-anchor="middle">Derive — anonymized, new content</text>
+  <text x="700" y="872" class="tiny" text-anchor="middle">+ a 90-decisions entry naming the doc_key</text>
+
+  <text x="90" y="922" class="small">The boundary never moves. Cite only ever carries a pointer;</text>
+  <text x="90" y="946" class="small">a Derive is new, anonymized content — traceable only via hub_key/doc_key, never named in the note.</text>
+
+  <rect x="50" y="965" width="1300" height="70" rx="18" fill="#18364f"/>
+  <text x="76" y="1000" style="font-size:24px;font-weight:650;fill:#ffffff">One matrix, one rule: Cite sends knowledge down; Derive sends it back up, anonymized.</text>
+  <text x="76" y="1025" style="font-size:16px;fill:#d8e7f3">Raw content never crosses the boundary. See SCHEMA.md's "Cross-hub references" for the exact mechanics.</text>
+</svg>
