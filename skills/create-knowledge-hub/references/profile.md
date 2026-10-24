@@ -1,6 +1,6 @@
 # New hub profile
 
-`hub.json` configures the local pattern (version 0.5.0). It's not part of
+`hub.json` configures the local pattern (version 0.5.1). It's not part of
 the OKF standard. Policy declarations are instructions for the agent; the
 generator doesn't install a process that technically enforces them.
 
@@ -67,6 +67,20 @@ Write the changelog entry as part of the PR that bumps `profile_version`
 (under "Unreleased" until merged, then retitled with the release date).
 The tag can only be created afterward, on the actual merge commit once it
 exists — push it right after merging, not as a later afterthought.
+
+Profile 0.5.1 is a docs-only fix: the "Documents and references" section
+now requires a footnote definition to include a clickable relative
+Markdown link to the cited resource, not just page/section prose.
+`sources[].resource` in frontmatter is what the validator checks, but
+it's a plain YAML string — not a link Obsidian's Graph View resolves —
+and wikilinks aren't supported, so without an actual Markdown link in the
+footnote, a document's real, validator-verified references to its bronze
+sources are invisible when browsing the vault. No validator check, field,
+or contract shape changed; nothing needs regenerating. Existing documents
+written before this clarification are still valid — this only changes
+guidance for new/edited footnotes going forward. No migration doc: bump
+`profile_version` to `0.5.1` in `hub.json` and, next time a document is
+touched, write its footnote definitions the new way.
 
 Profile 0.5.0 adds the cross-hub citation mechanism built on 0.4.0's
 identity fields: a required `default_classification` in `hub.json`

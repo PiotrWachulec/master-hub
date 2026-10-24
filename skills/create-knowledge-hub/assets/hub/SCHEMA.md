@@ -1,4 +1,4 @@
-# Knowledge processing contract — profile 0.5.0
+# Knowledge processing contract — profile 0.5.1
 
 This contract describes work inside a single hub. The OKF 0.2 bundle covers
 only `knowledge/`. Configuration and instructions in the parent directory
@@ -68,10 +68,18 @@ with the real tool, not invented: run
 use that value.
 
 In the text, the footnote `[^material-a]` links a claim to `sources[].id`.
-The footnote definition specifies the page, section, or time. Use standard
-relative Markdown links and stable ASCII file names. When moving a file,
-update links and source pointers. A concept's identity in OKF comes from
-its path relative to the bundle root.
+The footnote definition specifies the page, section, or time, **and
+includes a clickable relative Markdown link to the cited resource**, not
+page/section prose alone — e.g. `[^material-a]: Section 2. [Source](../00-bronze/material-a-v1.md)`.
+`sources[].resource` in frontmatter is what the validator checks for
+existence; it's a plain YAML string, not something Obsidian's Graph View
+resolves into an edge, and wikilinks aren't supported in this contract
+(see the link-checking rules below) — so the footnote's own Markdown link
+is what makes a silver/gold document visibly connect to its bronze
+sources when browsing the vault. Use standard relative Markdown links and
+stable ASCII file names. When moving a file, update links and source
+pointers. A concept's identity in OKF comes from its path relative to the
+bundle root.
 
 ## Stable identity
 
@@ -245,7 +253,7 @@ also ready to be a citation target.
 `.venv/bin/python -B scripts/validate_hub.py` checks the hub containing the
 script, not the current working directory. Python 3.10+, standard library
 only, no network access, no writes. This is a validator for local profile
-0.5.0, not the full OKF. Scripts always run inside the local virtual
+0.5.1, not the full OKF. Scripts always run inside the local virtual
 environment. If `.venv` doesn't exist, the agent creates it beforehand with
 `python3 -m venv .venv` in the hub directory. On Windows the interpreter is
 at `.venv/Scripts/python.exe`. No system-wide installs; any packages only
@@ -256,7 +264,7 @@ Checks:
 
 - the required scaffold files, the `hub.json` configuration, and every
   `.md` file under knowledge;
-- `profile_version: "0.5.0"` and
+- `profile_version: "0.5.1"` and
   `policy.remote_copy: "required_after_validated_task"`;
 - document frontmatter (outside the closed exception list above): `type`,
   `title`, `description`, `status`, `generated`; `type` must be in
@@ -568,7 +576,7 @@ the other two scopes: `publication` concerns accepting drafts for
 publication, and `external_actions` concerns operational actions, e.g.
 changing a campaign budget. The field doesn't pick a remote and doesn't
 authorize sending to just any destination. It's required under profile
-0.5.0. A missing or different value is a contract inconsistency, not a
+0.5.1. A missing or different value is a contract inconsistency, not a
 local-work mode. An instruction for local-only work is an exception for
 the task, not a configuration change. An older hub without this field
 hasn't automatically adopted this rule; it needs an explicit contract
@@ -582,7 +590,7 @@ agreed main branch as a draft, same as before this field existed.
 `"required_pr"` routes content through the same branch + PR + review
 procedure already used for contract changes, with no self-merge — useful
 once more than one person or agent writes to the same hub, to avoid
-silent overwrites. It's required under profile 0.5.0, with the same rule
+silent overwrites. It's required under profile 0.5.1, with the same rule
 as `remote_copy`: a missing or different value is a contract
 inconsistency, not a default, and an older hub without the field hasn't
 adopted either value automatically.
