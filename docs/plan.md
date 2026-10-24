@@ -8,7 +8,7 @@
 2. Open the hub as a project for the agent. Add one piece of material,
    extending bronze and silver without requiring gold.
 3. The agent checks the structure with the local validator (profile
-   0.5.1), fixes violations within the limit, and presents the result;
+   0.6.0), fixes violations within the limit, and presents the result;
    separately, the non-blocking `scripts/check_evidence.py` shows
    suspected gaps in source coverage. Review the content and hand over
    corrections through conversation — a green structure doesn't replace

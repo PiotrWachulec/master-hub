@@ -14,6 +14,36 @@ shape or an existing hub's directory structure.
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-10-24
+
+### Added
+
+- Each layer index (`00-bronze/index.md`/`10-silver/index.md`/
+  `20-gold/index.md`/`90-decisions/index.md`) now carries a short
+  description plus a Dataview query listing that layer's documents
+  dynamically, instead of a manually maintained list of links — a
+  growing hand-written link list turns the index into a high-degree hub
+  node that dominates Obsidian's Graph View, crowding out the real
+  concept-to-concept and concept-to-source connections.
+  `knowledge/index.md`'s four fixed per-layer links are unaffected.
+- `.obsidian/graph.json` ships by default on new hubs, with a color
+  group per layer and a search filter hiding `index.md`/`log.md` from
+  the graph.
+- A "Content quality" rule against hand-wrapping prose at a fixed column
+  width: Obsidian's reading view renders a bare `\n` inside a paragraph
+  as a real line break, unlike strict CommonMark, so manually wrapped
+  prose shows up as choppy, mid-sentence breaks.
+- `docs/migration-0.6.0.md`.
+
+### Fixed
+
+- A stale `SCHEMA.md` instruction to "add it to `knowledge/index.md`"
+  when archiving a Query answer — the root index never held a
+  per-document list even before this release.
+
+No validator check, `hub.json` field, or document frontmatter shape
+changed — the layer indexes' content was never structurally enforced.
+
 ## [0.5.1] — 2026-10-23
 
 ### Changed

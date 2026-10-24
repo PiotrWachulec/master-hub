@@ -9,7 +9,7 @@ import re
 import sys
 import uuid
 
-PROFILE_VERSION = "0.5.1"
+PROFILE_VERSION = "0.6.0"
 ASSETS = Path(__file__).resolve().parent.parent / "assets" / "hub"
 
 
@@ -113,7 +113,15 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
         "```\n"
         "````\n\n"
         "This is purely a human viewing layer; the agent and the validator "
-        "don't use it.\n\n"
+        "don't use it. Each layer's own `index.md` already uses this "
+        "pattern instead of a manually maintained link list — see "
+        "`SCHEMA.md`'s \"Documents and references\" section for why.\n\n"
+        "Graph View ships pre-configured (`.obsidian/graph.json`) with a "
+        "distinct color per layer and a filter hiding `index.md`/`log.md` "
+        "navigation files, so the graph shows real connections between "
+        "documents instead of being dominated by navigation pages. Local "
+        "to this vault; adjust or reset it freely from Obsidian's Graph "
+        "View settings.\n\n"
         "## Structure check\n\n"
         "Always run Python scripts in the local `.venv`. If it doesn't "
         "exist, run `python3 -m venv .venv` (Python 3.10+) in the hub "
@@ -162,6 +170,18 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
     )
     files[Path(".obsidian/app.json")] = json.dumps(
         {"useMarkdownLinks": True, "newLinkFormat": "relative"}, indent=2
+    ) + "\n"
+    files[Path(".obsidian/graph.json")] = json.dumps(
+        {
+            "search": '-path:"index.md" -path:"*/index.md" -path:"log.md"',
+            "colorGroups": [
+                {"query": 'path:"knowledge/00-bronze"', "color": {"a": 1, "rgb": 13145189}},
+                {"query": 'path:"knowledge/10-silver"', "color": {"a": 1, "rgb": 10336735}},
+                {"query": 'path:"knowledge/20-gold"', "color": {"a": 1, "rgb": 12888904}},
+                {"query": 'path:"knowledge/90-decisions"', "color": {"a": 1, "rgb": 5217646}},
+            ],
+        },
+        indent=2,
     ) + "\n"
     return files
 

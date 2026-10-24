@@ -1,4 +1,4 @@
-# Knowledge processing contract — profile 0.5.1
+# Knowledge processing contract — profile 0.6.0
 
 This contract describes work inside a single hub. The OKF 0.2 bundle covers
 only `knowledge/`. Configuration and instructions in the parent directory
@@ -99,12 +99,25 @@ or moves.
 `hub_key` and `doc_key` are the foundation the citation mechanism below is
 built on — see "Cross-hub references."
 
-The navigation indexes from the list above contain links and short
-descriptions; they don't replace knowledge documents. The bundle's main
-index requires `okf_version: "0.2"` frontmatter; layer indexes don't
-require document metadata. `knowledge/log.md` has entries under
-`YYYY-MM-DD` dates, newest first, with no frontmatter. The log documents
-changes; it doesn't replace sources or user decisions.
+The navigation indexes from the list above don't replace knowledge
+documents. `knowledge/index.md` is the one exception that holds static
+links — four, one per layer, fixed in number — and requires
+`okf_version: "0.2"` frontmatter. The four layer indexes
+(`00-bronze/index.md`, `10-silver/index.md`, `20-gold/index.md`,
+`90-decisions/index.md`) don't require document metadata, and don't hold
+a manually maintained list of links either: each one carries a short
+layer description plus a Dataview query (a fenced ` ```dataview ` block)
+that lists that layer's documents by `type`/`title`/`status` dynamically.
+Adding or removing a document never requires editing its layer's
+index — the query reflects the current state on its own, and a growing
+hand-written link list would otherwise turn that index into a
+high-degree hub node that dominates Obsidian's Graph View, crowding out
+the real concept-to-concept and concept-to-source connections. Dataview
+is a purely optional viewing layer: the agent and the validator never
+read it, and without the plugin installed, Obsidian just shows the raw
+query block instead of a rendered table. `knowledge/log.md` has entries
+under `YYYY-MM-DD` dates, newest first, with no frontmatter. The log
+documents changes; it doesn't replace sources or user decisions.
 
 The "No material" disposition (see "Add material to the base" below) is
 recorded as a separate line under the date, in the format `- No material:
@@ -253,7 +266,7 @@ also ready to be a citation target.
 `.venv/bin/python -B scripts/validate_hub.py` checks the hub containing the
 script, not the current working directory. Python 3.10+, standard library
 only, no network access, no writes. This is a validator for local profile
-0.5.1, not the full OKF. Scripts always run inside the local virtual
+0.6.0, not the full OKF. Scripts always run inside the local virtual
 environment. If `.venv` doesn't exist, the agent creates it beforehand with
 `python3 -m venv .venv` in the hub directory. On Windows the interpreter is
 at `.venv/Scripts/python.exe`. No system-wide installs; any packages only
@@ -264,7 +277,7 @@ Checks:
 
 - the required scaffold files, the `hub.json` configuration, and every
   `.md` file under knowledge;
-- `profile_version: "0.5.1"` and
+- `profile_version: "0.6.0"` and
   `policy.remote_copy: "required_after_validated_task"`;
 - document frontmatter (outside the closed exception list above): `type`,
   `title`, `description`, `status`, `generated`; `type` must be in
@@ -441,6 +454,15 @@ README.
   bronze/silver/gold into English or any other language unless the user
   explicitly asks for it — this contract being written in English doesn't
   set the language of the knowledge itself.
+- Write each paragraph as a single logical line in the source file — don't
+  manually wrap prose at a fixed column width with a line break every
+  ~80-100 characters. A single `\n` inside a paragraph isn't always a
+  soft break: Obsidian's default reading view (unlike strict CommonMark)
+  renders it as a real line break, so hand-wrapped prose shows up as
+  choppy, mid-sentence breaks instead of a flowing paragraph. Let the
+  editor or viewer wrap text for display; break the source only between
+  paragraphs (a blank line) or for genuine structure (a list item, a
+  blockquote).
 - When a new source challenges or invalidates a specific claim, don't
   silently overwrite it. Mark it with a block inserted directly under the
   claim, separate from the whole document's `status` field (the latter
@@ -508,8 +530,9 @@ By default this writes nothing; it's a separate action from the other two.
 3. On the request "archive this answer," save it as a new document in
    `10-silver` (type `Synthesis`, `sources[]` pointing to the cited
    silver/gold articles — not bronze, since this isn't primary source
-   material), add it to `knowledge/index.md` and `knowledge/log.md`.
-   Always a new document; don't merge the archive into an existing
+   material) and add an entry to `knowledge/log.md`. `10-silver/index.md`
+   needs no edit — its Dataview query picks the new document up on its
+   own. Always a new document; don't merge the archive into an existing
    article, since it's a synthesized answer, not source material.
 
 ### Prepare material for a specific purpose — gold
@@ -576,7 +599,7 @@ the other two scopes: `publication` concerns accepting drafts for
 publication, and `external_actions` concerns operational actions, e.g.
 changing a campaign budget. The field doesn't pick a remote and doesn't
 authorize sending to just any destination. It's required under profile
-0.5.1. A missing or different value is a contract inconsistency, not a
+0.6.0. A missing or different value is a contract inconsistency, not a
 local-work mode. An instruction for local-only work is an exception for
 the task, not a configuration change. An older hub without this field
 hasn't automatically adopted this rule; it needs an explicit contract
@@ -590,7 +613,7 @@ agreed main branch as a draft, same as before this field existed.
 `"required_pr"` routes content through the same branch + PR + review
 procedure already used for contract changes, with no self-merge — useful
 once more than one person or agent writes to the same hub, to avoid
-silent overwrites. It's required under profile 0.5.1, with the same rule
+silent overwrites. It's required under profile 0.6.0, with the same rule
 as `remote_copy`: a missing or different value is a contract
 inconsistency, not a default, and an older hub without the field hasn't
 adopted either value automatically.

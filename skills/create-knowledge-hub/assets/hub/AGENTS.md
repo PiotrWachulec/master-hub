@@ -45,13 +45,15 @@ overwrite them during synthesis. A source correction is a new version; an
 interpretation correction is a change to silver/gold with the reason
 noted.
 
-New drafts are proposals (`status: draft`). Update the indexes and the log
-along with the content. Don't claim human review without an actual
-decision tied to specific content.
+New drafts are proposals (`status: draft`). Update `knowledge/log.md`
+along with the content. The four layer indexes are Dataview-driven and
+update themselves — don't hand-edit them per document; `knowledge/index.md`
+holds four fixed links that essentially never change. Don't claim human
+review without an actual decision tied to specific content.
 
 ## Ongoing remote copy — commit and push
 
-Profile 0.5.1 declares in hub.json
+Profile 0.6.0 declares in hub.json
 `policy.remote_copy: "required_after_validated_task"`. This is an explicit
 Git-copy obligation, separate from approving drafts (`publication`) and
 from disabled operational actions (`external_actions`). A missing field,
