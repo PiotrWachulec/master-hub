@@ -37,7 +37,7 @@ class CreateHubTests(unittest.TestCase):
         self.assertEqual(config["policy"]["external_actions"], "disabled")
         self.assertEqual(config["policy"]["publication"], "explicit_acceptance")
         self.assertEqual(config["policy"]["remote_copy"], "required_after_validated_task")
-        self.assertEqual(config["profile_version"], "0.5.1")
+        self.assertEqual(config["profile_version"], "0.6.0")
         self.assertEqual(config["default_classification"], "Confidential")
         self.assertEqual(config["policy"]["content_review"], "direct")
         self.assertEqual(config["hub_category"], "competency")
@@ -52,6 +52,18 @@ class CreateHubTests(unittest.TestCase):
         self.assertFalse((destination / config["bundle_root"] / "imports").exists())
         self.assertEqual(json.loads((destination / ".obsidian/app.json").read_text())
                          ["newLinkFormat"], "relative")
+        graph = json.loads((destination / ".obsidian/graph.json").read_text())
+        self.assertEqual(len(graph["colorGroups"]), 4)
+        for group in graph["colorGroups"]:
+            self.assertRegex(group["query"], r'^path:"knowledge/')
+            self.assertEqual(group["color"]["a"], 1)
+            self.assertIsInstance(group["color"]["rgb"], int)
+        self.assertIn('-path:"index.md"', graph["search"])
+        self.assertIn('-path:"log.md"', graph["search"])
+        for layer in ("00-bronze", "10-silver", "20-gold", "90-decisions"):
+            index_text = (destination / "knowledge" / layer / "index.md").read_text()
+            self.assertIn("```dataview", index_text)
+            self.assertIn(f'FROM "knowledge/{layer}"', index_text)
         # The generated hub must not retain a dependency on either installation path.
         for path in destination.rglob("*.md"):
             text = path.read_text()

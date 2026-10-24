@@ -74,7 +74,7 @@ to separately say "push it." The destination and repository access are
 agreed during the first setup; the generator itself doesn't create Git or
 a remote. The agent confirms the commit on the remote repository or
 reports a missing current copy. The obligation is explicit in `hub.json`
-under profile 0.5.1: `policy.remote_copy: "required_after_validated_task"`.
+under profile 0.6.0: `policy.remote_copy: "required_after_validated_task"`.
 
 This is a working instruction for the agent, not a background backup. It
 covers pushed Git files, not external recordings or ignored files.
@@ -99,7 +99,7 @@ configuration.
 
 ## Versions and capabilities
 
-Format: OKF 0.2. Local working profile: 0.5.1, recorded in `hub.json`.
+Format: OKF 0.2. Local working profile: 0.6.0, recorded in `hub.json`.
 Template changes affect new hubs; existing ones need an explicit
 migration. There's no automatic migrator, nor an obligation to adopt every
 new OKF version immediately. Each profile release is tagged (`vX.Y.Z`);
@@ -125,9 +125,11 @@ Grounding, source triage, and Query/Archive are described in the
 shared hubs is described in the [0.2.2 → 0.3.0 update](docs/migration-0.3.0.md).
 Stable cross-hub identity is described in the
 [0.3.0 → 0.4.0 update](docs/migration-0.4.0.md), and cross-hub citation
-in the [0.4.0 → 0.5.0 update](docs/migration-0.5.0.md). We currently
-assume no existing hubs and perform no migrations. This document neither
-requires nor runs a hub registry.
+in the [0.4.0 → 0.5.0 update](docs/migration-0.5.0.md). Dataview-driven
+layer indexes are described in the
+[0.5.1 → 0.6.0 update](docs/migration-0.6.0.md). We currently assume no
+existing hubs and perform no migrations. This document neither requires
+nor runs a hub registry.
 
 The generator, the editing instructions, the local structure validator,
 and the non-blocking grounding report all work. Automatic ingest, sync, a

@@ -187,12 +187,12 @@ class ValidateHubTests(unittest.TestCase):
             self.validate()
 
     def test_profile_version_requires_explicit_upgrade(self):
-        for version in ('0.3.0', '0.2.2', '0.2.1', '0.2.0', '0.1.1', '0.5.0', None, 0.4):
+        for version in ('0.3.0', '0.2.2', '0.2.1', '0.2.0', '0.1.1', '0.5.1', None, 0.4):
             with self.subTest(version=version):
                 self.config(lambda c: c.update(profile_version=version))
-                self.validate(False, 'implements profile 0.5.1')
+                self.validate(False, 'implements profile 0.6.0')
         self.config(lambda c: c.pop('profile_version'))
-        self.validate(False, 'implements profile 0.5.1')
+        self.validate(False, 'implements profile 0.6.0')
 
     def test_invalid_remote_copy_policy_does_not_skip_documents(self):
         self.config(lambda c: c['policy'].pop('remote_copy'))
