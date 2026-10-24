@@ -14,6 +14,20 @@ shape or an existing hub's directory structure.
 
 ## [Unreleased]
 
+## [0.5.1] — 2026-10-23
+
+### Changed
+
+- `SCHEMA.md`'s "Documents and references" section now requires a
+  footnote definition to include a clickable relative Markdown link to
+  the cited resource, not just page/section prose. `sources[].resource`
+  in frontmatter is what the validator checks, but it's a plain YAML
+  string, not a link Obsidian's Graph View resolves, and wikilinks aren't
+  supported here — so without an actual Markdown link in the footnote, a
+  document's real, validator-verified references to its bronze sources
+  were invisible when browsing the vault. Docs-only: no validator check,
+  field, or contract shape changed.
+
 ## [0.5.0] — 2026-10-22
 
 ### Added

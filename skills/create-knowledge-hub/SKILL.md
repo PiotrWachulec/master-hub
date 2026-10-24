@@ -44,7 +44,7 @@ hub already exists or that other repositories are accessible.
    directory. `--dry-run` doesn't write the hub; creating the environment
    beforehand is a separate tool-setup step.
 4. Check the configuration, indexes, and contract of the generated hub,
-   including `profile_version: "0.5.0"` and
+   including `profile_version: "0.5.1"` and
    `policy.remote_copy: "required_after_validated_task"`. This is the
    Git-copy obligation, not confirmation that it's configured. An existing
    directory is refused — don't remove it to work around that protection.

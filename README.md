@@ -74,7 +74,7 @@ to separately say "push it." The destination and repository access are
 agreed during the first setup; the generator itself doesn't create Git or
 a remote. The agent confirms the commit on the remote repository or
 reports a missing current copy. The obligation is explicit in `hub.json`
-under profile 0.5.0: `policy.remote_copy: "required_after_validated_task"`.
+under profile 0.5.1: `policy.remote_copy: "required_after_validated_task"`.
 
 This is a working instruction for the agent, not a background backup. It
 covers pushed Git files, not external recordings or ignored files.
@@ -99,7 +99,7 @@ configuration.
 
 ## Versions and capabilities
 
-Format: OKF 0.2. Local working profile: 0.5.0, recorded in `hub.json`.
+Format: OKF 0.2. Local working profile: 0.5.1, recorded in `hub.json`.
 Template changes affect new hubs; existing ones need an explicit
 migration. There's no automatic migrator, nor an obligation to adopt every
 new OKF version immediately. Each profile release is tagged (`vX.Y.Z`);

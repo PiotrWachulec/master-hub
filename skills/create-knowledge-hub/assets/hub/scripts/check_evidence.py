@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Report-only grounding (evidence) check for the local hub profile 0.5.0.
+"""Report-only grounding (evidence) check for the local hub profile 0.5.1.
 
 The Grounding Invariant: every load-bearing fact in 10-silver/ and 20-gold/
 (numbers, dates, direct quotes) must exist verbatim in the body of the
