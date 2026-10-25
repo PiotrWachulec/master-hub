@@ -14,6 +14,28 @@ shape or an existing hub's directory structure.
 
 ## [Unreleased]
 
+## [0.7.0] — 2026-10-25
+
+### Added
+
+- `validate_hub.py` flags a manually hand-wrapped paragraph, list item,
+  or blockquote in a silver/gold document (one logical unit spanning
+  more than one physical source line) as a non-blocking warning.
+  Operationalizes 0.6.0's "Content quality" guidance, which was
+  previously unenforced — an agent had twice claimed a hard-wrapping fix
+  was applied and reported 0 violations, when it wasn't actually fixed.
+  Deliberately a warning, not a violation: a heuristic on prose
+  structure, not a structural correctness check. A blockquote written
+  the conventional way (`>` on every physical line) is never flagged.
+- A note in `AGENTS.md` against trusting a clean `validate_hub.py` run
+  alone for this specific class of claim — check the actual file
+  content.
+- `docs/migration-0.7.0.md`.
+
+No validator-blocking (`violations`) check, `hub.json` field, or
+document frontmatter shape changed — the `quality.threshold: 0` gate is
+unaffected.
+
 ## [0.6.0] — 2026-10-24
 
 ### Added

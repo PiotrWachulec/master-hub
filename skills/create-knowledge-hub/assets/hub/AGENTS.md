@@ -10,6 +10,13 @@ the knowledge itself: keep content in the language of the source material,
 and don't translate it unless the user explicitly asks. See "Content
 quality" in SCHEMA.md.
 
+Write each paragraph, list item, and blockquote as a single physical line
+in the source file — don't manually wrap prose at a fixed column width.
+`validate_hub.py` flags a wrapped one as a non-blocking warning, but a
+clean run doesn't guarantee this is already correct: check the actual
+file content, not just the reported violation count, before claiming a
+formatting fix landed.
+
 Distinguish three independent tasks:
 
 - "Add material to the base" — keep the source in bronze and extend
@@ -53,7 +60,7 @@ review without an actual decision tied to specific content.
 
 ## Ongoing remote copy — commit and push
 
-Profile 0.6.0 declares in hub.json
+Profile 0.7.0 declares in hub.json
 `policy.remote_copy: "required_after_validated_task"`. This is an explicit
 Git-copy obligation, separate from approving drafts (`publication`) and
 from disabled operational actions (`external_actions`). A missing field,

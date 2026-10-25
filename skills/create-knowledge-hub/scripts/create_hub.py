@@ -9,7 +9,7 @@ import re
 import sys
 import uuid
 
-PROFILE_VERSION = "0.6.0"
+PROFILE_VERSION = "0.7.0"
 ASSETS = Path(__file__).resolve().parent.parent / "assets" / "hub"
 
 

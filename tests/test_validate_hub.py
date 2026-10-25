@@ -190,9 +190,9 @@ class ValidateHubTests(unittest.TestCase):
         for version in ('0.3.0', '0.2.2', '0.2.1', '0.2.0', '0.1.1', '0.5.1', None, 0.4):
             with self.subTest(version=version):
                 self.config(lambda c: c.update(profile_version=version))
-                self.validate(False, 'implements profile 0.6.0')
+                self.validate(False, 'implements profile 0.7.0')
         self.config(lambda c: c.pop('profile_version'))
-        self.validate(False, 'implements profile 0.6.0')
+        self.validate(False, 'implements profile 0.7.0')
 
     def test_invalid_remote_copy_policy_does_not_skip_documents(self):
         self.config(lambda c: c['policy'].pop('remote_copy'))
@@ -469,6 +469,56 @@ class ValidateHubTests(unittest.TestCase):
     def test_duplicate_footnote_definition(self):
         self.fixture(DOCUMENT + '\n[^input]: Repeat.\n')
         self.validate(False, 'Duplicate footnote definition')
+
+    def test_hard_wrapped_paragraph_is_warning_not_violation(self):
+        self.fixture(DOCUMENT.replace(
+            'Claim.[^input]',
+            'This claim was manually wrapped\nacross two lines.[^input]'))
+        report = self.validate(True, 'Paragraph manually wrapped across 2 lines')
+        self.assertEqual(len(report['warnings']), 1)
+
+    def test_hard_wrapped_list_item_is_warning(self):
+        self.fixture(DOCUMENT.replace(
+            'Claim.[^input]',
+            '- A list item that was manually\n  wrapped across two lines.[^input]'))
+        report = self.validate(True, 'List item manually wrapped across 2 lines')
+        self.assertEqual(len(report['warnings']), 1)
+
+    def test_bold_pseudo_item_without_marker_is_flagged_as_paragraph(self):
+        self.fixture(DOCUMENT.replace(
+            'Claim.[^input]',
+            '**a)** First pseudo-item.[^input]\n**b)** Second pseudo-item.'))
+        report = self.validate(True, 'Paragraph manually wrapped across 2 lines')
+        self.assertEqual(len(report['warnings']), 1)
+
+    def test_multiline_blockquote_with_marker_per_line_is_not_flagged(self):
+        self.fixture(DOCUMENT.replace(
+            'Claim.[^input]',
+            '> First quoted line.[^input]\n> Second quoted line, still prefixed.'))
+        report = self.validate()
+        self.assertEqual(report['warnings'], [])
+
+    def test_single_line_paragraph_and_item_are_not_flagged(self):
+        self.fixture(DOCUMENT.replace(
+            'Claim.[^input]',
+            'Claim.[^input]\n\n- A single-line item.'))
+        report = self.validate()
+        self.assertEqual(report['warnings'], [])
+
+    def test_wrapped_text_inside_fenced_code_is_not_flagged(self):
+        self.fixture(DOCUMENT.replace(
+            '[^input]: Material excerpt.',
+            '[^input]: Material excerpt.\n\n```text\nThis looks wrapped\nacross two lines.\n```'))
+        report = self.validate()
+        self.assertEqual(report['warnings'], [])
+
+    def test_hard_wrap_warning_is_scoped_to_silver_and_gold(self):
+        text = (DOCUMENT.split('sources:')[0] + '---\n# Source\n\n'
+                'This bronze paragraph was manually\nwrapped across two lines.\n').replace(
+            'doc_key: 11111111-1111-4111-8111-111111111111\n', '')
+        self.fixture(text, self.hub / 'knowledge/00-bronze/source.md')
+        report = self.validate()
+        self.assertFalse(any('manually wrapped' in w['message'] for w in report['warnings']))
 
     def test_unused_source_is_warning_not_violation(self):
         self.fixture(DOCUMENT.replace('Claim.[^input]', 'Claim.'))
