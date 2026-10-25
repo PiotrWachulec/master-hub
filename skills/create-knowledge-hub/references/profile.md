@@ -1,6 +1,6 @@
 # New hub profile
 
-`hub.json` configures the local pattern (version 0.6.0). It's not part of
+`hub.json` configures the local pattern (version 0.7.0). It's not part of
 the OKF standard. Policy declarations are instructions for the agent; the
 generator doesn't install a process that technically enforces them.
 
@@ -67,6 +67,21 @@ Write the changelog entry as part of the PR that bumps `profile_version`
 (under "Unreleased" until merged, then retitled with the release date).
 The tag can only be created afterward, on the actual merge commit once it
 exists — push it right after merging, not as a later afterthought.
+
+Profile 0.7.0 adds a new `validate_hub.py` check: a manually wrapped
+paragraph, list item, or blockquote in a silver/gold document (one
+logical unit spanning more than one physical source line) is reported as
+a non-blocking warning, never a violation. This operationalizes 0.6.0's
+"Content quality" guidance against hand-wrapped prose — it's a heuristic
+on prose structure (line-start classification: heading/list item/quote/
+footnote/table/plain text, with plain lines absorbed into whichever
+para/item/quote unit precedes them), not a structural correctness
+check, so it stays a warning by design: a fragile classifier blocking
+real work would just recreate the same false-"0 violations" trust
+problem it's meant to catch. A blockquote written the conventional way
+(`>` on every physical line) is never flagged — only a unit built by
+genuinely hard-wrapping plain prose is. The adoption procedure for
+0.6.0 → 0.7.0 is in docs/migration-0.7.0.md in the generator repository.
 
 Profile 0.6.0 changes how the four layer indexes
 (`00-bronze/index.md`/`10-silver/index.md`/`20-gold/index.md`/

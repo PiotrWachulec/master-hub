@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only validator of local hub profile 0.6.0, NOT a general OKF validator.
+"""Read-only validator of local hub profile 0.7.0, NOT a general OKF validator.
 
 Python 3.10+, standard library only. The supported frontmatter/Markdown
 subset and deliberate exclusions are documented in the hub's SCHEMA.md.
@@ -22,6 +22,16 @@ NAVIGATION_INDEXES = (
 
 NO_MATERIAL_RE = re.compile(r'^-\s*No material:\s*(\S+)', re.IGNORECASE)
 UUID_RE = re.compile(r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}')
+
+# Line-start classification for check_paragraph_wrapping(). A list marker
+# only counts directly followed by whitespace/end-of-line -- *emphasis* and
+# **bold** at the start of a line are not list items.
+HEADING_LINE_RE = re.compile(r'^#{1,6}(?:\s|$)')
+ITEM_LINE_RE = re.compile(r'^(?:[-*+]|\d+[.)])(?:\s|$)')
+QUOTE_LINE_RE = re.compile(r'^>')
+FOOTNOTE_LINE_RE = re.compile(r'^\[\^')
+TABLE_LINE_RE = re.compile(r'^\|')
+WRAP_UNIT_LABELS = {'para': 'Paragraph', 'item': 'List item', 'quote': 'Quote'}
 
 
 class SyntaxViolation(ValueError):
@@ -195,6 +205,12 @@ class Validator:
             self.report(doc, line, f"Invalid file reference: {exc}")
 
     def mask_code(self, doc, body, offset):
+        masked, unclosed = self._mask_fences_and_spans(body, offset)
+        if unclosed:
+            self.report(doc, unclosed, "Unclosed fenced code block")
+        return masked
+
+    def _mask_fences_and_spans(self, body, offset):
         # Preserve offsets/newlines so diagnostics point into the original file.
         chars = list(body)
         fence = None
@@ -213,8 +229,7 @@ class Validator:
                     if chars[i] != '\n':
                         chars[i] = ' '
             start += len(line)
-        if fence:
-            self.report(doc, fence[2], "Unclosed fenced code block")
+        unclosed = fence[2] if fence else None
         masked = ''.join(chars)
         for m in re.finditer(r'(?<![\\`])(`+)(?!`)(.*?)(?<!`)\1(?!`)', masked, re.S):
             if re.search(r'\n\s*\n', m[2]):
@@ -222,10 +237,10 @@ class Validator:
             for i in range(m.start(), m.end()):
                 if chars[i] != '\n':
                     chars[i] = ' '
-        return ''.join(chars)
+        return ''.join(chars), unclosed
 
-    def markdown(self, doc, body, offset, id_origins):
-        text = self.mask_code(doc, body, offset)
+    def markdown(self, doc, masked, offset, id_origins):
+        text = masked
         line_at = lambda pos: offset + 1 + text.count('\n', 0, pos)
         # Unsupported link notations must not silently evade checks.
         for m in re.finditer(r'\[\[|<(?:a|img)\b', text, re.I):
@@ -331,6 +346,49 @@ class Validator:
             else:
                 # Shortcut links are checked through their definitions above.
                 i = next_pos
+
+    def check_paragraph_wrapping(self, doc, masked, offset):
+        """Non-blocking: flags manually line-wrapped paragraphs, list items,
+        and quotes -- each should be one physical line, letting the viewer
+        wrap it for display. Obsidian's reading view renders a bare '\\n'
+        inside a paragraph as a real line break (unlike strict CommonMark),
+        so hand-wrapped prose shows up as choppy, mid-sentence breaks.
+        A heuristic on prose structure, not a structural correctness check
+        -- kept as a warning, never a violation."""
+        unit_type = unit_start = None
+        unit_lines = 0
+
+        def close_unit():
+            nonlocal unit_type, unit_start, unit_lines
+            if unit_type is not None and unit_lines > 1:
+                self.report(doc, unit_start,
+                             f"{WRAP_UNIT_LABELS[unit_type]} manually wrapped across "
+                             f"{unit_lines} lines — write it as a single line; the "
+                             "viewer wraps it for display", warning=True)
+            unit_type = unit_start = None
+            unit_lines = 0
+
+        for number, line in enumerate(masked.splitlines(), offset + 1):
+            if not line.strip():
+                close_unit()
+                continue
+            if HEADING_LINE_RE.match(line) or FOOTNOTE_LINE_RE.match(line) or TABLE_LINE_RE.match(line):
+                close_unit()
+                continue
+            if ITEM_LINE_RE.match(line):
+                close_unit()
+                unit_type, unit_start, unit_lines = 'item', number, 1
+                continue
+            if QUOTE_LINE_RE.match(line):
+                close_unit()
+                unit_type, unit_start, unit_lines = 'quote', number, 1
+                continue
+            # Plain prose: continues an open para/item/quote unit, or starts a new paragraph.
+            if unit_type is not None:
+                unit_lines += 1
+            else:
+                unit_type, unit_start, unit_lines = 'para', number, 1
+        close_unit()
 
     def log(self, doc, text):
         previous = None
@@ -479,7 +537,12 @@ class Validator:
                                 "Secret-classified material must not be externally referenced")
                 if not nonempty(ref.get('note')):
                     self.report(doc, position('external_refs'), "external_refs[].note is required")
-        self.markdown(doc, body, offset, ids)
+        masked, unclosed = self._mask_fences_and_spans(body, offset)
+        if unclosed:
+            self.report(doc, unclosed, "Unclosed fenced code block")
+        self.markdown(doc, masked, offset, ids)
+        if layer in ('10-silver', '20-gold') and not navigation_index:
+            self.check_paragraph_wrapping(doc, masked, offset)
 
     def check_unreferenced_bronze(self, bundle: Path):
         bronze_dir = bundle / '00-bronze'
@@ -543,8 +606,8 @@ class Validator:
                 raise ValueError('Duplicate concept_types')
             if config.get('bundle_root') != 'knowledge' or config.get('okf_version') != '0.2':
                 raise ValueError('This profile requires bundle_root=knowledge and okf_version=0.2')
-            if config.get('profile_version') != '0.6.0':
-                raise ValueError('This validator implements profile 0.6.0')
+            if config.get('profile_version') != '0.7.0':
+                raise ValueError('This validator implements profile 0.7.0')
             hub_key = config.get('hub_key')
             if not isinstance(hub_key, str) or not UUID_RE.fullmatch(hub_key):
                 raise ValueError('hub_key must be a UUID')
@@ -557,9 +620,9 @@ class Validator:
             policy = config.get('policy')
             if (not isinstance(policy, dict)
                     or policy.get('remote_copy') != 'required_after_validated_task'):
-                raise ValueError('Profile 0.6.0 requires policy.remote_copy=required_after_validated_task')
+                raise ValueError('Profile 0.7.0 requires policy.remote_copy=required_after_validated_task')
             if policy.get('content_review') not in ('direct', 'required_pr'):
-                raise ValueError('Profile 0.6.0 requires policy.content_review to be '
+                raise ValueError('Profile 0.7.0 requires policy.content_review to be '
                                  '"direct" or "required_pr"')
             quality = config.get('quality', {})
             if (not isinstance(quality, dict) or quality.get('validator') != 'scripts/validate_hub.py'
