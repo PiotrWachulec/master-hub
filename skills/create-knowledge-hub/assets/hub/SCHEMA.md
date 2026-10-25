@@ -1,4 +1,4 @@
-# Knowledge processing contract — profile 0.7.0
+# Knowledge processing contract — profile 0.8.0
 
 This contract describes work inside a single hub. The OKF 0.2 bundle covers
 only `knowledge/`. Configuration and instructions in the parent directory
@@ -266,7 +266,7 @@ also ready to be a citation target.
 `.venv/bin/python -B scripts/validate_hub.py` checks the hub containing the
 script, not the current working directory. Python 3.10+, standard library
 only, no network access, no writes. This is a validator for local profile
-0.7.0, not the full OKF. Scripts always run inside the local virtual
+0.8.0, not the full OKF. Scripts always run inside the local virtual
 environment. If `.venv` doesn't exist, the agent creates it beforehand with
 `python3 -m venv .venv` in the hub directory. On Windows the interpreter is
 at `.venv/Scripts/python.exe`. No system-wide installs; any packages only
@@ -277,7 +277,7 @@ Checks:
 
 - the required scaffold files, the `hub.json` configuration, and every
   `.md` file under knowledge;
-- `profile_version: "0.7.0"` and
+- `profile_version: "0.8.0"` and
   `policy.remote_copy: "required_after_validated_task"`;
 - document frontmatter (outside the closed exception list above): `type`,
   `title`, `description`, `status`, `generated`; `type` must be in
@@ -299,7 +299,10 @@ Checks:
   not logged as "No material" produces a warning, not an error (see
   "Grounding Invariant" below);
 - in silver/gold documents, a manually wrapped paragraph, list item, or
-  blockquote produces a warning, not an error (see "Content quality").
+  blockquote produces a warning, not an error (see "Content quality");
+- `hub.json`'s `conventions` list and the `conventions/` directory stay
+  consistent: a declared name with no file is an error, a file with no
+  declaration is a warning (see "Conventions").
 
 stdout output is a single JSON object: `violations` (error count), `errors`
 and `warnings` (lists of `file`, `line`, `message` objects). stderr
@@ -489,6 +492,47 @@ README.
   a block when looking for evidence; it's an editorial annotation, not a
   claim to re-ground.
 
+## Conventions
+
+A hub can declare optional, pluggable style or language conventions on
+top of this contract — plain Markdown files, not a vendor-specific
+skill format, so any agent that reads `AGENTS.md` and follows its
+instructions picks them up, regardless of which model or tool it runs
+on. This exists because a rule like "this project's dash character is a
+plain hyphen, not an en dash" is a deliberate choice for *this* hub, not
+something every hub in every language should be forced to follow — it
+doesn't belong in the universal contract above.
+
+`hub.json`'s `conventions` field is a list of names. Each name `<name>`
+must have a corresponding `conventions/<name>.md` file at the hub
+root — outside `knowledge/`, since the OKF bundle boundary doesn't cover
+this. Declaring a name with no matching file is a hard error, the same
+severity class as a missing `sources[].resource`: a dead reference.
+A `conventions/<name>.md` file present on disk but never declared
+produces a warning, not an error, since it might be mid-addition.
+
+A convention can come from two places, and the validator treats them
+identically once they're in the hub:
+
+- the generator's own library
+  (`skills/create-knowledge-hub/assets/conventions/`), requested at
+  creation time via `--conventions name1,name2`;
+- added by hand later — create `conventions/<name>.md` and add `<name>`
+  to `hub.json`'s `conventions` list. Nothing distinguishes an
+  engine-seeded convention from a hand-added one once it's registered.
+
+A convention file is plain prose guidance for the agent, read via
+`AGENTS.md` before writing content — it isn't itself validated for
+content, and the validator has no opinion on what it says. Some
+well-known convention names additionally get an optional, non-blocking
+mechanical backstop in `validate_hub.py`. Currently: `polish-typography`,
+which flags a Unicode en dash "–" or em dash "—" in silver/gold body
+text (prose, list items, headings, and blockquotes alike — not just
+fenced code, which stays excluded) as a warning, since this project
+uses a plain hyphen "-" as its dash character. A declared convention
+with no matching backstop is purely advisory, and that's expected —
+most convention names will never need one.
+
 ## Agent work
 
 These are three independent actions. Combine them only when the user asks
@@ -607,7 +651,7 @@ the other two scopes: `publication` concerns accepting drafts for
 publication, and `external_actions` concerns operational actions, e.g.
 changing a campaign budget. The field doesn't pick a remote and doesn't
 authorize sending to just any destination. It's required under profile
-0.7.0. A missing or different value is a contract inconsistency, not a
+0.8.0. A missing or different value is a contract inconsistency, not a
 local-work mode. An instruction for local-only work is an exception for
 the task, not a configuration change. An older hub without this field
 hasn't automatically adopted this rule; it needs an explicit contract
@@ -621,7 +665,7 @@ agreed main branch as a draft, same as before this field existed.
 `"required_pr"` routes content through the same branch + PR + review
 procedure already used for contract changes, with no self-merge — useful
 once more than one person or agent writes to the same hub, to avoid
-silent overwrites. It's required under profile 0.7.0, with the same rule
+silent overwrites. It's required under profile 0.8.0, with the same rule
 as `remote_copy`: a missing or different value is a contract
 inconsistency, not a default, and an older hub without the field hasn't
 adopted either value automatically.

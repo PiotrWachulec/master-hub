@@ -14,6 +14,38 @@ shape or an existing hub's directory structure.
 
 ## [Unreleased]
 
+## [0.8.0] — 2026-10-25
+
+### Added
+
+- `conventions/`: a hub-root directory of optional, pluggable
+  style/language conventions, declared in `hub.json`'s new `conventions`
+  field (a list of names, each needing a matching
+  `conventions/<name>.md` file). Plain Markdown, not a vendor-specific
+  Claude Skill format — any agent reading `AGENTS.md` picks them up
+  regardless of model or tool, since a rule like "this hub's dash
+  character" is a deliberate choice for one hub, not something every
+  hub in every language should inherit from the universal contract.
+- `create_hub.py`'s optional `--conventions name1,name2` CLI argument
+  seeds a new hub from the generator's convention library
+  (`skills/create-knowledge-hub/assets/conventions/`); a convention
+  added by hand later (create the file, add the name to `hub.json`) is
+  treated identically by the validator.
+- `validate_hub.py`: a declared convention with no matching file is a
+  hard error; a `conventions/<name>.md` file present but undeclared is
+  a warning.
+- The first convention, `polish-typography`: a plain hyphen "-", not a
+  Unicode en dash "–" or em dash "—", as this project's dash character.
+  Gets an optional, non-blocking mechanical backstop in
+  `validate_hub.py` — most convention names won't have one, and that's
+  expected; this one exists because the rule was violated in practice
+  (over 1000 em dashes in real hub content) before being caught by
+  direct inspection, not by any check.
+- `docs/migration-0.8.0.md`.
+
+No breaking CLI change — `--conventions` is optional with a safe empty
+default.
+
 ## [0.7.0] — 2026-10-25
 
 ### Added

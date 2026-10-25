@@ -74,7 +74,7 @@ to separately say "push it." The destination and repository access are
 agreed during the first setup; the generator itself doesn't create Git or
 a remote. The agent confirms the commit on the remote repository or
 reports a missing current copy. The obligation is explicit in `hub.json`
-under profile 0.7.0: `policy.remote_copy: "required_after_validated_task"`.
+under profile 0.8.0: `policy.remote_copy: "required_after_validated_task"`.
 
 This is a working instruction for the agent, not a background backup. It
 covers pushed Git files, not external recordings or ignored files.
@@ -99,7 +99,7 @@ configuration.
 
 ## Versions and capabilities
 
-Format: OKF 0.2. Local working profile: 0.7.0, recorded in `hub.json`.
+Format: OKF 0.2. Local working profile: 0.8.0, recorded in `hub.json`.
 Template changes affect new hubs; existing ones need an explicit
 migration. There's no automatic migrator, nor an obligation to adopt every
 new OKF version immediately. Each profile release is tagged (`vX.Y.Z`);
@@ -129,7 +129,10 @@ in the [0.4.0 → 0.5.0 update](docs/migration-0.5.0.md). Dataview-driven
 layer indexes are described in the
 [0.5.1 → 0.6.0 update](docs/migration-0.6.0.md). The non-blocking
 hard-wrapped-paragraph check is described in the
-[0.6.0 → 0.7.0 update](docs/migration-0.7.0.md). We currently assume no
+[0.6.0 → 0.7.0 update](docs/migration-0.7.0.md). Pluggable, model-agnostic
+`conventions/` (e.g. this project's `polish-typography` dash rule) are
+described in the
+[0.7.0 → 0.8.0 update](docs/migration-0.8.0.md). We currently assume no
 existing hubs and perform no migrations. This document neither requires
 nor runs a hub registry.
 

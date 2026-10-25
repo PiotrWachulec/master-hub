@@ -186,13 +186,78 @@ class ValidateHubTests(unittest.TestCase):
             self.config(lambda c, value=value: c.update(default_classification=value))
             self.validate()
 
+    def test_conventions_field_is_required_and_strict(self):
+        for value in (None, 'polish-typography', [1], ['Not-Valid'], ['bad name']):
+            with self.subTest(value=value):
+                self.config(lambda c, value=value: c.update(conventions=value))
+                report = self.validate(False, 'conventions must be a list')
+                self.assertEqual(report['violations'], 1)
+        self.config(lambda c: c.pop('conventions'))
+        self.validate(False, 'conventions must be a list')
+        self.config(lambda c: c.update(conventions=['a', 'a']))
+        self.validate(False, 'Duplicate conventions entries')
+        self.config(lambda c: c.update(conventions=[]))
+        self.validate()
+
+    def test_declared_convention_without_file_is_violation(self):
+        self.config(lambda c: c.update(conventions=['polish-typography']))
+        report = self.validate(False, "Declared convention 'polish-typography' has no "
+                                      "conventions/polish-typography.md file")
+        self.assertEqual(report['violations'], 1)
+
+    def test_convention_file_without_declaration_is_warning(self):
+        conv_dir = self.hub / 'conventions'
+        conv_dir.mkdir()
+        (conv_dir / 'orphan.md').write_text('# Orphan\n', encoding='utf-8')
+        report = self.validate(True, "conventions/orphan.md exists but isn't declared")
+        self.assertEqual(len(report['warnings']), 1)
+
+    def test_custom_convention_with_no_builtin_check_is_clean(self):
+        conv_dir = self.hub / 'conventions'
+        conv_dir.mkdir()
+        (conv_dir / 'my-style.md').write_text('# My style\nSome guidance.\n', encoding='utf-8')
+        self.config(lambda c: c.update(conventions=['my-style']))
+        self.validate()
+
+    def test_polish_typography_flags_en_and_em_dash_including_blockquote(self):
+        conv_dir = self.hub / 'conventions'
+        conv_dir.mkdir()
+        (conv_dir / 'polish-typography.md').write_text('# Dash rule\n', encoding='utf-8')
+        self.config(lambda c: c.update(conventions=['polish-typography']))
+        self.fixture(DOCUMENT.replace(
+            'Claim.[^input]',
+            'An em dash — here.[^input]\n\n'
+            'An en dash – here.\n\n'
+            'A hyphen - is fine.\n\n'
+            '> A quoted em dash — easy to miss.'))
+        report = self.validate()
+        messages = [w['message'] for w in report['warnings']]
+        self.assertEqual(sum('em dash' in m for m in messages), 2)
+        self.assertEqual(sum('en dash' in m for m in messages), 1)
+
+    def test_polish_typography_not_declared_does_not_flag_dashes(self):
+        self.fixture(DOCUMENT.replace('Claim.[^input]', 'An em dash — here.[^input]'))
+        report = self.validate()
+        self.assertEqual(report['warnings'], [])
+
+    def test_polish_typography_ignores_dashes_in_fenced_code(self):
+        conv_dir = self.hub / 'conventions'
+        conv_dir.mkdir()
+        (conv_dir / 'polish-typography.md').write_text('# Dash rule\n', encoding='utf-8')
+        self.config(lambda c: c.update(conventions=['polish-typography']))
+        self.fixture(DOCUMENT.replace(
+            'Claim.[^input]',
+            'Claim.[^input]\n\n```text\nAn em dash — inside a code block.\n```'))
+        report = self.validate()
+        self.assertEqual(report['warnings'], [])
+
     def test_profile_version_requires_explicit_upgrade(self):
         for version in ('0.3.0', '0.2.2', '0.2.1', '0.2.0', '0.1.1', '0.5.1', None, 0.4):
             with self.subTest(version=version):
                 self.config(lambda c: c.update(profile_version=version))
-                self.validate(False, 'implements profile 0.7.0')
+                self.validate(False, 'implements profile 0.8.0')
         self.config(lambda c: c.pop('profile_version'))
-        self.validate(False, 'implements profile 0.7.0')
+        self.validate(False, 'implements profile 0.8.0')
 
     def test_invalid_remote_copy_policy_does_not_skip_documents(self):
         self.config(lambda c: c['policy'].pop('remote_copy'))

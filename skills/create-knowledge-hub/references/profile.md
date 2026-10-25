@@ -1,6 +1,6 @@
 # New hub profile
 
-`hub.json` configures the local pattern (version 0.7.0). It's not part of
+`hub.json` configures the local pattern (version 0.8.0). It's not part of
 the OKF standard. Policy declarations are instructions for the agent; the
 generator doesn't install a process that technically enforces them.
 
@@ -14,6 +14,7 @@ generator doesn't install a process that technically enforces them.
 | `hub_key` | UUID v4, generated once by the generator, never edited — a stable, name-independent identity for this hub. Foundation for a future cross-hub citation mechanism; not consumed by anything yet |
 | `hub_category` | `"competency"` (topic-based, cuts across clients/initiatives — Azure, Kubernetes, sales) or `"initiative"` (client/project-specific, cuts across competencies). Orthogonal to `kind`, which is about ownership, not content type |
 | `default_classification` | one of `Public`/`Internal`/`Confidential`/`Secret`, required in 0.5.0: the fallback sensitivity level for any document that doesn't declare its own `classification`. The CLI argument is optional, defaulting to `"Confidential"` — fail-closed — but the field is always present in `hub.json` |
+| `conventions` | required in 0.8.0: a list of names, each needing a matching `conventions/<name>.md` file at the hub root — optional, pluggable style/language guidance layered on top of this contract. Defaults to `[]`; the CLI's optional `--conventions name1,name2` seeds it from the generator's library at creation time, or add one by hand later |
 | `bundle_root` | `knowledge`, the boundary of OKF documents |
 | `concept_types` | starter vocabulary; adapt it after the first material |
 | `policy` | the automation stage for editing, publication, and external actions |
@@ -67,6 +68,24 @@ Write the changelog entry as part of the PR that bumps `profile_version`
 (under "Unreleased" until merged, then retitled with the release date).
 The tag can only be created afterward, on the actual merge commit once it
 exists — push it right after merging, not as a later afterthought.
+
+Profile 0.8.0 adds pluggable, model-agnostic `conventions/`: optional
+style/language guidance layered on top of this contract, declared as a
+list of names in `hub.json`'s new `conventions` field, each needing a
+matching `conventions/<name>.md` file at the hub root. Plain Markdown,
+not a vendor-specific skill format — any agent that reads `AGENTS.md`
+picks them up, regardless of model or tool. A convention can come from
+the generator's own library (`skills/create-knowledge-hub/assets/conventions/`,
+requested via the optional `--conventions name1,name2` CLI argument) or
+be added by hand later; the validator treats both identically, and a
+declared name with no matching file is a hard error (a missing file
+with no declaration is a warning). Ships the first convention,
+`polish-typography` (a plain hyphen "-", not a Unicode en/em dash, as
+this project's dash character), with an optional non-blocking mechanical
+backstop in `validate_hub.py` — most convention names will stay purely
+advisory, with no such backstop, and that's expected. The adoption
+procedure for 0.7.0 → 0.8.0 is in docs/migration-0.8.0.md in the
+generator repository.
 
 Profile 0.7.0 adds a new `validate_hub.py` check: a manually wrapped
 paragraph, list item, or blockquote in a silver/gold document (one
