@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only validator of local hub profile 0.7.0, NOT a general OKF validator.
+"""Read-only validator of local hub profile 0.8.0, NOT a general OKF validator.
 
 Python 3.10+, standard library only. The supported frontmatter/Markdown
 subset and deliberate exclusions are documented in the hub's SCHEMA.md.
@@ -32,6 +32,8 @@ QUOTE_LINE_RE = re.compile(r'^>')
 FOOTNOTE_LINE_RE = re.compile(r'^\[\^')
 TABLE_LINE_RE = re.compile(r'^\|')
 WRAP_UNIT_LABELS = {'para': 'Paragraph', 'item': 'List item', 'quote': 'Quote'}
+CONVENTION_NAME_RE = re.compile(r'[a-z0-9]+(?:-[a-z0-9]+)*')
+DASH_CHAR_RE = re.compile('[–—]')  # en dash (–), em dash (—)
 
 
 class SyntaxViolation(ValueError):
@@ -166,6 +168,7 @@ class Validator:
         self.referenced_resources = set()
         self.doc_keys = set()
         self.derive_found = {}
+        self.active_conventions = []
 
     def report(self, path, line, message, warning=False):
         item = {"file": str(path.relative_to(self.root)), "line": max(1, line),
@@ -390,6 +393,18 @@ class Validator:
                 unit_type, unit_start, unit_lines = 'para', number, 1
         close_unit()
 
+    def check_polish_typography(self, doc, masked, offset):
+        """Non-blocking backstop for the optional 'polish-typography'
+        convention: this project uses a plain hyphen "-" as its dash
+        character, not the Unicode en dash or em dash. Runs only when
+        'polish-typography' is in hub.json's conventions[]."""
+        for m in DASH_CHAR_RE.finditer(masked):
+            line = offset + 1 + masked.count('\n', 0, m.start())
+            label = 'en dash (–)' if m.group() == '–' else 'em dash (—)'
+            self.report(doc, line,
+                         f"polish-typography convention: {label} found — use a plain "
+                         'hyphen "-" instead', warning=True)
+
     def log(self, doc, text):
         previous = None
         active = False
@@ -543,6 +558,10 @@ class Validator:
         self.markdown(doc, masked, offset, ids)
         if layer in ('10-silver', '20-gold') and not navigation_index:
             self.check_paragraph_wrapping(doc, masked, offset)
+            for name in self.active_conventions:
+                checker = CONVENTION_CHECKS.get(name)
+                if checker:
+                    checker(self, doc, masked, offset)
 
     def check_unreferenced_bronze(self, bundle: Path):
         bronze_dir = bundle / '00-bronze'
@@ -585,6 +604,28 @@ class Validator:
                 self.report(doc, 1, "operation: derive requires a 90-decisions entry "
                                      f"mentioning this document's doc_key ({doc_key})")
 
+    def check_conventions_files(self):
+        conv_dir = self.root / 'conventions'
+        declared = set(self.active_conventions)
+        if conv_dir.is_symlink():
+            self.report(conv_dir, 1, "conventions must not be a symlink")
+            return
+        present = set()
+        if conv_dir.is_dir():
+            for path in sorted(conv_dir.glob('*.md')):
+                if path.is_symlink():
+                    self.report(path, 1, "Symlinks are not supported in conventions")
+                    continue
+                if path.is_file():
+                    present.add(path.stem)
+        for name in sorted(declared - present):
+            self.report(self.root / 'hub.json', 1,
+                         f"Declared convention '{name}' has no conventions/{name}.md file")
+        for name in sorted(present - declared):
+            self.report(conv_dir / f'{name}.md', 1,
+                         f"conventions/{name}.md exists but isn't declared in "
+                         "hub.json's conventions[]", warning=True)
+
     def run(self):
         config_path = self.root / 'hub.json'
         types = []
@@ -606,8 +647,8 @@ class Validator:
                 raise ValueError('Duplicate concept_types')
             if config.get('bundle_root') != 'knowledge' or config.get('okf_version') != '0.2':
                 raise ValueError('This profile requires bundle_root=knowledge and okf_version=0.2')
-            if config.get('profile_version') != '0.7.0':
-                raise ValueError('This validator implements profile 0.7.0')
+            if config.get('profile_version') != '0.8.0':
+                raise ValueError('This validator implements profile 0.8.0')
             hub_key = config.get('hub_key')
             if not isinstance(hub_key, str) or not UUID_RE.fullmatch(hub_key):
                 raise ValueError('hub_key must be a UUID')
@@ -617,12 +658,19 @@ class Validator:
                     'Public', 'Internal', 'Confidential', 'Secret'):
                 raise ValueError('default_classification must be Public, Internal, '
                                  'Confidential, or Secret')
+            conventions = config.get('conventions')
+            if not isinstance(conventions, list) or not all(
+                    isinstance(c, str) and CONVENTION_NAME_RE.fullmatch(c) for c in conventions):
+                raise ValueError('conventions must be a list of lowercase-hyphen names')
+            if len(set(conventions)) != len(conventions):
+                raise ValueError('Duplicate conventions entries')
+            self.active_conventions = conventions
             policy = config.get('policy')
             if (not isinstance(policy, dict)
                     or policy.get('remote_copy') != 'required_after_validated_task'):
-                raise ValueError('Profile 0.7.0 requires policy.remote_copy=required_after_validated_task')
+                raise ValueError('Profile 0.8.0 requires policy.remote_copy=required_after_validated_task')
             if policy.get('content_review') not in ('direct', 'required_pr'):
-                raise ValueError('Profile 0.7.0 requires policy.content_review to be '
+                raise ValueError('Profile 0.8.0 requires policy.content_review to be '
                                  '"direct" or "required_pr"')
             quality = config.get('quality', {})
             if (not isinstance(quality, dict) or quality.get('validator') != 'scripts/validate_hub.py'
@@ -659,6 +707,10 @@ class Validator:
         walk(bundle)
         self.check_unreferenced_bronze(bundle)
         self.check_derive_requires_decision(bundle)
+        self.check_conventions_files()
+
+
+CONVENTION_CHECKS = {'polish-typography': Validator.check_polish_typography}
 
 
 def main():

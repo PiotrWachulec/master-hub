@@ -9,8 +9,9 @@ import re
 import sys
 import uuid
 
-PROFILE_VERSION = "0.7.0"
+PROFILE_VERSION = "0.8.0"
 ASSETS = Path(__file__).resolve().parent.parent / "assets" / "hub"
+CONVENTIONS = Path(__file__).resolve().parent.parent / "assets" / "conventions"
 
 
 def nonempty(value: str) -> str:
@@ -26,6 +27,17 @@ def hub_id(value: str) -> str:
     return value
 
 
+def convention_names(value: str) -> tuple[str, ...]:
+    value = value.strip()
+    if not value:
+        return ()
+    names = tuple(name.strip() for name in value.split(","))
+    for name in names:
+        if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name):
+            raise argparse.ArgumentTypeError(f"Invalid convention name: {name!r}")
+    return names
+
+
 def build_files(args: argparse.Namespace) -> dict[Path, str]:
     files = {
         path.relative_to(ASSETS): path.read_text(encoding="utf-8")
@@ -35,6 +47,12 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
     required = ("SCHEMA.md", "AGENTS.md", "scripts/validate_hub.py", "scripts/check_evidence.py")
     if any(Path(name) not in files for name in required):
         raise ValueError("Missing contract or validator in assets/hub; move the whole skill directory.")
+    missing_conventions = [name for name in args.conventions
+                           if not (CONVENTIONS / f"{name}.md").is_file()]
+    if missing_conventions:
+        raise ValueError(f"Unknown convention(s): {', '.join(missing_conventions)}")
+    for name in args.conventions:
+        files[Path(f"conventions/{name}.md")] = (CONVENTIONS / f"{name}.md").read_text(encoding="utf-8")
     config = {
         "profile_version": PROFILE_VERSION,
         "okf_version": "0.2",
@@ -46,6 +64,7 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
         "hub_key": str(uuid.uuid4()),
         "hub_category": args.hub_category,
         "default_classification": args.default_classification,
+        "conventions": list(args.conventions),
         "bundle_root": "knowledge",
         "quality": {
             "validator": "scripts/validate_hub.py",
@@ -75,7 +94,15 @@ def build_files(args: argparse.Namespace) -> dict[Path, str]:
         "anonymized content from them — see `SCHEMA.md`'s \"Cross-hub "
         "references\" section for the mechanics and the classification "
         "rules.\n\n"
-        "Open this directory as a separate vault in Obsidian. "
+        + (f"Conventions: `{', '.join(config['conventions'])}` — see "
+           "`conventions/` and `SCHEMA.md`'s \"Conventions\" section. Add "
+           "another any time: drop a new `conventions/<name>.md` file and "
+           "list its name in `hub.json`.\n\n"
+           if config["conventions"] else
+           "No conventions declared yet — add one any time: drop a "
+           "`conventions/<name>.md` file and list its name in `hub.json`; "
+           "see `SCHEMA.md`'s \"Conventions\" section.\n\n")
+        + "Open this directory as a separate vault in Obsidian. "
         "Start with the [knowledge index](knowledge/index.md).\n\n"
         "## Three independent actions for the agent\n\n"
         "> Add material from [path] to the knowledge base.\n\n"
@@ -199,6 +226,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--default-classification", dest="default_classification",
                         choices=("Public", "Internal", "Confidential", "Secret"),
                         default="Confidential")
+    parser.add_argument("--conventions", type=convention_names, default=())
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
     # Inspect the supplied path before resolving: also refuse dangling symlinks.

@@ -37,8 +37,10 @@ class CreateHubTests(unittest.TestCase):
         self.assertEqual(config["policy"]["external_actions"], "disabled")
         self.assertEqual(config["policy"]["publication"], "explicit_acceptance")
         self.assertEqual(config["policy"]["remote_copy"], "required_after_validated_task")
-        self.assertEqual(config["profile_version"], "0.7.0")
+        self.assertEqual(config["profile_version"], "0.8.0")
         self.assertEqual(config["default_classification"], "Confidential")
+        self.assertEqual(config["conventions"], [])
+        self.assertFalse((destination / "conventions").exists())
         self.assertEqual(config["policy"]["content_review"], "direct")
         self.assertEqual(config["hub_category"], "competency")
         self.assertRegex(config["hub_key"],
@@ -148,6 +150,40 @@ class CreateHubTests(unittest.TestCase):
     def test_invalid_default_classification_is_refused(self):
         destination = self.root / "hub"
         result = self.run_generator(destination, "--default-classification", "TopSecret")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse(destination.exists())
+
+    def test_known_convention_is_copied_and_registered(self):
+        destination = self.root / "hub"
+        result = self.run_generator(destination, "--conventions", "polish-typography")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        config = json.loads((destination / "hub.json").read_text())
+        self.assertEqual(config["conventions"], ["polish-typography"])
+        text = (destination / "conventions/polish-typography.md").read_text()
+        self.assertIn("plain hyphen", text)
+
+    def test_multiple_conventions_are_comma_separated(self):
+        destination = self.root / "hub"
+        conventions_dir = SKILL / "assets/conventions"
+        extra = conventions_dir / "zz-test-only.md"
+        extra.write_text("# Test-only convention\nFor tests.\n", encoding="utf-8")
+        self.addCleanup(extra.unlink)
+        result = self.run_generator(destination, "--conventions",
+                                    "polish-typography,zz-test-only")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        config = json.loads((destination / "hub.json").read_text())
+        self.assertEqual(config["conventions"], ["polish-typography", "zz-test-only"])
+        self.assertTrue((destination / "conventions/zz-test-only.md").is_file())
+
+    def test_unknown_convention_is_refused_without_writes(self):
+        destination = self.root / "hub"
+        result = self.run_generator(destination, "--conventions", "bogus-convention")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse(destination.exists())
+
+    def test_invalid_convention_name_is_refused(self):
+        destination = self.root / "hub"
+        result = self.run_generator(destination, "--conventions", "Not Valid!")
         self.assertNotEqual(result.returncode, 0)
         self.assertFalse(destination.exists())
 

@@ -7,7 +7,7 @@ requests its update.
 
 This is the historical procedure for 0.2.0: use the templates and
 validator from commit `1acb58b29bb5058178660a3a374bfc6f47824517`, not from
-the current main. The generator currently produces profile 0.7.0; adopting
+the current main. The generator currently produces profile 0.8.0; adopting
 it also requires [the explicit Git-copy configuration update](hub-git-backup.md)
 (0.2.0 → 0.2.1), [grounding and Query/Archive](migration-0.2.2.md)
 (0.2.1 → 0.2.2), [opt-in content review](migration-0.3.0.md)
@@ -15,8 +15,9 @@ it also requires [the explicit Git-copy configuration update](hub-git-backup.md)
 (0.3.0 → 0.4.0), [cross-hub citation](migration-0.5.0.md)
 (0.4.0 → 0.5.0), the footnote-link wording fix in 0.5.1 (no separate
 migration doc — see `references/profile.md`'s "Versioning" section),
-[Dataview-driven layer indexes](migration-0.6.0.md) (0.5.1 → 0.6.0), and
-the [hard-wrapped-paragraph warning](migration-0.7.0.md) (0.6.0 → 0.7.0).
+[Dataview-driven layer indexes](migration-0.6.0.md) (0.5.1 → 0.6.0),
+the [hard-wrapped-paragraph warning](migration-0.7.0.md) (0.6.0 → 0.7.0),
+and [pluggable conventions](migration-0.8.0.md) (0.7.0 → 0.8.0).
 
 OKF stays at version 0.2. The change concerns the local contract: a
 standalone structure validator, a documented frontmatter subset, and a
