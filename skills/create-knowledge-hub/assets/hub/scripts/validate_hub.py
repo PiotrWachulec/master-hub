@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only validator of local hub profile 0.8.0, NOT a general OKF validator.
+"""Read-only validator of local hub profile 0.9.0, NOT a general OKF validator.
 
 Python 3.10+, standard library only. The supported frontmatter/Markdown
 subset and deliberate exclusions are documented in the hub's SCHEMA.md.
@@ -160,13 +160,27 @@ def nonempty(value):
     return isinstance(value, str) and bool(value.strip())
 
 
+def valid_iso_datetime(value) -> bool:
+    try:
+        if not isinstance(value, str) or not re.match(r'^\d{4}-\d{2}-\d{2}T', value):
+            return False
+        parsed = datetime.fromisoformat(value.replace('Z', '+00:00'))
+        return parsed.tzinfo is not None and parsed.utcoffset() is not None
+    except ValueError:
+        return False
+
+
 class Validator:
     def __init__(self, root: Path):
         self.root = root.resolve()
         self.errors = []
         self.warnings = []
         self.referenced_resources = set()
+        self.source_uses = []
         self.doc_keys = set()
+        self.doc_status = {}
+        self.supersedes_edges = []
+        self.superseded_by = {}
         self.derive_found = {}
         self.active_conventions = []
 
@@ -462,14 +476,31 @@ class Validator:
             if not isinstance(generated, dict) or not nonempty(generated.get('by')):
                 self.report(doc, position('generated'), "generated requires nonempty by and at")
             timestamp = generated.get('at') if isinstance(generated, dict) else None
-            try:
-                if not isinstance(timestamp, str) or not re.match(r'^\d{4}-\d{2}-\d{2}T', timestamp):
-                    raise ValueError()
-                parsed = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
-                if parsed.tzinfo is None or parsed.utcoffset() is None:
-                    raise ValueError()
-            except ValueError:
+            if not valid_iso_datetime(timestamp):
                 self.report(doc, position('at'), "generated.at must be ISO 8601 datetime with timezone")
+            retrieved_at = fm.get('retrieved_at')
+            if retrieved_at is not None and not valid_iso_datetime(retrieved_at):
+                self.report(doc, position('retrieved_at'),
+                             "retrieved_at must be an ISO 8601 datetime with timezone")
+            source_ref = fm.get('source_ref')
+            if source_ref is not None and not nonempty(source_ref):
+                self.report(doc, position('source_ref'), "source_ref must be a nonempty string when present")
+            doc_resolved = doc.resolve()
+            self.doc_status[doc_resolved] = fm.get('status')
+            supersedes = fm.get('supersedes')
+            if supersedes is not None:
+                self.local_file(doc, supersedes, position('supersedes'), source=True)
+                if isinstance(supersedes, str) and supersedes.strip():
+                    try:
+                        target = (doc.parent / supersedes).resolve()
+                        if target == doc_resolved:
+                            self.report(doc, position('supersedes'),
+                                         "A document cannot supersede itself")
+                        elif target.is_relative_to(self.root):
+                            self.supersedes_edges.append((doc, target, position('supersedes')))
+                            self.superseded_by.setdefault(target, doc)
+                    except (ValueError, OSError, RuntimeError):
+                        pass
         # Validate sources whenever present, including indexes (not only required cases).
         fm = fm or {}
         layer = doc.relative_to(self.root / 'knowledge').parts[0]
@@ -512,6 +543,7 @@ class Validator:
                         candidate = (doc.parent / resource).resolve()
                         if candidate.is_relative_to(self.root):
                             self.referenced_resources.add(candidate)
+                            self.source_uses.append((doc, candidate, position('resource')))
                     except (ValueError, OSError, RuntimeError):
                         pass
         external_refs = fm.get('external_refs', [])
@@ -552,6 +584,15 @@ class Validator:
                                 "Secret-classified material must not be externally referenced")
                 if not nonempty(ref.get('note')):
                     self.report(doc, position('external_refs'), "external_refs[].note is required")
+                cited_as_of = ref.get('cited_as_of')
+                if cited_as_of is not None:
+                    try:
+                        if not isinstance(cited_as_of, str):
+                            raise ValueError()
+                        date.fromisoformat(cited_as_of)
+                    except ValueError:
+                        self.report(doc, position('external_refs'),
+                                    "external_refs[].cited_as_of must be an ISO 8601 date (YYYY-MM-DD)")
         masked, unclosed = self._mask_fences_and_spans(body, offset)
         if unclosed:
             self.report(doc, unclosed, "Unclosed fenced code block")
@@ -604,6 +645,23 @@ class Validator:
                 self.report(doc, 1, "operation: derive requires a 90-decisions entry "
                                      f"mentioning this document's doc_key ({doc_key})")
 
+    def check_supersedes(self):
+        for doc, target, line in self.supersedes_edges:
+            status = self.doc_status.get(target)
+            if status is None:
+                continue  # Missing or non-content target; local_file already reported if missing.
+            if status != 'deprecated':
+                self.report(doc, line, "supersedes target must have status: deprecated "
+                                        f"(found: {status!r}) — mark the old version deprecated")
+
+    def check_superseded_sources(self):
+        for doc, resolved, line in self.source_uses:
+            superseder = self.superseded_by.get(resolved)
+            if superseder is not None and superseder != doc:
+                self.report(doc, line, "This source has a newer version at "
+                             f"{superseder.relative_to(self.root).as_posix()} — "
+                             "consider updating this citation", warning=True)
+
     def check_conventions_files(self):
         conv_dir = self.root / 'conventions'
         declared = set(self.active_conventions)
@@ -647,8 +705,8 @@ class Validator:
                 raise ValueError('Duplicate concept_types')
             if config.get('bundle_root') != 'knowledge' or config.get('okf_version') != '0.2':
                 raise ValueError('This profile requires bundle_root=knowledge and okf_version=0.2')
-            if config.get('profile_version') != '0.8.0':
-                raise ValueError('This validator implements profile 0.8.0')
+            if config.get('profile_version') != '0.9.0':
+                raise ValueError('This validator implements profile 0.9.0')
             hub_key = config.get('hub_key')
             if not isinstance(hub_key, str) or not UUID_RE.fullmatch(hub_key):
                 raise ValueError('hub_key must be a UUID')
@@ -668,9 +726,9 @@ class Validator:
             policy = config.get('policy')
             if (not isinstance(policy, dict)
                     or policy.get('remote_copy') != 'required_after_validated_task'):
-                raise ValueError('Profile 0.8.0 requires policy.remote_copy=required_after_validated_task')
+                raise ValueError('Profile 0.9.0 requires policy.remote_copy=required_after_validated_task')
             if policy.get('content_review') not in ('direct', 'required_pr'):
-                raise ValueError('Profile 0.8.0 requires policy.content_review to be '
+                raise ValueError('Profile 0.9.0 requires policy.content_review to be '
                                  '"direct" or "required_pr"')
             quality = config.get('quality', {})
             if (not isinstance(quality, dict) or quality.get('validator') != 'scripts/validate_hub.py'
@@ -707,6 +765,8 @@ class Validator:
         walk(bundle)
         self.check_unreferenced_bronze(bundle)
         self.check_derive_requires_decision(bundle)
+        self.check_supersedes()
+        self.check_superseded_sources()
         self.check_conventions_files()
 
 

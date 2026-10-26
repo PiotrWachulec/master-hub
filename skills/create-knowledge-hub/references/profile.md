@@ -1,6 +1,6 @@
 # New hub profile
 
-`hub.json` configures the local pattern (version 0.8.0). It's not part of
+`hub.json` configures the local pattern (version 0.9.0). It's not part of
 the OKF standard. Policy declarations are instructions for the agent; the
 generator doesn't install a process that technically enforces them.
 
@@ -47,6 +47,24 @@ SCHEMA.md's "Cross-hub references" section for the full mechanics,
 including the classification tiers' semantics and the hard `Secret`
 block.
 
+`retrieved_at`, `source_ref`, and `supersedes` are also document-level
+fields, added in 0.9.0, all optional. `retrieved_at` (an ISO 8601
+datetime with timezone) and `source_ref` (a nonempty version
+identifier — a commit hash, an ETag, a page revision) record when and
+which version of a source was captured. `supersedes` points to another
+local `.md` document that this one replaces as the current version of
+the same source; the target's own `status` must be `deprecated`, which
+`validate_hub.py` enforces, and a silver/gold citation of a superseded
+file gets a non-blocking warning. See SCHEMA.md's "Source freshness
+and supersession" section.
+
+`external_refs[].cited_as_of` (optional, ISO 8601 date) is the same
+idea applied across a hub boundary, where there's no file to point
+`supersedes` at: it just records when the citing agent last looked at
+the target. The validator never opens the other hub, so it can't check
+staleness from this date; it's a starting point for a human, not a
+check.
+
 The skill directory can be copied in full. The templates are generator
 resources. A template change applies to new hubs; an existing hub keeps
 its own contract.
@@ -68,6 +86,26 @@ Write the changelog entry as part of the PR that bumps `profile_version`
 (under "Unreleased" until merged, then retitled with the release date).
 The tag can only be created afterward, on the actual merge commit once it
 exists — push it right after merging, not as a later afterthought.
+
+Profile 0.9.0 adds optional document-level `retrieved_at` (ISO 8601
+datetime with timezone) and `source_ref` (a nonempty version
+identifier) for recording when and which version of a source was
+captured, plus `supersedes`: a new bronze file points its `supersedes`
+field at the old file it replaces, and the old file's `status` moves
+to `deprecated` — `validate_hub.py` rejects a `supersedes` whose target
+isn't `deprecated`. A silver/gold document whose `sources[].resource`
+still points at a superseded bronze file gets a non-blocking warning
+naming the newer file, nudging (not automating) the existing
+cascade-update step. Bronze stays immutable: a changed source is always
+a new file, never an edit to the old one — this operationalizes a rule
+`SCHEMA.md`/`AGENTS.md` already stated in prose
+("later versions as new files") without a name, a field, or a check
+behind it. Also adds `external_refs[].cited_as_of` (optional, ISO 8601
+date): the same "when was this last looked at" idea applied across a
+hub boundary, where there's no local file for `supersedes` to point
+at — purely a record, since the validator never opens the other hub to
+check it against anything. The adoption procedure for 0.8.0 → 0.9.0 is
+in docs/migration-0.9.0.md in the generator repository.
 
 Profile 0.8.0 adds pluggable, model-agnostic `conventions/`: optional
 style/language guidance layered on top of this contract, declared as a

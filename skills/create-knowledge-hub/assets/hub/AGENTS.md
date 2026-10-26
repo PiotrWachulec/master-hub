@@ -56,7 +56,13 @@ pages, or imports.
 Bronze preserves the accepted versions of inputs. Don't correct or
 overwrite them during synthesis. A source correction is a new version; an
 interpretation correction is a change to silver/gold with the reason
-noted.
+noted. A new version is a new bronze file with `supersedes` pointing at
+the old one, which in turn gets `status: deprecated` — not an edit to
+the old file's content. `validate_hub.py` rejects a `supersedes` whose
+target isn't marked `deprecated`, and warns on a silver/gold citation
+still pointing at a superseded file; chasing that warning down and
+updating the citation is part of the cascade-effects check below, not
+automatic. See "Source freshness and supersession" in SCHEMA.md.
 
 New drafts are proposals (`status: draft`). Update `knowledge/log.md`
 along with the content. The four layer indexes are Dataview-driven and
@@ -66,7 +72,7 @@ review without an actual decision tied to specific content.
 
 ## Ongoing remote copy — commit and push
 
-Profile 0.8.0 declares in hub.json
+Profile 0.9.0 declares in hub.json
 `policy.remote_copy: "required_after_validated_task"`. This is an explicit
 Git-copy obligation, separate from approving drafts (`publication`) and
 from disabled operational actions (`external_actions`). A missing field,
