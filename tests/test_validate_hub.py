@@ -449,6 +449,19 @@ class ValidateHubTests(unittest.TestCase):
             '    note: "Cited from a competency hub."\n', ''))
         self.validate(False, 'external_refs[].note is required')
 
+    def test_external_ref_cited_as_of_must_be_valid_iso_date(self):
+        self.fixture(DOCUMENT_WITH_EXTERNAL_REF.replace(
+            '    note: "Cited from a competency hub."\n',
+            '    note: "Cited from a competency hub."\n    cited_as_of: not-a-date\n'))
+        self.validate(False, 'external_refs[].cited_as_of must be an ISO 8601 date')
+
+    def test_external_ref_cited_as_of_accepts_valid_iso_date(self):
+        self.fixture(DOCUMENT_WITH_EXTERNAL_REF.replace(
+            '    note: "Cited from a competency hub."\n',
+            '    note: "Cited from a competency hub."\n    cited_as_of: 2026-10-24\n'))
+        report = self.validate()
+        self.assertFalse(any('cited_as_of' in e['message'] for e in report['errors']))
+
     def test_external_ref_malformed_hub_or_doc_is_violation(self):
         for old, new in [
             ('    hub: 33333333-3333-4333-8333-333333333333\n', '    hub: not-a-uuid\n'),

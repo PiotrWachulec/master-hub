@@ -218,6 +218,7 @@ external_refs:
     classification: Internal
     operation: cite
     note: "Blue-green deployment pattern, cited from a competency hub."
+    cited_as_of: 2026-10-24
 ```
 
 - `id` shares the same uniqueness and footnote namespace as
@@ -239,6 +240,13 @@ external_refs:
 - `note` is required, non-empty prose explaining the reference. It must
   never name the source hub or client in plain text, even for a `derive`
   entry that deliberately keeps a provenance trail — see below.
+- `cited_as_of` is optional: an ISO 8601 date (`YYYY-MM-DD`) recording
+  when the citing agent last actually looked at the target. Unlike
+  `supersedes` below, this is purely a record — the validator never
+  opens the other hub, so it can't check whether the target has since
+  changed, and nothing recomputes staleness from this date. It exists
+  so a later reader has a starting point for "is this still accurate?"
+  instead of none at all.
 
 ### Cite vs. Derive
 

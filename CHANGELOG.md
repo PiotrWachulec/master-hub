@@ -30,6 +30,11 @@ shape or an existing hub's directory structure.
   document's `sources[].resource` still points at a superseded bronze
   file, naming the newer one. This nudges, but doesn't automate, the
   existing cascade-update step.
+- `external_refs[].cited_as_of` (optional, ISO 8601 date): the same
+  "when was this last looked at" idea applied across a hub boundary,
+  where `supersedes` has no local file to point at. Purely a record —
+  the validator never opens the other hub, so nothing checks staleness
+  from it.
 - `docs/migration-0.9.0.md`.
 
 No breaking CLI change — all three fields are optional document

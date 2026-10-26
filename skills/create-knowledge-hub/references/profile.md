@@ -58,6 +58,13 @@ the same source; the target's own `status` must be `deprecated`, which
 file gets a non-blocking warning. See SCHEMA.md's "Source freshness
 and supersession" section.
 
+`external_refs[].cited_as_of` (optional, ISO 8601 date) is the same
+idea applied across a hub boundary, where there's no file to point
+`supersedes` at: it just records when the citing agent last looked at
+the target. The validator never opens the other hub, so it can't check
+staleness from this date; it's a starting point for a human, not a
+check.
+
 The skill directory can be copied in full. The templates are generator
 resources. A template change applies to new hubs; an existing hub keeps
 its own contract.
@@ -93,8 +100,12 @@ cascade-update step. Bronze stays immutable: a changed source is always
 a new file, never an edit to the old one — this operationalizes a rule
 `SCHEMA.md`/`AGENTS.md` already stated in prose
 ("later versions as new files") without a name, a field, or a check
-behind it. The adoption procedure for 0.8.0 → 0.9.0 is in
-docs/migration-0.9.0.md in the generator repository.
+behind it. Also adds `external_refs[].cited_as_of` (optional, ISO 8601
+date): the same "when was this last looked at" idea applied across a
+hub boundary, where there's no local file for `supersedes` to point
+at — purely a record, since the validator never opens the other hub to
+check it against anything. The adoption procedure for 0.8.0 → 0.9.0 is
+in docs/migration-0.9.0.md in the generator repository.
 
 Profile 0.8.0 adds pluggable, model-agnostic `conventions/`: optional
 style/language guidance layered on top of this contract, declared as a

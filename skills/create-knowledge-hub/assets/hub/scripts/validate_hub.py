@@ -584,6 +584,15 @@ class Validator:
                                 "Secret-classified material must not be externally referenced")
                 if not nonempty(ref.get('note')):
                     self.report(doc, position('external_refs'), "external_refs[].note is required")
+                cited_as_of = ref.get('cited_as_of')
+                if cited_as_of is not None:
+                    try:
+                        if not isinstance(cited_as_of, str):
+                            raise ValueError()
+                        date.fromisoformat(cited_as_of)
+                    except ValueError:
+                        self.report(doc, position('external_refs'),
+                                    "external_refs[].cited_as_of must be an ISO 8601 date (YYYY-MM-DD)")
         masked, unclosed = self._mask_fences_and_spans(body, offset)
         if unclosed:
             self.report(doc, unclosed, "Unclosed fenced code block")
