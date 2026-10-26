@@ -42,6 +42,18 @@ EXTERNAL_REF_BLOCK = (
     '    note: "Cited from a competency hub."\n'
 )
 
+BRONZE_DOC = '''---
+type: Source
+title: Bronze source
+description: A bronze source document.
+status: {status}
+generated:
+  by: human:editor
+  at: 2026-09-23T12:00:00Z
+{extra}---
+Raw content.
+'''
+
 DOCUMENT_WITH_EXTERNAL_REF = (
     DOCUMENT.replace('    title: Source material\n---\n',
                      '    title: Source material\n' + EXTERNAL_REF_BLOCK + '---\n')
@@ -252,12 +264,12 @@ class ValidateHubTests(unittest.TestCase):
         self.assertEqual(report['warnings'], [])
 
     def test_profile_version_requires_explicit_upgrade(self):
-        for version in ('0.3.0', '0.2.2', '0.2.1', '0.2.0', '0.1.1', '0.5.1', None, 0.4):
+        for version in ('0.8.0', '0.2.2', '0.2.1', '0.2.0', '0.1.1', '0.5.1', None, 0.4):
             with self.subTest(version=version):
                 self.config(lambda c: c.update(profile_version=version))
-                self.validate(False, 'implements profile 0.8.0')
+                self.validate(False, 'implements profile 0.9.0')
         self.config(lambda c: c.pop('profile_version'))
-        self.validate(False, 'implements profile 0.8.0')
+        self.validate(False, 'implements profile 0.9.0')
 
     def test_invalid_remote_copy_policy_does_not_skip_documents(self):
         self.config(lambda c: c['policy'].pop('remote_copy'))
@@ -616,6 +628,80 @@ class ValidateHubTests(unittest.TestCase):
             '# Log\n\n## 2026-09-23\n\n- No material: 00-bronze/orphan.txt\n', encoding='utf-8')
         report = self.validate()
         self.assertEqual(report['warnings'], [])
+
+    def test_supersedes_requires_target_status_deprecated(self):
+        (self.hub / 'knowledge/00-bronze/old-source.md').write_text(
+            BRONZE_DOC.format(status='stable', extra=''), encoding='utf-8')
+        (self.hub / 'knowledge/00-bronze/new-source.md').write_text(
+            BRONZE_DOC.format(status='stable', extra='supersedes: old-source.md\n'),
+            encoding='utf-8')
+        report = self.validate(False, 'status: deprecated')
+        self.assertTrue(any(e['file'] == 'knowledge/00-bronze/new-source.md'
+                            for e in report['errors']))
+
+    def test_supersedes_with_deprecated_target_is_clean(self):
+        (self.hub / 'knowledge/00-bronze/old-source.md').write_text(
+            BRONZE_DOC.format(status='deprecated', extra=''), encoding='utf-8')
+        (self.hub / 'knowledge/00-bronze/new-source.md').write_text(
+            BRONZE_DOC.format(status='stable', extra='supersedes: old-source.md\n'),
+            encoding='utf-8')
+        report = self.validate()
+        self.assertFalse(any('supersede' in e['message'] for e in report['errors']))
+
+    def test_supersedes_self_reference_is_rejected(self):
+        (self.hub / 'knowledge/00-bronze/self-source.md').write_text(
+            BRONZE_DOC.format(status='stable', extra='supersedes: self-source.md\n'),
+            encoding='utf-8')
+        self.validate(False, 'cannot supersede itself')
+
+    def test_supersedes_missing_target_is_violation(self):
+        (self.hub / 'knowledge/00-bronze/new-source.md').write_text(
+            BRONZE_DOC.format(status='stable', extra='supersedes: missing.md\n'),
+            encoding='utf-8')
+        self.validate(False, 'does not exist')
+
+    def test_retrieved_at_requires_iso_datetime_with_timezone(self):
+        path = self.hub / 'knowledge/00-bronze/dated-source.md'
+        path.write_text(BRONZE_DOC.format(status='stable', extra='retrieved_at: 2026-09-23\n'),
+                        encoding='utf-8')
+        self.validate(False, 'retrieved_at must be an ISO 8601 datetime with timezone')
+        path.write_text(
+            BRONZE_DOC.format(status='stable', extra='retrieved_at: 2026-09-23T10:00:00Z\n'),
+            encoding='utf-8')
+        report = self.validate()
+        self.assertFalse(any('retrieved_at' in e['message'] for e in report['errors']))
+
+    def test_source_ref_must_be_nonempty_when_present(self):
+        path = self.hub / 'knowledge/00-bronze/ref-source.md'
+        path.write_text(BRONZE_DOC.format(status='stable', extra='source_ref: ""\n'),
+                        encoding='utf-8')
+        self.validate(False, 'source_ref must be a nonempty string')
+        path.write_text(
+            BRONZE_DOC.format(status='stable', extra='source_ref: "commit abc123"\n'),
+            encoding='utf-8')
+        report = self.validate()
+        self.assertFalse(any('source_ref' in e['message'] for e in report['errors']))
+
+    def test_citing_superseded_bronze_source_is_warned(self):
+        (self.hub / 'knowledge/00-bronze/old-source.md').write_text(
+            BRONZE_DOC.format(status='deprecated', extra=''), encoding='utf-8')
+        (self.hub / 'knowledge/00-bronze/new-source.md').write_text(
+            BRONZE_DOC.format(status='stable', extra='supersedes: old-source.md\n'),
+            encoding='utf-8')
+        self.doc.write_text(
+            DOCUMENT.replace('../00-bronze/source.txt', '../00-bronze/old-source.md'),
+            encoding='utf-8')
+        report = self.validate(True)
+        self.assertTrue(any('newer version' in w['message'] for w in report['warnings']))
+
+    def test_citing_current_bronze_source_is_not_warned(self):
+        (self.hub / 'knowledge/00-bronze/current-source.md').write_text(
+            BRONZE_DOC.format(status='stable', extra=''), encoding='utf-8')
+        self.doc.write_text(
+            DOCUMENT.replace('../00-bronze/source.txt', '../00-bronze/current-source.md'),
+            encoding='utf-8')
+        report = self.validate()
+        self.assertFalse(any('newer version' in w['message'] for w in report['warnings']))
 
     def test_inline_image_reference_and_nested_links(self):
         for link in ('[x](missing.md)', '![x](missing.png)', '[x][bad]\n\n[bad]: missing.md',

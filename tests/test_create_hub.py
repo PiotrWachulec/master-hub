@@ -37,7 +37,7 @@ class CreateHubTests(unittest.TestCase):
         self.assertEqual(config["policy"]["external_actions"], "disabled")
         self.assertEqual(config["policy"]["publication"], "explicit_acceptance")
         self.assertEqual(config["policy"]["remote_copy"], "required_after_validated_task")
-        self.assertEqual(config["profile_version"], "0.8.0")
+        self.assertEqual(config["profile_version"], "0.9.0")
         self.assertEqual(config["default_classification"], "Confidential")
         self.assertEqual(config["conventions"], [])
         self.assertFalse((destination / "conventions").exists())

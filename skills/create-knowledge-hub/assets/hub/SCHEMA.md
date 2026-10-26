@@ -1,4 +1,4 @@
-# Knowledge processing contract — profile 0.8.0
+# Knowledge processing contract — profile 0.9.0
 
 This contract describes work inside a single hub. The OKF 0.2 bundle covers
 only `knowledge/`. Configuration and instructions in the parent directory
@@ -19,6 +19,49 @@ the original's location, the transcription version, and timestamps, if
 available. Record gaps in that information instead of inventing it. Don't
 reduce a source to a summary before the available full text is preserved
 in bronze.
+
+### Source freshness and supersession
+
+A document may optionally record `retrieved_at` (an ISO 8601 datetime
+with timezone — the "fetched this source on" fact, distinct from
+`generated.by`/`generated.at`'s "transcribed/extracted this copy on")
+and `source_ref` (a nonempty free-text version identifier for the
+retrieved copy — a Git commit hash, an HTTP ETag, a documented page
+revision, anything that pins down which version was captured). Both
+are optional; add them when the source actually carries a meaningful
+version signal, not by inventing one when it doesn't.
+
+When a source changes and the hub needs a fresher copy, add a new
+bronze file rather than editing the old one in place — bronze
+preserves the accepted version of an input (see AGENTS.md). Point the
+new file's `supersedes` field at the old one (a local file reference,
+same rules as `sources[].resource`), and set the old file's own
+`status` to `deprecated`. `validate_hub.py` enforces the second half
+of that pair: a `supersedes` target whose `status` isn't `deprecated`
+is a hard error — a "this replaces that" claim the old file doesn't
+actually reflect is worse than no claim at all. A silver/gold document
+whose `sources[].resource` still points at a superseded bronze file
+gets a non-blocking warning naming the newer file; act on it with the
+cascade-update step in "Add material to the base" below. `supersedes`
+only makes sense between documents that carry a `status` field, so it
+points at another `.md` document, not a raw `.txt` dump.
+
+Example:
+
+```yaml
+---
+type: Source
+title: Vendor pricing page (2026-10)
+description: Captured pricing tiers, refreshed from the 2026-04 version.
+status: stable
+generated:
+  by: human:editor
+  at: 2026-10-24T10:00:00Z
+retrieved_at: 2026-10-24T09:40:00Z
+source_ref: page revision 2026-10-18
+supersedes: vendor-pricing-page-2026-04.md
+---
+```
 
 ## Documents and references
 
@@ -266,7 +309,7 @@ also ready to be a citation target.
 `.venv/bin/python -B scripts/validate_hub.py` checks the hub containing the
 script, not the current working directory. Python 3.10+, standard library
 only, no network access, no writes. This is a validator for local profile
-0.8.0, not the full OKF. Scripts always run inside the local virtual
+0.9.0, not the full OKF. Scripts always run inside the local virtual
 environment. If `.venv` doesn't exist, the agent creates it beforehand with
 `python3 -m venv .venv` in the hub directory. On Windows the interpreter is
 at `.venv/Scripts/python.exe`. No system-wide installs; any packages only
@@ -277,7 +320,7 @@ Checks:
 
 - the required scaffold files, the `hub.json` configuration, and every
   `.md` file under knowledge;
-- `profile_version: "0.8.0"` and
+- `profile_version: "0.9.0"` and
   `policy.remote_copy: "required_after_validated_task"`;
 - document frontmatter (outside the closed exception list above): `type`,
   `title`, `description`, `status`, `generated`; `type` must be in
@@ -303,6 +346,12 @@ Checks:
 - `hub.json`'s `conventions` list and the `conventions/` directory stay
   consistent: a declared name with no file is an error, a file with no
   declaration is a warning (see "Conventions").
+- if present, `retrieved_at` is an ISO 8601 datetime with timezone, and
+  `source_ref` is a nonempty string;
+- if present, `supersedes` points to an existing local document, not to
+  itself, and that document's `status` is `deprecated`, else an error;
+  a silver/gold source pointing at a superseded bronze file produces a
+  warning, not an error (see "Source freshness and supersession").
 
 stdout output is a single JSON object: `violations` (error count), `errors`
 and `warnings` (lists of `file`, `line`, `message` objects). stderr
@@ -544,7 +593,10 @@ need.
 
 1. Accept the source into a new bronze file. Check existing inputs to
    avoid a duplicate. An automatic hash registry is planned, not
-   installed.
+   installed. When the source is a fresher copy of something already in
+   bronze, add it as a new file with `supersedes` pointing at the old
+   one, and set the old file's `status` to `deprecated` — see "Source
+   freshness and supersession" above.
 2. Before editing silver, determine the disposition by searching the
    existing wiki for the source's key concepts and synonyms: **New** (new
    articles), **Update** (merge into existing ones), **Disputed**
@@ -563,7 +615,12 @@ need.
    entities and aliases (don't stop at the index) and update every
    materially affected document, refreshing its Updated date. On a
    contradiction, mark both places with a `Status:` block and cross-link
-   them, instead of silently overwriting the older entry.
+   them, instead of silently overwriting the older entry. After
+   superseding a bronze file, this search also covers every silver/gold
+   document still citing the old one — `validate_hub.py` surfaces these
+   as a non-blocking warning naming the newer file, but finding and
+   updating the citations themselves is this step, not an automatic
+   process.
 5. Don't require a business goal and don't create gold. If new knowledge
    affects existing gold, point that out and propose an update; don't
    apply it automatically without a request.
@@ -651,7 +708,7 @@ the other two scopes: `publication` concerns accepting drafts for
 publication, and `external_actions` concerns operational actions, e.g.
 changing a campaign budget. The field doesn't pick a remote and doesn't
 authorize sending to just any destination. It's required under profile
-0.8.0. A missing or different value is a contract inconsistency, not a
+0.9.0. A missing or different value is a contract inconsistency, not a
 local-work mode. An instruction for local-only work is an exception for
 the task, not a configuration change. An older hub without this field
 hasn't automatically adopted this rule; it needs an explicit contract
@@ -665,7 +722,7 @@ agreed main branch as a draft, same as before this field existed.
 `"required_pr"` routes content through the same branch + PR + review
 procedure already used for contract changes, with no self-merge — useful
 once more than one person or agent writes to the same hub, to avoid
-silent overwrites. It's required under profile 0.8.0, with the same rule
+silent overwrites. It's required under profile 0.9.0, with the same rule
 as `remote_copy`: a missing or different value is a contract
 inconsistency, not a default, and an older hub without the field hasn't
 adopted either value automatically.

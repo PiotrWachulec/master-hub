@@ -14,6 +14,27 @@ shape or an existing hub's directory structure.
 
 ## [Unreleased]
 
+### Added
+
+- Optional document fields `retrieved_at` (ISO 8601 datetime with
+  timezone) and `source_ref` (a nonempty version identifier — a commit
+  hash, an ETag, a page revision) for recording when and which version
+  of a source was captured.
+- `supersedes`: a new bronze file points this field at the old file it
+  replaces as the current version of the same source. The old file's
+  `status` must be `deprecated` — `validate_hub.py` rejects a
+  `supersedes` whose target isn't. Bronze itself stays immutable: this
+  formalizes a rule the contract already stated in prose ("later
+  versions as new files") without a field or a check behind it.
+- A non-blocking `validate_hub.py` warning when a silver/gold
+  document's `sources[].resource` still points at a superseded bronze
+  file, naming the newer one. This nudges, but doesn't automate, the
+  existing cascade-update step.
+- `docs/migration-0.9.0.md`.
+
+No breaking CLI change — all three fields are optional document
+frontmatter, outside `hub.json` and the generator's CLI surface.
+
 ## [0.8.0] — 2026-10-25
 
 ### Added
