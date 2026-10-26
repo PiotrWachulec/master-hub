@@ -14,6 +14,8 @@ shape or an existing hub's directory structure.
 
 ## [Unreleased]
 
+## [0.9.0] — 2026-10-26
+
 ### Added
 
 - Optional document fields `retrieved_at` (ISO 8601 datetime with
@@ -37,7 +39,7 @@ shape or an existing hub's directory structure.
   from it.
 - `docs/migration-0.9.0.md`.
 
-No breaking CLI change — all three fields are optional document
+No breaking CLI change — all four fields are optional document
 frontmatter, outside `hub.json` and the generator's CLI surface.
 
 ## [0.8.0] — 2026-10-25
@@ -287,7 +289,8 @@ This profile ships identity only — no cross-hub citation mechanism yet.
   architecture: bronze preserves sources, silver grows a connected wiki,
   gold holds outputs prepared for a specific use.
 
-[Unreleased]: https://github.com/PiotrWachulec/master-hub/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/PiotrWachulec/master-hub/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/PiotrWachulec/master-hub/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/PiotrWachulec/master-hub/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/PiotrWachulec/master-hub/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/PiotrWachulec/master-hub/compare/v0.5.1...v0.6.0
